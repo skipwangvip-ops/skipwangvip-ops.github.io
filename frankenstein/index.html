@@ -72,7 +72,7 @@
   .chapter-title-cn { color:#bfb8d9; font-size:14px; margin-bottom:14px; }
 
   .story-card { background:#f7f1e1; color:#2d2a24; border-radius:20px; padding:22px 20px;
-    font-size:18px; line-height:1.85; box-shadow:0 6px 24px rgba(0,0,0,.35); }
+    font-size:var(--story-fs, 20px); line-height:1.85; box-shadow:0 6px 24px rgba(0,0,0,.35); }
   .story-card p { margin-bottom:14px; position:relative; }
   .story-card p:last-child { margin-bottom:0; }
   /* 句子级高亮:正在朗读的那一句变亮黄 */
@@ -82,8 +82,15 @@
   .gw.learned { color:#2e7d32; border-bottom-color:#2e7d32; }
   .pspk { font-size:14px; opacity:.45; cursor:pointer; margin-left:6px; user-select:none; }
 
-  .read-tools { display:flex; gap:10px; margin:6px 0 14px; }
+  .read-tools { display:flex; gap:10px; margin:6px 0 10px; }
   .read-tools .btn { flex:1; font-size:15px; padding:13px 8px; }
+  .fs-row { display:flex; align-items:center; justify-content:center; gap:8px; margin:0 0 14px;
+    color:#a79fce; font-size:14px; }
+  .fs-btn { background:#2e2856; border:1px solid #4c4380; color:#e8e2ff; border-radius:10px;
+    width:44px; height:38px; font-weight:800; cursor:pointer; font-family:inherit; }
+  .fs-btn:active { transform:scale(.95); }
+  .fs-btn.small { font-size:14px; }
+  .fs-btn.big { font-size:20px; }
   .hint-line { text-align:center; font-size:13px; color:#a79fce; margin-top:10px; line-height:1.8; }
 
   /* ---------- 单词卡弹窗 ---------- */
@@ -249,6 +256,12 @@
     <button class="btn btn-ghost" id="btn-readaloud" onclick="readAloud()">🔊 读给我听</button>
     <button class="btn btn-ghost" id="btn-pause" onclick="pauseToggle()">⏸ 暂停</button>
     <button class="btn btn-ghost" id="btn-rate" onclick="toggleRate()">🐢 慢速</button>
+  </div>
+  <div class="fs-row">
+    <span>字号</span>
+    <button class="fs-btn small" onclick="changeFont(-1)">A－</button>
+    <span id="fs-label" style="min-width:44px;text-align:center">中</span>
+    <button class="fs-btn big" onclick="changeFont(1)">A＋</button>
   </div>
   <div class="story-card" id="story-body"></div>
   <button class="btn btn-primary btn-block" id="btn-quiz" onclick="tryStartQuiz()">✅ 我读完了，去答题</button>
@@ -697,7 +710,7 @@ function continueGame(){ openChapter(firstUndone()); }
 function goHome(){ stopAll(); renderHome(); show("scr-home"); }
 function resetProgress(){
   if (!confirm("确定要清空所有进度和单词册,重新开始吗?")) return;
-  save = { done:{}, stars:{}, words:{}, heard:{}, slow: save.slow, ttsMode: save.ttsMode }; persist(); renderHome(); toast("已重新开始 ✨");
+  save = { done:{}, stars:{}, words:{}, heard:{}, slow: save.slow, ttsMode: save.ttsMode, fontIdx: save.fontIdx }; persist(); renderHome(); toast("已重新开始 ✨");
 }
 
 /* =====================================================
@@ -728,6 +741,7 @@ function openChapter(i){
   save.heard = save.heard || {};
   heardSet = new Set(save.heard[ch.id] || []);
   updateQuizGate();
+  applyFont();
   show("scr-read");
 }
 function backToRead(){ openChapter(cur); }
@@ -1011,6 +1025,24 @@ function showSound(){
   show("scr-sound");
 }
 
+/* ===== 阅读字号(可调, 记忆) ===== */
+const FONT_STEPS = [17, 20, 23, 27, 31];      // px
+const FONT_NAMES = ["小", "中", "大", "特大", "超大"];
+function applyFont(){
+  let i = (save.fontIdx == null) ? 1 : save.fontIdx;   // 默认"中"=20px(比原来大一档)
+  i = Math.max(0, Math.min(FONT_STEPS.length - 1, i));
+  document.documentElement.style.setProperty("--story-fs", FONT_STEPS[i] + "px");
+  const lbl = document.getElementById("fs-label");
+  if (lbl) lbl.textContent = FONT_NAMES[i];
+}
+function changeFont(d){
+  let i = (save.fontIdx == null) ? 1 : save.fontIdx;
+  i = Math.max(0, Math.min(FONT_STEPS.length - 1, i + d));
+  save.fontIdx = i; persist(); applyFont();
+  toast("字号:" + FONT_NAMES[i]);
+}
+
+applyFont();
 ttsInit();
 detectAudio();
 renderHome();
