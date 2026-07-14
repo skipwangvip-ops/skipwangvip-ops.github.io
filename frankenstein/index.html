@@ -410,6 +410,7 @@ function splitSents(text){
   return out;
 }
 function stopAll(){
+  if (RS){ clearTimeout(RS._gap); }
   RS = null;
   TTS.playing = false; TTS.queue = [];
   clearInterval(TTS.keepAlive);
@@ -589,7 +590,10 @@ function rsStep(){
     if (it.si === paraSentCount(it.pi) - 1) markHeard(it.pi);   // 该段最后一句读完 → 记已听
     if (!RS || RS.paused) return;
     RS.pos++;
-    rsStep();
+    // 句间留一点换气停顿(慢速时更长), 高亮先跳到下一句让孩子准备
+    const gap = save.slow ? 620 : 380;
+    if (RS.pos < RS.items.length) highlightSent(RS.items[RS.pos]);
+    RS._gap = setTimeout(()=>{ if (RS && !RS.paused) rsStep(); }, gap);
   });
 }
 function prefetchNext(){
@@ -614,6 +618,7 @@ function pauseToggle(){
 function readPause(){
   if (!RS) return;
   RS.paused = true;
+  clearTimeout(RS._gap);                   // 清掉句间停顿定时器, 防恢复时重复播
   try{ if (TTS.player) TTS.player.pause(); }catch(e){}
   try{ if ("speechSynthesis" in window) speechSynthesis.pause(); }catch(e){}
   setPauseUI();
@@ -621,6 +626,7 @@ function readPause(){
 function readResume(){
   if (!RS) return;
   RS.paused = false;
+  clearTimeout(RS._gap);
   setPauseUI();
   let resumed = false;
   try{ if (TTS.player && TTS.player.src && TTS.player.paused){ TTS.player.play(); resumed = true; } }catch(e){}
