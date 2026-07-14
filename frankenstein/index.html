@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Frankenstein · 阅读大冒险</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: linear-gradient(180deg,#1a1f3c 0%,#2b2350 60%,#3a2c5e 100%);
+    color:#f3efe4; min-height:100%; overflow-x:hidden;
+  }
+  .screen { display:none; max-width:760px; margin:0 auto; padding:24px 20px 48px; min-height:100vh; }
+  .screen.active { display:block; animation:fadein .35s ease; }
+  @keyframes fadein { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+
+  /* ---------- 首页 ---------- */
+  .title-zone { text-align:center; margin:20px 0 8px; }
+  .title-zone .bolt { font-size:44px; }
+  h1.game-title { font-size:28px; letter-spacing:1px; margin-top:6px;
+    background:linear-gradient(90deg,#ffe082,#a5ffb0,#8ecfff);
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .subtitle { color:#bfb8d9; font-size:14px; margin-top:6px; }
+
+  .stat-row { display:flex; gap:10px; margin:18px 0 6px; }
+  .stat-box { flex:1; background:#262148; border:1px solid #443b74; border-radius:16px;
+    padding:12px 8px; text-align:center; }
+  .stat-box .num { font-size:22px; font-weight:800; color:#ffd54f; }
+  .stat-box .lbl { font-size:12px; color:#a79fce; margin-top:3px; }
+
+  .progress-wrap { background:#241f42; border-radius:10px; height:14px; margin:12px 0 4px; overflow:hidden; }
+  .progress-bar { height:100%; background:linear-gradient(90deg,#66bb6a,#ffd54f); border-radius:10px;
+    transition:width .5s; }
+  .progress-label { text-align:center; font-size:12px; color:#a79fce; margin-bottom:10px; }
+
+  .section-head { display:flex; align-items:center; gap:10px; margin:26px 0 4px; }
+  .section-head .s-icon { font-size:22px; }
+  .section-head .s-name { font-size:16px; font-weight:800; color:#ffd54f; }
+  .section-head .s-en { font-size:12px; color:#8d84b8; }
+
+  .map-node { display:flex; align-items:center; gap:14px; background:#262148;
+    border:1px solid #443b74; border-radius:18px; padding:14px 16px; margin:10px 0;
+    cursor:pointer; transition:transform .12s; }
+  .map-node:active { transform:scale(.98); }
+  .map-node.locked { opacity:.42; cursor:default; }
+  .map-node.next { border-color:#ffd54f; box-shadow:0 0 12px rgba(255,213,79,.25); }
+  .map-node .icon { font-size:30px; width:44px; text-align:center; }
+  .map-node .info { flex:1; min-width:0; }
+  .map-node .name { font-size:16px; font-weight:700; }
+  .map-node .place { font-size:12px; color:#a79fce; margin-top:3px; }
+  .map-node .state { font-size:18px; min-width:60px; text-align:right; }
+  .badge-done { color:#ffd54f; letter-spacing:1px; }
+
+  .toolbar { display:flex; gap:12px; margin-top:24px; }
+  .btn { border:none; border-radius:16px; padding:15px 20px; font-size:16px; font-weight:700;
+    cursor:pointer; font-family:inherit; color:#2b1a00; }
+  .btn:active { transform:scale(.97); }
+  .btn-primary { background:linear-gradient(90deg,#ffb300,#ff8f00); }
+  .btn-ghost { background:#2e2856; color:#e8e2ff; border:1px solid #4c4380; }
+  .btn-block { display:block; width:100%; }
+  .toolbar .btn { flex:1; }
+  .btn-continue { margin-top:16px; font-size:17px; }
+
+  /* ---------- 阅读页 ---------- */
+  .chapter-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap; }
+  .back-btn { background:#2e2856; border:1px solid #4c4380; color:#e8e2ff; border-radius:12px;
+    padding:8px 14px; font-size:15px; cursor:pointer; font-family:inherit; }
+  .chapter-tag { font-size:13px; color:#ffd54f; letter-spacing:2px; }
+  h2.chapter-title { font-size:23px; margin:10px 0 2px; }
+  .chapter-title-cn { color:#bfb8d9; font-size:14px; margin-bottom:14px; }
+
+  .story-card { background:#f7f1e1; color:#2d2a24; border-radius:20px; padding:22px 20px;
+    font-size:18px; line-height:1.85; box-shadow:0 6px 24px rgba(0,0,0,.35); }
+  .story-card p { margin-bottom:14px; position:relative; }
+  .story-card p:last-child { margin-bottom:0; }
+  /* 句子级高亮:正在朗读的那一句变亮黄 */
+  .story-card .sent { border-radius:6px; transition:background .12s, box-shadow .12s; }
+  .story-card .sent.speaking { background:#ffe36b; box-shadow:0 0 0 4px #ffe36b; }
+  .gw { color:#8e24aa; font-weight:700; border-bottom:2px dotted #8e24aa; cursor:pointer; }
+  .gw.learned { color:#2e7d32; border-bottom-color:#2e7d32; }
+  .pspk { font-size:14px; opacity:.45; cursor:pointer; margin-left:6px; user-select:none; }
+
+  .read-tools { display:flex; gap:10px; margin:6px 0 14px; }
+  .read-tools .btn { flex:1; font-size:15px; padding:13px 8px; }
+  .hint-line { text-align:center; font-size:13px; color:#a79fce; margin-top:10px; line-height:1.8; }
+
+  /* ---------- 单词卡弹窗 ---------- */
+  .overlay { position:fixed; inset:0; background:rgba(10,8,26,.72); display:none;
+    align-items:center; justify-content:center; z-index:50; padding:24px; }
+  .overlay.show { display:flex; }
+  .word-card { background:#fffef8; color:#2d2a24; border-radius:22px; padding:24px 22px;
+    width:100%; max-width:420px; text-align:center; animation:pop .22s ease; }
+  @keyframes pop { from{transform:scale(.85); opacity:0;} to{transform:none; opacity:1;} }
+  .word-card .w-emoji { font-size:38px; }
+  .word-card .w-word { font-size:29px; font-weight:800; color:#6a1b9a; margin-top:6px; word-break:break-word; }
+  .word-card .w-cn { font-size:20px; margin-top:8px; }
+  .word-card .w-eg { font-size:15px; color:#6d675c; margin-top:12px; line-height:1.6; font-style:italic; }
+  .word-card .w-collect { margin-top:10px; font-size:13px; color:#2e7d32; }
+  .word-card .btn { margin-top:14px; }
+
+  /* ---------- 答题页 ---------- */
+  .quiz-progress { font-size:14px; color:#ffd54f; margin:8px 0 14px; letter-spacing:1px; }
+  .question-card { background:#262148; border:1px solid #443b74; border-radius:20px; padding:20px; }
+  .question-text { font-size:19px; line-height:1.6; font-weight:700; }
+  .question-cn { font-size:13px; color:#a79fce; margin-top:6px; }
+  .options { margin-top:18px; }
+  .option { background:#312a5e; border:2px solid #4c4380; border-radius:16px; padding:15px;
+    font-size:16px; margin:10px 0; cursor:pointer; transition:all .15s; line-height:1.5; }
+  .option:active { transform:scale(.98); }
+  .option.right { background:#1b5e20; border-color:#66bb6a; }
+  .option.wrong { background:#7f1d1d; border-color:#ef5350; animation:shake .3s; }
+  @keyframes shake { 0%,100%{transform:none;} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+  .quiz-feedback { min-height:30px; text-align:center; font-size:16px; margin-top:12px; }
+  /* 题型小标签 */
+  .q-kind { display:inline-block; font-size:12px; font-weight:800; color:#2b1a00;
+    background:#ffd54f; border-radius:20px; padding:4px 12px; margin-bottom:12px; }
+  /* 判断对错 */
+  .tf-row { display:flex; gap:12px; margin-top:18px; }
+  .tf-row .option { flex:1; text-align:center; font-size:20px; font-weight:800; margin:0; }
+  /* 选词填空 */
+  .blank { display:inline-block; min-width:64px; border-bottom:3px solid #ffd54f; color:#ffd54f;
+    font-weight:800; text-align:center; margin:0 4px; }
+  .blank.filled { border-bottom-color:#66bb6a; color:#a5ffb0; }
+  .chip-box { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+  .chip { background:#312a5e; border:2px solid #4c4380; border-radius:14px; padding:12px 18px;
+    font-size:17px; cursor:pointer; transition:all .15s; }
+  .chip:active { transform:scale(.96); }
+  .chip.right { background:#1b5e20; border-color:#66bb6a; }
+  .chip.wrong { background:#7f1d1d; border-color:#ef5350; animation:shake .3s; }
+  /* 谁说的 */
+  .quote-bubble { background:#f7f1e1; color:#2d2a24; border-radius:16px; padding:16px 18px;
+    font-size:19px; font-style:italic; line-height:1.5; position:relative; margin:4px 0 4px; }
+  .quote-bubble::after { content:""; position:absolute; left:28px; bottom:-12px; border:8px solid transparent;
+    border-top-color:#f7f1e1; border-bottom:0; }
+  /* 排序 */
+  .order-item { display:flex; align-items:center; gap:12px; background:#312a5e; border:2px solid #4c4380;
+    border-radius:16px; padding:14px; margin:10px 0; font-size:16px; cursor:pointer; line-height:1.45; }
+  .order-item:active { transform:scale(.98); }
+  .order-item.placed { background:#1b5e20; border-color:#66bb6a; cursor:default; }
+  .order-item.wrong { animation:shake .3s; border-color:#ef5350; }
+  .order-badge { width:28px; height:28px; border-radius:50%; background:#4c4380; color:#e8e2ff;
+    font-weight:800; display:flex; align-items:center; justify-content:center; flex:0 0 auto; font-size:15px; }
+  .order-item.placed .order-badge { background:#ffd54f; color:#2b1a00; }
+
+  /* ---------- 奖励页 ---------- */
+  .reward-zone { text-align:center; padding-top:56px; }
+  .reward-part { font-size:92px; animation:drop .6s cubic-bezier(.2,1.4,.4,1); display:inline-block; }
+  @keyframes drop { from{transform:translateY(-80px) scale(.4); opacity:0;} to{transform:none; opacity:1;} }
+  .reward-title { font-size:24px; font-weight:800; margin-top:14px; color:#ffd54f; }
+  .reward-sub { color:#bfb8d9; margin-top:10px; font-size:16px; line-height:1.8; }
+  .reward-stars { font-size:30px; margin-top:12px; letter-spacing:6px; }
+  .reward-zone .btn { margin-top:26px; }
+
+  /* ---------- 单词册 & 收藏馆 ---------- */
+  .wb-chapter { font-size:14px; font-weight:800; color:#ffd54f; margin:18px 0 4px; }
+  .wb-item { background:#262148; border:1px solid #443b74; border-radius:16px; padding:12px 16px;
+    margin:8px 0; display:flex; align-items:center; gap:12px; }
+  .wb-item .wb-emoji { font-size:24px; }
+  .wb-item .wb-main { flex:1; min-width:0; }
+  .wb-item .wb-word { font-weight:800; font-size:17px; color:#ce93d8; word-break:break-word; }
+  .wb-item .wb-cn { font-size:14px; color:#cfc8ea; margin-top:2px; }
+  .wb-item .wb-sound { font-size:22px; cursor:pointer; padding:4px; }
+  .wb-empty { text-align:center; color:#a79fce; margin-top:60px; line-height:2; }
+  .shelf-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:10px; margin-top:16px; }
+  .shelf-cell { background:#262148; border:1px solid #443b74; border-radius:16px; padding:12px 6px;
+    text-align:center; }
+  .shelf-cell .c-emoji { font-size:30px; }
+  .shelf-cell .c-name { font-size:12px; color:#cfc8ea; margin-top:6px; }
+  .shelf-cell.miss { opacity:.32; filter:grayscale(1); }
+
+  .toast { position:fixed; left:50%; bottom:34px; transform:translateX(-50%);
+    background:#ffd54f; color:#3a2a00; font-weight:700; padding:12px 22px; border-radius:30px;
+    font-size:15px; display:none; z-index:60; box-shadow:0 4px 18px rgba(0,0,0,.4);
+    max-width:86vw; text-align:center; }
+  .toast.show { display:block; animation:fadein .25s ease; }
+</style>
+</head>
+<body>
+
+<!-- ============ 首页 ============ -->
+<div class="screen active" id="scr-home">
+  <div class="title-zone">
+    <div class="bolt">⚡🧪⚡</div>
+    <h1 class="game-title">FRANKENSTEIN</h1>
+    <div class="subtitle">阅读大冒险 · 读完这本书，点亮整座实验室</div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-box"><div class="num" id="st-ch">0</div><div class="lbl">已通关章节</div></div>
+    <div class="stat-box"><div class="num" id="st-star">0</div><div class="lbl">获得星星</div></div>
+    <div class="stat-box"><div class="num" id="st-word">0</div><div class="lbl">收集单词</div></div>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="prog-bar" style="width:0%"></div></div>
+  <div class="progress-label" id="prog-label"></div>
+
+  <button class="btn btn-primary btn-block btn-continue" id="btn-continue" onclick="continueGame()">▶️ 继续冒险</button>
+
+  <div id="map"></div>
+
+  <div class="toolbar">
+    <button class="btn btn-ghost" onclick="showWordbook()">📖 单词册 <span id="wb-count"></span></button>
+    <button class="btn btn-ghost" onclick="showShelf()">🏆 收藏馆</button>
+    <button class="btn btn-ghost" onclick="resetProgress()">🔄 重置</button>
+  </div>
+  <div class="toolbar">
+    <button class="btn btn-ghost" onclick="showSound()">🔧 朗读没声音?点这里检测</button>
+  </div>
+</div>
+
+<!-- ============ 声音检测 ============ -->
+<div class="screen" id="scr-sound">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag">SOUND CHECK</span>
+  </div>
+  <h2 class="chapter-title">🔧 声音检测</h2>
+  <div class="chapter-title-cn">先把平板的<b>媒体音量</b>调大,再依次点下面的按钮</div>
+  <button class="btn btn-ghost btn-block" style="margin:10px 0" onclick="testFile()">▶️ 测试⓪ 音频文件(推荐)</button>
+  <button class="btn btn-ghost btn-block" style="margin:10px 0" onclick="testLocal()">▶️ 测试① 本地发音引擎</button>
+  <button class="btn btn-ghost btn-block" style="margin:10px 0" onclick="testOnline()">▶️ 测试② 在线发音(需联网)</button>
+  <div class="chapter-title-cn" style="margin-top:18px">哪个有声音,就选用哪个:</div>
+  <div class="toolbar" style="margin-top:8px">
+    <button class="btn btn-ghost" id="m-auto" onclick="setMode('auto')">🤖 自动</button>
+    <button class="btn btn-ghost" id="m-recorded" onclick="setMode('recorded')">⓪ 音频</button>
+    <button class="btn btn-ghost" id="m-local" onclick="setMode('local')">① 本地</button>
+    <button class="btn btn-ghost" id="m-online" onclick="setMode('online')">② 在线</button>
+  </div>
+  <div class="hint-line" style="margin-top:22px; text-align:left">
+    都没声音时请检查:<br>
+    · 平板<b>媒体音量</b>是否调大(和铃声音量是两回事)<br>
+    · 是否连着<b>蓝牙耳机/音箱</b>——声音可能被送去了别的设备<br>
+    · 微信里打开的话,点右上角 ⋯ 选择<b>"在浏览器打开"</b>再试<br>
+    · 先在浏览器里放一个视频:视频也没声就是平板设置问题
+  </div>
+  <div class="hint-line" style="margin-top:12px; text-align:left; opacity:.7" id="snd-diag"></div>
+</div>
+
+<!-- ============ 阅读页 ============ -->
+<div class="screen" id="scr-read">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag" id="read-tag"></span>
+  </div>
+  <h2 class="chapter-title" id="read-title"></h2>
+  <div class="chapter-title-cn" id="read-title-cn"></div>
+  <div class="read-tools">
+    <button class="btn btn-ghost" id="btn-readaloud" onclick="readAloud()">🔊 读给我听</button>
+    <button class="btn btn-ghost" id="btn-pause" onclick="pauseToggle()">⏸ 暂停</button>
+    <button class="btn btn-ghost" id="btn-rate" onclick="toggleRate()">🐢 慢速</button>
+  </div>
+  <div class="story-card" id="story-body"></div>
+  <button class="btn btn-primary btn-block" id="btn-quiz" onclick="tryStartQuiz()">✅ 我读完了，去答题</button>
+  <div class="hint-line">💡 点"🔊 读给我听"把整章听完就能解锁答题 · 每段末尾的 🔊 可单独听一段 · 紫色单词点一下有惊喜</div>
+</div>
+
+<!-- ============ 答题页 ============ -->
+<div class="screen" id="scr-quiz">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="backToRead()">← 回去再读读</button>
+    <span class="chapter-tag" id="quiz-tag"></span>
+  </div>
+  <div class="quiz-progress" id="quiz-progress"></div>
+  <div class="question-card">
+    <div class="q-kind" id="q-kind"></div>
+    <div class="question-text" id="q-text"></div>
+    <div class="question-cn" id="q-cn"></div>
+    <div class="options" id="q-options"></div>
+  </div>
+  <div class="quiz-feedback" id="quiz-feedback"></div>
+</div>
+
+<!-- ============ 奖励页 ============ -->
+<div class="screen" id="scr-reward">
+  <div class="reward-zone">
+    <div class="reward-part" id="reward-part"></div>
+    <div class="reward-title" id="reward-title"></div>
+    <div class="reward-stars" id="reward-stars"></div>
+    <div class="reward-sub" id="reward-sub"></div>
+    <button class="btn btn-primary btn-block" onclick="goHome()">🗺 回到地图，继续冒险</button>
+  </div>
+</div>
+
+<!-- ============ 单词册 ============ -->
+<div class="screen" id="scr-wordbook">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag">MY WORD BOOK</span>
+  </div>
+  <h2 class="chapter-title">📖 我的单词册</h2>
+  <div id="wordbook-list"></div>
+</div>
+
+<!-- ============ 收藏馆 ============ -->
+<div class="screen" id="scr-shelf">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag">COLLECTION</span>
+  </div>
+  <h2 class="chapter-title">🏆 我的收藏馆</h2>
+  <div class="chapter-title-cn">每通关一章，就能获得一件故事纪念品</div>
+  <div class="shelf-grid" id="shelf-grid"></div>
+</div>
+
+<!-- 单词卡弹窗 -->
+<div class="overlay" id="word-overlay" onclick="closeWordCard(event)">
+  <div class="word-card" id="word-card"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ======== 数据(由构建脚本注入) ======== */
+const BOOK = [{"id":"u00","section":"Walton's Narrative","tag":"PROLOGUE","title_en":"Letters from the Ice","title_cn":"\u51b0\u6d77\u6765\u4fe1","teaser_cn":"\u5317\u6781\u63a2\u9669\u8239\u4e0a\uff0c\u51fa\u73b0\u4e86\u4e00\u4f4d\u795e\u79d8\u7684\u964c\u751f\u4eba\u2026\u2026","icon":"\ud83e\udded","itemName":"\u63a2\u9669\u7f57\u76d8","words":877,"paras":["To Mrs Margaret Saville, England","Saint Petersburgh, 11 December 17\u2014","My dear sister,","I arrived here yesterday, in good health and full of hope. The cold wind from the north fills me with excitement I dream of the North Pole, the goal of my voyage. In my dream it is a beautiful place where the sun never sets, and I will be the first man to walk upon its virgin snow. I am not afraid of danger or death. Who knows? I might find a passage to the East that will help our traders, or perhaps I will discover something useful to science. So do not worry about me, Margaret. You know that I always wanted to be an explorer, except for the few years when I tried to be a poet and failed. Ever since I inherited my fortune six years ago, I have dreamt of this voyage. In two weeks I will go to Archangel to hire a ship and a crew. In June we will sail north. When will I return to you? I do not know. If I succeed, years will pass before we meet again. If I fail, you will see me soon or never.","Goodbye, my dear Margaret.","Your affectionate brother,","R. Walton","To Mrs Saville, England","Archangel, 28 March 17\u2014","I have hired a ship and crew. The men are brave and diligent, but I have no friend. I have no one to talk to about my hopes and fears. I will not find a friend here at Archangel or on the sea.","As I wait for the voyage to begin, I am full of excitement. Sometimes I am happy. At other times I am afraid. Will I see you again, dear Margaret? Write to me often. Your letters comfort me. If you never hear from me again, remember me with affection.","Your brother,","Robert Walton","To Mrs Saville, England","7 July 17\u2014","My dear sister,","The voyage has begun at last. I am well and in good spirits. * Although great sheets of ice float past us on the sea, it is summer, and warm winds blow us north. Now I feel sure that I will succeed! Goodbye, Margaret!","Robert","To Mrs Saville, England","5 August 17\u2014","I must tell you about the strange thing that has happened. Last Monday we were surrounded by ice. The ship could not move. We were very far from land. We waited anxiously, looking out at the ice, which stretched to the horizon. Suddenly, we saw a sledge 1 pulled by dogs going north. A gigantic man drove the sledge. We watched until he disappeared from sight.","Later the ice broke, and we were able to move again. The next morning, we found another sledge on a floating sheet of ice in the sea. The man in this sledge was weak, tired, and half-frozen. We invited him onto the ship, but he said, 'Tell me first where you are going.' When I told him we were going north, he climbed onto the ship. We gave him food and warm clothes. For two days he was very ill, and I feared he had gone mad. When he had recovered a little, I asked him what he was doing alone on the ice.","'I am following someone,' he said.","'Someone who is also travelling alone on a sledge?' I asked. 'Yes.'","'Then I think we have seen him.'","He asked many questions about 'the devil', as he called the other man. Which way was he travelling? Did I think that the breaking of the ice had destroyed the other sledge? From that moment, he was full of energy and purpose. He is an interesting man, and I like him very much. I wrote in one of my letters that I would not find a friend on the sea, but maybe I was wrong. I cannot send this letter, so I will continue it as a journal2 to send you when I can.","Extracts from Walton's Journal","13 August 17\u2014","The man's name is Victor Frankenstein. I like him more every day. I admire him and pity him. He speaks well, he is intelligent and sensitive, but he has some secret sadness.","Now that he is a little stronger, he spends all his time on the deck, 1 watching for the other sledge. I watch with him, talking about my hopes for this voyage. One day I told him of my ambitions to gain knowledge and succeed where other men have failed. My words disturbed him.","'Unhappy man!' he said, 'Do you share my madness? Let me tell you my story, and I hope it will be a warning to you.'","He was too ill to continue.","19 August 17\u2014","Yesterday the stranger said to me, 'I have had a very unhappy life. I want to tell my story to you, because you too are ambitious. You want knowledge and wisdom, as I once did.' Today he will begin to tell me his tale. Every night I will write down his words. You must be eager to read his story. Think, then, how eager I am. I know him. I can hear his wonderful voice and see his shining eyes. How awful must be the tale that has ruined such a man!"],"quiz":[{"q":"Where does Walton want to go on his voyage?","cn":"\u6c83\u5c14\u987f\u8fd9\u6b21\u822a\u884c\u60f3\u53bb\u54ea\u91cc\uff1f","options":["The South Pole","The North Pole","America"],"answer":1},{"type":"tf","q":"Victor became upset when Walton spoke about wanting to gain knowledge and succeed where other men had failed.","cn":"\u7ef4\u514b\u591a\u542c\u6c83\u5c14\u987f\u8bb2\u8ff0\u81ea\u5df1\u6e34\u671b\u83b7\u5f97\u77e5\u8bc6\u3001\u8d85\u8d8a\u524d\u4eba\u7684\u96c4\u5fc3\u65f6\uff0c\u611f\u5230\u5fc3\u70e6\u4e0d\u5b89\u3002","answer":true},{"q":"What did Walton and his men see first on the ice?","cn":"\u6c83\u5c14\u987f\u548c\u8239\u5458\u4eec\u6700\u5148\u5728\u51b0\u4e0a\u770b\u5230\u4e86\u4ec0\u4e48\uff1f","options":["A giant man on a sledge pulled by dogs","A big white bear","Another ship stuck in the ice"],"answer":0},{"type":"who","q":"Unhappy man! Do you share my madness? Let me tell you my story, and I hope it will be a warning to you.","cn":"\u201c\u4e0d\u5e78\u7684\u4eba\u554a\uff01\u4f60\u4e5f\u548c\u6211\u4e00\u6837\u75af\u72c2\u5417\uff1f\u8ba9\u6211\u628a\u6211\u7684\u6545\u4e8b\u544a\u8bc9\u4f60\uff0c\u5e0c\u671b\u5b83\u80fd\u7ed9\u4f60\u4e00\u4e2a\u8b66\u793a\u3002\u201d","options":["Victor","Walton","Elizabeth"],"answer":0},{"q":"Why is Walton so happy to meet the stranger?","cn":"\u4e3a\u4ec0\u4e48\u6c83\u5c14\u987f\u9047\u5230\u8fd9\u4f4d\u964c\u751f\u4eba\u8fd9\u4e48\u9ad8\u5174\uff1f","options":["The stranger gives him money","The stranger knows the way to the North Pole","Walton is lonely and wants a friend"],"answer":2}]},{"id":"u01","section":"Frankenstein's Narrative","tag":"CHAPTER 1","title_en":"A Boy Who Loved Science","title_cn":"\u7231\u79d1\u5b66\u7684\u5c11\u5e74","teaser_cn":"\u4e00\u5802\u5316\u5b66\u8bfe\uff0c\u70b9\u71c3\u4e86\u5371\u9669\u7684\u91ce\u5fc3\u2026\u2026","icon":"\ud83d\udcda","itemName":"\u79d1\u5b66\u4e4b\u4e66","words":437,"paras":["I was born in Geneva. My father was a {magistrate}. I had a little brother called William and an {adopted} sister called Elizabeth. My parents found Elizabeth living with a poor family in Italy. She was {gentle} and very beautiful, with golden hair and blue eyes. Her {real} parents, an Italian {nobleman} and a German lady, were both dead. My mother and father adopted Elizabeth and brought her to our home.","Elizabeth and I {grew up} together, and we were very happy. I spent my days with Elizabeth, William, and my dear friend Henry Clerval. Henry wanted to be a {poet}. He loved nature and beauty, but I was interested in {science}. I {wished} to make some great {scientific discovery}. I wanted {wisdom} and {knowledge}, and I wanted to {succeed} where other men had {failed}.","When I was seventeen, my parents decided to send me to the {university} at Ingolstadt, but my {departure} was {delayed} by the first {misfortune} of my life. Elizabeth became ill with scarlet {fever}, and my mother {nursed} her. Slowly Elizabeth {recovered}, but my mother {caught the illness} from her. When my poor mother was dying, she called us to her bedside and said, 'Dear Victor and Elizabeth, your father and I hope that one day you two will marry. Be happy, my children, and {take care of} little William.'","She died calmly. How can I {describe} our {sadness}? There is no need. Everyone knows that sadness, or will know it one day. A few weeks {later} I went to the university in Ingolstadt. I walked around the town {during} the first three days. I met some of my {professors} and {fellow students}, but I felt {lonely} and {disappointed}. I had no {desire} to study. Then I went to hear a {lecture} by Mr Waldman, the professor of {chemistry}. {At the end of} the lecture, he {spoke of} {modern chemistry} in words I will never forget.","'Modern {chemists} can {perform miracles},' he said. 'They have followed Nature to her hiding places. They have {penetrated} her secrets. They have {discovered} how the blood {circulates}. They understand the {nature} of {thunder storms} and {earthquakes}. They are like gods.","Those were the professor's words --- or I he words of {Fate} --- {spoken} to destroy me. I left the lecture {full of} a new {ambition}. 'I will discover new things in science,' I thought. 'I will explain the {mysteries} of {creation}.'","'The next day I went to Mr Waldman. 'I wish to be your student,' I said. He showed me his {laboratory} and told me what books to read. My future was decided."],"quiz":[{"q":"Who is Elizabeth to Victor?","cn":"\u4f0a\u4e3d\u838e\u767d\u662f\u7ef4\u514b\u591a\u7684\u4ec0\u4e48\u4eba\uff1f","options":["His adopted sister","His teacher","His cousin from Germany"],"answer":0},{"type":"fill","q":"Mr Waldman was the professor of ___.","cn":"\u74e6\u5c14\u5fb7\u66fc\u5148\u751f\u662f___\u5b66\u6559\u6388\u3002","options":["chemistry","history","music"],"answer":0},{"q":"How did Victor's mother become ill?","cn":"\u7ef4\u514b\u591a\u7684\u6bcd\u4eb2\u662f\u600e\u4e48\u751f\u75c5\u7684\uff1f","options":["She fell into a cold river","She got old and weak","She caught the fever while caring for Elizabeth"],"answer":2},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["Victor grows up happily with Elizabeth and Henry","Victor goes to the university at Ingolstadt","Victor hears Mr Waldman's lecture on chemistry"]},{"q":"Why did Victor never forget Mr Waldman's lecture?","cn":"\u4e3a\u4ec0\u4e48\u7ef4\u514b\u591a\u6c38\u8fdc\u5fd8\u4e0d\u4e86\u74e6\u5c14\u5fb7\u66fc\u5148\u751f\u7684\u90a3\u5802\u8bfe\uff1f","options":["The lecture was very funny","It gave him a new ambition and decided his future","It was his last day at school"],"answer":1}]},{"id":"u02","section":"Frankenstein's Narrative","tag":"CHAPTER 2","title_en":"The Secret of Life","title_cn":"\u751f\u547d\u7684\u79d8\u5bc6","teaser_cn":"\u7ef4\u514b\u591a\u5728\u9601\u697c\u91cc\u65e5\u591c\u82e6\u5e72\uff0c\u4ed6\u5728\u9020\u4ec0\u4e48\uff1f","icon":"\u2697\ufe0f","itemName":"\u5316\u5b66\u70e7\u74f6","words":348,"paras":["I was a {diligent} student. I became very interested in the human body. 'Where does life come from?' I asked myself. {To} {study} life you must also study death. I began to work with dead bodies. I studied the {progress of} their {decay}. I {examined} the change from life to death and from death to life. Then one day I suddenly understood. I was surprised that nobody had discovered the secret before. I had {succeeded} where other men had {failed}.","I am not {mad}. I swear it is true. After days and nights of work, I discovered how life was {created}. I, myself was able to create life.","I can see by your {eager expression}, my friend, that you want me to tell you the secret. I will not tell you, and soon you will understand why not. Listen to my story, and learn from my {example}. {Knowledge} is dangerous. An {ambitious} man is not a happy man.","My first task was to create a body. I worked day and night. I grew thin and {pale}, but I continued to work. The moon {watched} me through the window as I {uncovered} the secrets of {Nature}. What {horrible} work it was! I {explored} dead bodies and {tortured} living animals, but my work did not seem horrible to me then. I thought that I had {conquered} death. I would be the {creator} of a new {race} of happy and excellent creatures!","All summer I worked on my {filthy} creation in a lonely {attic} room. I did not see the sunshine, the flowers, or the green leaves. I did not write to my family or think about them. I {thought only of} my work.","Any ambition that makes you forget the people you love and the {simple pleasures} of {ordinary} life is bad. The leaves fell from the trees, and still I worked. I became {anxious} and {nervous}. I {avoided} other people. I hid myself like a {criminal}. My creation was nearly done. Soon it would be finished, and then, I promised myself, I would rest and {recover} my health."],"quiz":[{"q":"What great secret did Victor discover?","cn":"\u7ef4\u514b\u591a\u53d1\u73b0\u4e86\u4ec0\u4e48\u5927\u79d8\u5bc6\uff1f","options":["How to fly","How to create life","How to read minds"],"answer":1},{"type":"tf","q":"Victor grew thin and pale while he worked on his creation.","cn":"\u7ef4\u514b\u591a\u5728\u9020\u7269\u7684\u8fc7\u7a0b\u4e2d\u53d8\u5f97\u53c8\u7626\u53c8\u82cd\u767d\u3002","answer":true},{"q":"Where did Victor work on his creation all summer?","cn":"\u6574\u4e2a\u590f\u5929\u7ef4\u514b\u591a\u5728\u54ea\u91cc\u8fdb\u884c\u4ed6\u7684\u521b\u9020\u5de5\u4f5c\uff1f","options":["In a lonely attic room","In the university library","In his father's house in Geneva"],"answer":0},{"type":"fill","q":"All summer Victor ___ of his work and forgot his family.","cn":"\u6574\u4e2a\u590f\u5929\u7ef4\u514b\u591a\u6ee1\u8111\u5b50\u53ea___\u5de5\u4f5c\uff0c\u5fd8\u8bb0\u4e86\u5bb6\u4eba\u3002","options":["thought only","dreamed only","spoke only"],"answer":0},{"q":"Why does Victor tell Walton that knowledge is dangerous?","cn":"\u4e3a\u4ec0\u4e48\u7ef4\u514b\u591a\u544a\u8bc9\u6c83\u5c14\u987f\"\u77e5\u8bc6\u662f\u5371\u9669\u7684\"\uff1f","options":["Because books are too heavy to carry","Because school is too hard","Because his own ambition made him forget his family and lose his happiness"],"answer":2}]},{"id":"u03","section":"Frankenstein's Narrative","tag":"CHAPTER 3","title_en":"It Is Alive!","title_cn":"\u5b83\u6d3b\u4e86\uff01","teaser_cn":"\u5341\u4e00\u6708\u7684\u96e8\u591c\uff0c\u4e24\u5e74\u7684\u5de5\u4f5c\u5c31\u8981\u5b8c\u6210\u2026\u2026","icon":"\u26a1","itemName":"\u95ea\u7535\u74f6","words":543,"paras":["I {completed} my creation one cold rainy night in November. With trembling hands I {gathered} my {instruments} to give life to the dead thing that lay {at my feet}. It was one o'clock in the morning when, {by the light of} the candle, I saw the yellow eye of the {creature} open. He {breathed}. He moved.","How can I {describe} him? I had tried to make him beautiful. Great Cod! His {skin} was yellow and {wrinkled}. His hair was long and black. His eyes were {watery}. He was {monstrous}!","I had worked for {nearly} two years for this moment. Now that the moment had come, I felt nothing but {horror} and {disgust}. I ran out of the room. For hours I {lay} awake in my bedroom, horrified by what I had done.","When at last I fell asleep, I {dreamt} that I saw Elizabeth, young and {healthy}, walking in the streets of Ingolstadt. Delighted and surprised, I {embraced} her, but when I kissed her she grew pale and cold. Her face began to change into the face of my dead mother. She was {wrapped} in a {shroud}, and I saw the {graveworms crawling} in its {folds}.","I woke up trembling with horror. My {forehead} was cold with sweat. By the pale yellow light of the moon, I saw the monster I had created. He was standing beside my bed, looking down at me. He made a sound, {grinned} at me, and {stretched} out his hand to touch me. I ran away and spent the {rest} of the night outside.","The next morning was grey and rainy. I walked the streets of Ingolstadt, afraid to return to my {apartment}. Suddenly I heard someone call my name. Turning round, I saw Henry Clerval {stepping} out of the {coach} that had just arrived from Geneva.","'My dear Frankenstein!' he cried. 'I am so glad to see you! I have come to study at the university.'","We walked to my apartment together. I asked him about my father, Elizabeth, and William.","'They are all well, but they are a little worried because you do not write to them,' he said. Then he stopped and looked at me {anxiously}. 'But my dear Frankenstein, you are ill! You are so pale and thin!'","I told him that I had been working too much. I did not want to think about what had happened the night before. I was afraid to see the monster again, but 1 was even more afraid that Henry would see him. When we came to my apartment, I left Henry at the door. I ran upstairs and into my room {trembling} with fear. The apartment was {empty}. {Relieved}, I called Henry and told him to come upstairs.","'Victor, what is the matter?' asked Henry.","I covered my face with my hands and said, 'Do not ask me.' Then I fainted. Poor Clerval! I was very ill for several months. Henry {nursed} me. He did not tell my family {how ill} I was. He did not wish to worry them.","Slowly I recovered. By the time I was {well enough} to look out of my window again, it was {springtime}. One morning, Henry brought me a letter. It was from Elizabeth."],"quiz":[{"q":"When did the creature first open his eyes?","cn":"\u90a3\u4e2a\u602a\u7269\u662f\u4ec0\u4e48\u65f6\u5019\u7b2c\u4e00\u6b21\u7741\u5f00\u773c\u775b\u7684\uff1f","options":["On a sunny spring morning","At noon on a summer day","On a cold rainy night in November"],"answer":2},{"type":"who","q":"Do not ask me.","cn":"\u201c\u522b\u95ee\u6211\u3002\u201d","options":["Victor","Elizabeth","Walton"],"answer":0},{"q":"Who came from Geneva to study at the university?","cn":"\u8c01\u4ece\u65e5\u5185\u74e6\u6765\u5927\u5b66\u8bfb\u4e66\uff1f","options":["Henry Clerval","Elizabeth","Victor's father"],"answer":0},{"type":"tf","q":"When Victor woke up trembling, he found the monster standing beside his bed.","cn":"\u7ef4\u514b\u591a\u98a4\u6296\u7740\u9192\u6765\u65f6\uff0c\u53d1\u73b0\u602a\u7269\u5c31\u7ad9\u5728\u4ed6\u7684\u5e8a\u8fb9\u3002","answer":true},{"q":"Why did Victor run out of the room when the creature moved?","cn":"\u602a\u7269\u4e00\u52a8\uff0c\u7ef4\u514b\u591a\u4e3a\u4ec0\u4e48\u8dd1\u51fa\u4e86\u623f\u95f4\uff1f","options":["He wanted to tell his friends the good news","He was full of horror and disgust at the ugly creature","He heard someone calling his name outside"],"answer":1}]},{"id":"u04","section":"Frankenstein's Narrative","tag":"CHAPTER 4","title_en":"A Letter from Home","title_cn":"\u5bb6\u4e66","teaser_cn":"\u517b\u75c5\u7684\u7ef4\u514b\u591a\u6536\u5230\u4e00\u5c01\u5bb6\u91cc\u7684\u6765\u4fe1\u2026\u2026","icon":"\ud83e\uddea","itemName":"\u751f\u547d\u836f\u6c34","words":239,"paras":["My dear Victor,","We are so worried about you. I know you cannot write yet, but please write to us {as soon as} you can.Get well soon and come home to us. you will find a happy home full of people who love you. Your father {is in good health}. William has {grown} tall. He is a lovely little boy, with his smiling blue eyes. Justine, the {servant} who {nursed} your mother during her last {illness}, has returned to us after an unhappy time with her own family. Poor Justine! I think she loves us {as if} we were her real family. I know that she loved your mother very much.","Get better soon, dear Victor, and please write to us. Thank Henry for his {kindness} and his many letters.","Your affectionate","Elizabeth","I wrote to my family that day. As soon as I was well enough, I took Clerval to meet the professors at the university.","I did not return to my studies. The {thought} of science {filled me with anxiety} and {disgust}. {Instead}, I read {poetry} and studied {Oriental} languages with Clerval. I stayed with him in Ingolstadt all that year. When {spring} arrived again, Henry and I went for walks together in the countryside. The blue sky and green {fields} made me very happy. I made {plans} to {visit} my family.","One Sunday, I {returned from our walk} to find a letter waiting for me."],"quiz":[{"q":"Who wrote the letter that Henry brought to Victor?","cn":"\u4ea8\u5229\u5e26\u7ed9\u7ef4\u514b\u591a\u7684\u90a3\u5c01\u4fe1\u662f\u8c01\u5199\u7684\uff1f","options":["William","Elizabeth","Justine"],"answer":1},{"type":"fill","q":"William has ___ tall.","cn":"\u5a01\u5ec9\u5df2\u7ecf\u957f\u5f97\u5f88___\u4e86\u3002","options":["grown","become","gone"],"answer":0},{"q":"What did Victor study with Clerval instead of science?","cn":"\u7ef4\u514b\u591a\u4e0d\u5b66\u79d1\u5b66\u4e86\uff0c\u4ed6\u548c\u514b\u83b1\u74e6\u5c14\u4e00\u8d77\u5b66\u4ec0\u4e48\uff1f","options":["Music and painting","Medicine and law","Poetry and Oriental languages"],"answer":2},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["Victor receives a letter from Elizabeth","Victor studies poetry and Oriental languages with Henry","Spring arrives, and Victor walks with Henry in the countryside"]},{"q":"Why did Victor stop studying science?","cn":"\u7ef4\u514b\u591a\u4e3a\u4ec0\u4e48\u4e0d\u518d\u5b66\u79d1\u5b66\u4e86\uff1f","options":["The thought of science made him feel anxious and sick","His professors told him to stop","Science was too difficult for him"],"answer":0}]},{"id":"u05","section":"Frankenstein's Narrative","tag":"CHAPTER 5","title_en":"Terrible News","title_cn":"\u53ef\u6015\u7684\u6d88\u606f","teaser_cn":"\u7236\u4eb2\u7684\u4e00\u5c01\u4fe1\uff0c\u8ba9\u7ef4\u514b\u591a\u7acb\u523b\u8d76\u56de\u5bb6\u2026\u2026","icon":"\ud83e\udddf","itemName":"\u602a\u7269\u4e4b\u5f71","words":706,"paras":["The letter was from my father.","My dear Victor,","How can I tell you what has happened? We were all so happy, waiting for you to come home. I want to {prepare} you for the {awful} news, but it is impossible.","William is dead! Your sweet little brother has been {murdered}! Last Thursday, Elizabeth, William, and I {went for a walk} in Plainpalais. William ran off to play. When it came time to go home, we called his name, but he did not answer. We {searched until} it was dark, but we could not find him. Then Elizabeth said he {might} have gone home. We returned to the house, but he was not there. We went back to Plainpalais with {torches} and servants to help in the {search}. About five o\u2019clock in the morning, I found him, dead .The {marks} of the murderer's fingers were on his {neck}.","When Elizabeth saw the body, she cried, 'Oh,God! I have murdered my my lovely boy!' She told me that she had given William a {locked} on a {chain} with a picture of your mother inside it. The {locket} is gone.Perhaps the murderer killed William for the locket.","Come home, dear victor! We need you. Do not think of {revenge}. Just come home to those who love you .","Your father","Mphonse Frankenstein","Geneva ,12May 17--","Horrified by this news, I said goodbye to Clerval and left for Geneva immediately. At first I wished to get home as soon as possible, to {comfort} my poor family, but when I got close to Geneva I began to feel afraid. I stopped two days at Lausanne, in a {state} of nervous anxiety. Then the lake and the mountains {calmed} me, and I continued my journey.","The {sight} of Mont Blanc brought {tears} to my eyes. As I {approached} my {hometown} I became afraid again. It was dark when I arrived, and the city {gates} were already closed for the night. I decided to visit the place where William had died and spend the night in a {nearby} village. When I got to","Plainpalais, there was a thunder storm. I watched the {lightning} over Mont Blanc.","Suddenly, in a {flash} of lightning, I saw a {gigantic figure nearby}. It was the monster! Was he the {murderer} of my little brother? I began to tremble. In another flash of lightning I saw him climbing Mont Saleve with {amazing speed}. He soon reached the {top} and disappeared.","Two years had passed since I created the monster. Was this his first {crime}? I spent the rest of the night in the mountains, trembling and crying. I felt {as if} the monster were a horrible part of myself, forced to destroy everyone I loved.","The sun {rose}, and I hurried to my father's house. I wanted to tell what I knew of the murderer, but then I thought, 'If I tell the truth, everyone will think I am mad.' I decided to {remain} silent.","My father and Elizabeth met me at the door. They were both thin and pale with {sorrow}.","'Welcome, my dearest Victor,' said my father. 'What a pity you did not come months ago, when we were happy. Poor William! He was such a lovely, little boy!'","We three all {wept} in each other's arms. Then my father said, 'It makes me even sadder to think that Justine could have done {such} a thing.'","'Justine?' I asked, amazed.","'Did you not know?' asked Elizabeth. 'Justine has been {arrested} for the murder of William.'","'But she is innocent,' I said.","'I wish I could believe that,' said my father. He explained that on the morning after the murder Justine had fallen ill and spent {several} days in bed. One of the servants, taking Justine's clothes to be washed, found something in her pocket. It was the locket, with the picture of my mother inside, that had been on a chain around William's neck.","'Justine is innocent,' I said again.","'Oh thank you, Victor,' cried Elizabeth. 'I feel sure that she is {innocent}. {Perhaps} you can {prove} it. You are so kind and {generous}. No one else believes in poor Justine.'"],"quiz":[{"q":"What happened to little William?","cn":"\u5c0f\u5a01\u5ec9\u51fa\u4e86\u4ec0\u4e48\u4e8b\uff1f","options":["He was murdered","He got lost in the mountains","He became very ill"],"answer":0},{"type":"tf","q":"Victor stopped for two days at Lausanne because he felt anxious as he got closer to Geneva.","cn":"\u7ef4\u514b\u591a\u5728\u6d1b\u6851\u505c\u7559\u4e86\u4e24\u5929\uff0c\u56e0\u4e3a\u8d8a\u9760\u8fd1\u65e5\u5185\u74e6\u4ed6\u8d8a\u611f\u5230\u7126\u8651\u4e0d\u5b89\u3002","answer":true},{"q":"What did a servant find in Justine's pocket?","cn":"\u4ec6\u4eba\u5728\u8d3e\u4e1d\u6c40\u7684\u53e3\u888b\u91cc\u53d1\u73b0\u4e86\u4ec0\u4e48\uff1f","options":["A knife","A letter from William","The locket with the mother's picture"],"answer":2},{"type":"who","q":"Welcome, my dearest Victor. What a pity you did not come months ago, when we were happy. Poor William! He was such a lovely, little boy!","cn":"\u201c\u6b22\u8fce\u56de\u6765\uff0c\u6211\u6700\u4eb2\u7231\u7684\u7ef4\u514b\u591a\u3002\u771f\u53ef\u60dc\u4f60\u6ca1\u80fd\u65e9\u51e0\u4e2a\u6708\u56de\u6765\uff0c\u90a3\u65f6\u6211\u4eec\u8fd8\u5f88\u5e78\u798f\u3002\u53ef\u601c\u7684\u5a01\u5ec9\uff01\u4ed6\u66fe\u662f\u90a3\u4e48\u53ef\u7231\u7684\u5b69\u5b50\uff01\u201d","options":["Victor's father","Elizabeth","Mr Waldman"],"answer":0},{"q":"Why did Victor decide not to tell anyone about the monster?","cn":"\u7ef4\u514b\u591a\u4e3a\u4ec0\u4e48\u51b3\u5b9a\u4e0d\u544a\u8bc9\u4efb\u4f55\u4eba\u602a\u7269\u7684\u4e8b\uff1f","options":["He wanted to catch the monster himself","He was afraid everyone would think he was mad","He had promised the monster to keep the secret"],"answer":1}]},{"id":"u06","section":"Frankenstein's Narrative","tag":"CHAPTER 6","title_en":"An Unfair Trial","title_cn":"\u4e0d\u516c\u7684\u5ba1\u5224","teaser_cn":"\u65e0\u8f9c\u7684\u8d3e\u4e1d\u6c40\uff0c\u80fd\u5728\u6cd5\u5ead\u4e0a\u8bc1\u660e\u81ea\u5df1\u5417\uff1f","icon":"\ud83d\udc8c","itemName":"\u5bb6\u4e66","words":182,"paras":["At eleven o'clock Justine's {trial} began. In the court I {suffered torture}. Was I to be the {cause} of her death too? I wanted to tell everyone that I was the {guilty} one, but I had not been in Geneva at the time. Everyone would think I was mad, and Justine would be {punished anyway}.","She told her story to the court. 'I went to search for William,' she said. 'I searched for hours. It was late at night, and I was tired. I lay down in a {barn} to rest for a few minutes, but then I fell asleep. In the morning, I woke up feeling ill, so I went home and went to bed. I do not know how the locket, with the picture of Mrs Frankenstein inside, came to be in my pocket.'","They did not believe her. Justine was found guilty of the murder. I felt {sick} with horror and {despair}. The next day she was {hanged}. Elizabeth wept, but her sadness was the sadness of {innocence}. I, the true murderer, had no hope or comfort."],"quiz":[{"q":"Where did Justine fall asleep on the night of the murder?","cn":"\u6848\u53d1\u90a3\u665a\uff0c\u8d3e\u4e1d\u6c40\u5728\u54ea\u91cc\u7761\u7740\u4e86\uff1f","options":["In her own bed at home","In a barn","In the Frankenstein house"],"answer":1},{"type":"fill","q":"Elizabeth wept, but her sadness was the sadness of ___.","cn":"\u4f0a\u4e3d\u838e\u767d\u54ed\u6ce3\uff0c\u4f46\u5979\u7684\u60b2\u4f24\u662f___\u7684\u60b2\u4f24\u3002","options":["innocence","guilt","anger"],"answer":0},{"q":"What happened to Justine the day after the trial?","cn":"\u5ba1\u5224\u540e\u7684\u7b2c\u4e8c\u5929\uff0c\u8d3e\u4e1d\u6c40\u600e\u4e48\u6837\u4e86\uff1f","options":["She was hanged","She was sent far away","She was set free"],"answer":0},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["Justine tells her story in court","The court judges her guilty of murder","Elizabeth weeps for her innocent friend"]},{"q":"Why did Victor call himself the true murderer?","cn":"\u7ef4\u514b\u591a\u4e3a\u4ec0\u4e48\u8bf4\u81ea\u5df1\u624d\u662f\u771f\u6b63\u7684\u51f6\u624b\uff1f","options":["He was in Geneva on the night of the murder","He gave William the locket","He created the monster that did the killing"],"answer":2}]},{"id":"u07","section":"Frankenstein's Narrative","tag":"CHAPTER 7","title_en":"Escape to the Mountains","title_cn":"\u8d70\u8fdb\u7fa4\u5c71","teaser_cn":"\u4f24\u5fc3\u7684\u7ef4\u514b\u591a\u72ec\u81ea\u8d70\u5411\u51b0\u96ea\u8986\u76d6\u7684\u9ad8\u5c71\u2026\u2026","icon":"\ud83c\udf32","itemName":"\u5bc6\u6797\u8db3\u8ff9","words":167,"paras":["I felt as if my {soul} were in {hell}. I wanted to kill the monster I had created. When I thought of him, my mind was full of {hatred} and {revenge}. I wished to see him again so that I could avenge the deaths of William and Justine.","My father became ill with sadness and {grief}. Elizabeth {grew} pale and thin. I felt horribly {guilty}. My only comfort was to {escape} to the mountains and forget my {sorrows} for a few days. The mountains and rivers were made by God. In the {magnificent} Alpine valleys, I felt His {power} and was afraid of nothing {else}.","On one of these journeys, in August, nearly two years after the death of Justine, I {entered} the valley of Chamonix. Rivers of ice came down from the mountains. The great white {dome} of Mont Blanc stood {above} me. I decided to climb Montanvert. I remembered the {view} from the top of the mountain. That sublime {landscape} alone could {tranquillize} my soul."],"quiz":[{"q":"What did Victor want to do to the monster now?","cn":"\u73b0\u5728\u7ef4\u514b\u591a\u60f3\u5bf9\u602a\u7269\u505a\u4ec0\u4e48\uff1f","options":["Forgive him and help him","Send him to another country","Kill him and take revenge"],"answer":2},{"type":"tf","q":"Elizabeth grew pale and thin with grief after the deaths of William and Justine.","cn":"\u5a01\u5ec9\u548c\u8d3e\u4e1d\u6c40\u6b7b\u540e\uff0c\u4f0a\u4e3d\u838e\u767d\u56e0\u60b2\u4f24\u800c\u53d8\u5f97\u82cd\u767d\u6d88\u7626\u3002","answer":true},{"q":"Which valley did Victor visit in August?","cn":"\u516b\u6708\u91cc\uff0c\u7ef4\u514b\u591a\u6765\u5230\u4e86\u54ea\u4e2a\u5c71\u8c37\uff1f","options":["The valley of Chamonix","The valley of Geneva","The valley of Ingolstadt"],"answer":0},{"type":"fill","q":"Victor decided to climb ___.","cn":"\u7ef4\u514b\u591a\u51b3\u5b9a\u53bb\u6500\u767b___\u3002","options":["Montanvert","Mont Blanc","Mont Saleve"],"answer":0},{"q":"Why did Victor go to the mountains?","cn":"\u7ef4\u514b\u591a\u4e3a\u4ec0\u4e48\u8981\u53bb\u5927\u5c71\u91cc\uff1f","options":["To look for the monster's hiding place","To forget his sorrows and calm his soul","To visit his friend Henry"],"answer":1}]},{"id":"u08","section":"Frankenstein's Narrative","tag":"CHAPTER 8","title_en":"Face to Face","title_cn":"\u51b0\u5ddd\u5bf9\u5cd9","teaser_cn":"\u51b0\u6cb3\u4e4b\u4e0a\uff0c\u4e00\u4e2a\u5de8\u5927\u7684\u8eab\u5f71\u98de\u5954\u800c\u6765\u2026\u2026","icon":"\u2696\ufe0f","itemName":"\u6b63\u4e49\u5929\u5e73","words":639,"paras":["Montanvert is very {steep}. The path {winds} slowly up the mountain. The pine trees on both sides were heavy with snow. It was midday when I arrived at the top of the mountain. Then I climbed down onto the {glacier}. I spent two hours {crossing} that great river of ice. Then I sat on a rock to rest, looking back at Montanvert and, behind it, Mont Blanc. The snowy {peaks} of the mountains {glistened} above the clouds in the sunshine. For a moment I was happy.","Suddenly I saw a man running towards me over the ice. As he {approached} me at great {speed}, I {recognized} him. It was the monster I had created! I trembled with {hatred} and anger. {'Devil}!' I cried. 'Are you not afraid to approach me? Are you not afraid that I will {avenge} the deaths of those you have murdered?'","'I {expected} this,' said the monster. 'Everyone hates me. I am the most {miserable} creature on earth. Even you, my creator, hate me. You say you will kill me. How dare you play with life and death! Do your {duty towards} me, and I will do my duty towards you and the {rest} of {mankind}. Do what I ask and I will leave you and them in {peace}. If you {refuse}, I will murder everyone you love.'","{'Hateful} monster! Devil! I was mad to create you. Now I will destroy you!'","'Be calm,' he said, 'and hear my story. Remember that you made me stronger than you. Oh Frankenstein, you are {fair} to everyone else! Be fair to me, your creature, as well! I should be your Adam, but instead I am your Satan. Everywhere I see happiness, but for me there is no happiness. I was good, but unhappiness made me {evil}. Make me happy, and I will be good again.'","'Go!' I cried. 'I will not listen to you. We are {enemies}. Either go or fight with me until one of us is dead.'","'How can I make you understand?' replied the monster. 'I was {capable} of love and {kindness}. But I am alone. Everyone hates me. I hide in the mountains. I live in the {caves} of ice. If people knew of my {existence}, they would try to kill me. How can I love them when they hate me? If I am unhappy, I will make them unhappy too, but you can save them. If you refuse my {request}, I will kill not only you and your family but many others too. Listen to my tale. In {court}, the {guilty} are {allowed} to speak in their own {defence} before they are {condemned}. You say I am a murderer, but you want to murder me, your own creature. Listen to me, and then, if you wish, destroy the work of your own hands.'","'Do not remind me that I am your creator. I wish you had never come to life. I {curse} my own hands for having made you! Go! I hate the sight of you!'","'Then do not look at me,' said the monster, and he put his horrible hands over my eyes. 'Do not look at me, but listen. Hear my {tale}; it is long and strange. Before the sun {sets} this evening, you will know everything. Then you will decide {whether} I will go away to live a {harmless} life or stay to murder your fellow creatures.'","I agreed to listen to his story. I was curious to know what had happened to him, and, for the first time, I felt that as his creator I had a duty towards him. He took me across the ice to a small {hut}. Inside, he {lit} a fire. I sat down, and the monster began his tale."],"quiz":[{"q":"Who came running towards Victor over the ice?","cn":"\u8c01\u5728\u51b0\u9762\u4e0a\u671d\u7ef4\u514b\u591a\u8dd1\u6765\uff1f","options":["Henry Clerval","The monster he created","A lost traveller"],"answer":1},{"type":"who","q":"Be calm, and hear my story. Remember that you made me stronger than you.","cn":"\u201c\u51b7\u9759\u70b9\uff0c\u542c\u6211\u628a\u6545\u4e8b\u8bb2\u5b8c\u3002\u8bb0\u4f4f\uff0c\u662f\u4f60\u628a\u6211\u9020\u5f97\u6bd4\u4f60\u66f4\u5f3a\u58ee\u3002\u201d","options":["the monster","Victor","Elizabeth"],"answer":0},{"q":"Where did the monster take Victor to tell his story?","cn":"\u602a\u7269\u628a\u7ef4\u514b\u591a\u5e26\u5230\u54ea\u91cc\u8bb2\u4ed6\u7684\u6545\u4e8b\uff1f","options":["To the top of Mont Blanc","To a village at the foot of the mountain","To a small hut, where he lit a fire"],"answer":2},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["The monster warns that he will murder everyone Victor loves if refused","The monster says he should have been Victor's Adam, but became his Satan","The monster covers Victor's eyes and begins his tale"]},{"q":"Why did Victor finally agree to listen to the monster?","cn":"\u7ef4\u514b\u591a\u6700\u540e\u4e3a\u4ec0\u4e48\u540c\u610f\u542c\u602a\u7269\u8bb2\u8bdd\uff1f","options":["He was curious, and felt a creator's duty towards him","He was too tired to walk away","The monster promised to give him gold"],"answer":0}]},{"id":"u09","section":"The Monster's Narrative","tag":"CHAPTER 9","title_en":"The Monster Wakes Up","title_cn":"\u602a\u7269\u9192\u6765\u4e86","teaser_cn":"\u602a\u7269\u5f00\u53e3\u4e86\uff1a\u4ed6\u51fa\u751f\u540e\u7684\u4e16\u754c\u662f\u4ec0\u4e48\u6837\uff1f","icon":"\ud83d\udd25","itemName":"\u6e29\u6696\u706b\u79cd","words":768,"paras":["I do not remember very much about the beginning of my life. I saw, felt, heard, and {smelt} all at the same time. When I left your {apartment}, I took your coat, because I was cold. I remember the light grew strong, and I had to close my eyes. I looked for {shade} and found it in the forest of Ingolstadt. There I {rested} by a river. After a while I felt hungry and {thirsty}. I drank from the river and ate some {berries}, then I fell asleep.","'When I awoke it was dark and cold. I was frightened. I sat down and {wept}. Soon a gentle light came, and I saw a shining white {form} rise above the trees. I felt only hunger and {thirst} and light and {darkness}. When I looked at the moon I felt {pleasure}.","'Days and nights passed. Slowly I began to {distinguish} the things around me. I {discovered} that the pleasant sounds I often heard came from the birds that {flew} across the light. That {pleased} me. Sometimes I tried to {imitate} their sounds, but I could not.","'The moon disappeared from the night. Then it came again, but smaller this time. I was still in the forest. One cold day I found a fire that some travellers had left {burning}. The {warmth} of the fire gave me pleasure. I put my hand into the fire and felt pain. Crying and {nursing} my hand, I looked at the fire. How strange, I thought, that it gives both pleasure and {pain}. I saw that it was made of wood. I {gathered} wood to keep the fire burning, then lay down beside it to sleep.","'Often I spent the whole day looking for food. Sometimes I went to sleep hungry. I decided to leave the forest and find another place where there was more food. I began my journey in the evening and walked for three days. Then I came to the open country. Snow had fallen the night before, and the {fields} were white. I {shivered} with cold. In the morning I saw a small hut. I entered. Inside was an old man, {preparing} some food over a fire. When he saw me, he {screamed} and ran out of the hut. He ran across the fields and disappeared from sight. I had never seen a hut before, and it seemed a wonderful place. I ate the old man's food then lay down and fell asleep.","'I awoke at midday and continued my journey. At {sunset} I arrived at a {village}. I admired the huts and {cottages}. I saw vegetables growing in the gardens. I saw milk and cheese through the windows of the cottages. I was hungry. When I entered a cottage, the children inside {screamed}, and a woman fainted. The villagers came running. Some {attacked} me. I escaped to the open country. I hid myself in a small hut beside a cottage. It was {bare} and {uncomfortable}, bull was happy to have found a place to hide from the weather and from the {violence} of {human beings}.","'Lying in the hut, looking out through a {crack} in its wooden wall, I saw a young woman. She carried a {bucket} filled with milk. She looked sad. Then a young man {appeared}. He too had a sad {expression}. He took the bucket from her and carried it into the cottage. She followed, and they disappeared from {sight}.","'My hut {shared} one wall with their cottage. In this wall there was a window, but it was covered with {planks} of wood. One of the planks had a small hole in it. I looked through the hole. The inside of their cottage was clean but very bare. An old man sat beside the fire, playing a {musical instrument}. The sound he made was more beautiful than the sounds of birds. The young woman was sitting close to him. I could see that there were tears in her eyes. The old man did not {notice} this until she {sobbed} aloud. Then he called her name. She came to him, and he put his arms around her. I felt both pleasure and {pain} watching them. I had never felt that way before, and I moved away from the window, {unable} to bear my {emotions}.","'When night came, I was surprised to see that the cottagers could make light with candles. They sat around the fire, and the young man made sounds that I did not understand. I now know he was reading aloud to them. {After a while}, they {put out} the candles and went to bed.'"],"quiz":[{"q":"What did the monster feel when he put his hand into the fire?","cn":"\u602a\u7269\u628a\u624b\u4f38\u8fdb\u706b\u91cc\u65f6\u611f\u89c9\u5230\u4e86\u4ec0\u4e48\uff1f","options":["Nothing at all","Pain","Cold"],"answer":1},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["He drank from a river and ate berries","He ate the old man's food in a hut","He walked into a village and saw cottages"]},{"q":"Where did the monster hide after the villagers attacked him?","cn":"\u6751\u6c11\u653b\u51fb\u4ed6\u4e4b\u540e\uff0c\u602a\u7269\u8eb2\u5230\u4e86\u54ea\u91cc\uff1f","options":["In a small hut beside a cottage","In a cave in the mountains","In a boat on the river"],"answer":0},{"type":"tf","q":"The monster easily learned to copy the sounds that birds made.","cn":"\u602a\u7269\u5f88\u8f7b\u677e\u5730\u5c31\u5b66\u4f1a\u4e86\u6a21\u4eff\u9e1f\u513f\u7684\u53eb\u58f0\u3002","answer":false},{"q":"Why did the monster feel both pleasure and pain when he watched the old man hug the young woman?","cn":"\u770b\u5230\u8001\u4eba\u62e5\u62b1\u5e74\u8f7b\u5973\u5b50\u65f6\uff0c\u602a\u7269\u4e3a\u4ec0\u4e48\u53c8\u5f00\u5fc3\u53c8\u96be\u8fc7\uff1f","options":["He was hungry and wanted their food","He was angry at their music","Their love was beautiful, but he had no one to love him"],"answer":2}]},{"id":"u10","section":"The Monster's Narrative","tag":"CHAPTER 10","title_en":"Secret Friend in the Wall","title_cn":"\u5899\u540e\u7684\u79d8\u5bc6\u670b\u53cb","teaser_cn":"\u602a\u7269\u5077\u5077\u5e2e\u52a9\u5c0f\u5c4b\u4e00\u5bb6\uff0c\u8fd8\u5b66\u4f1a\u4e86\u8bf4\u8bdd\uff01","icon":"\ud83c\udf19","itemName":"\u6708\u5149\u77f3","words":566,"paras":["I lay on the floor of my hut, but I could not sleep. I thought about the cottagers. How kind and gentle they were! I {longed} to be with them, but I was afraid. I remembered how the villagers had attacked me. I decided to stay quietly in my hut, watching the gentle cottagers through the hole in the","window.","'I soon discovered that the old man was {blind}. He {spent his days} sitting by the fire. Sometimes he played music. The young man and the young woman were very gentle and {kind} to him. At first I thought that their lives must be happy. They had food, fire, and {friendship} with each other. Yet I {noticed} that all three looked sad. {It was a long time before} I discovered that they were very poor. Sometimes in the winter there was very little to eat. On those days, the young woman put all the food on the old man's plate, and she and her brother ate nothing.","'Slowly I {realized} that they could {communicate} with each other by making sounds. This was really a {godlike} science! I wanted very much to learn to speak, but it was difficult. After {a few} months in my hut, listening to them, I could say \"fire\", \"milk\", \"food\", and \"wood\". I also learned the people's names. The young woman was called \"sister\" or \"Agatha\". The young man was called \"Felix\", \"brother\", or \"son\". But the old man had only one name, \"father\". I was very happy each time I learned a new word. Some words, like \"good\", \"dearest\", and \"unhappy\", I heard but did not understand.","'I {spent the winter} listening to them and learning. I hid in the hut {during} the day and came out at night to look for food. I also {collected} fire wood and left it for the {cottagers}. Sometimes I {swept} the snow from their {path}. In the morning, when they found the wood and the clean path, they were very","surprised. They spoke to each other, using words like \"good spirit\" and \"wonderful\", but I did not yet understand those words.","'Every evening Felix read aloud to the others. At first I did not understand what he was doing. Then I realized that he used many of the same sounds in his reading as he used in speech. I thought perhaps there were {signs} for words {written} on the paper. I wanted very much to learn to read those {signs}.","'I knew that I could not show myself to the cottagers until I had {mastered} their language. Maybe my words could win their {sympathy}, {despite} my {monstrous appearance}. My cottagers were {graceful} and beautiful. I loved to look at them, but how frightened I was the first time I saw my face {reflected} in the water! At first I could not believe that it was my own face. When I {realized} that the horrible {reflection} really was me, I felt great sadness and {shame}.","'Spring arrived. The air was warm, birds sang, and leaves began to grow on the trees. Happy, happy earth! Everything was so green and beautiful that I was filled with joy. I spent many hours imagining the future. In these {fantasies}, I showed myself to the cottagers. At first they were horrified by my appearance, but then I slowly {persuaded} them to {accept} me and even to love me.'"],"quiz":[{"q":"What was special about the old man in the cottage?","cn":"\u5c0f\u5c4b\u91cc\u7684\u8001\u4eba\u6709\u4ec0\u4e48\u7279\u522b\u4e4b\u5904\uff1f","options":["He was very rich","He could not hear","He was blind"],"answer":2},{"type":"fill","q":"The monster learned to say 'fire', 'milk', 'food', and '___'.","cn":"\u602a\u7269\u5b66\u4f1a\u4e86\u8bf4\"\u706b\"\u3001\"\u725b\u5976\"\u3001\"\u98df\u7269\"\u548c\"___\"\u3002","options":["wood","water","snow"],"answer":0},{"q":"What did the monster secretly do to help the cottagers?","cn":"\u602a\u7269\u5077\u5077\u4e3a\u5c0f\u5c4b\u4e00\u5bb6\u505a\u4e86\u4ec0\u4e48\uff1f","options":["He left food at their door","He collected firewood and swept the snow from their path","He fixed their broken window"],"answer":1},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["He hid in his hut by day and searched for food at night","He learned the family's names: Agatha, Felix, and father","Spring came, and he dreamed of meeting the family"]},{"q":"Why did the monster feel sad and ashamed when he saw his face in the water?","cn":"\u602a\u7269\u5728\u6c34\u4e2d\u770b\u5230\u81ea\u5df1\u7684\u8138\uff0c\u4e3a\u4ec0\u4e48\u53c8\u4f24\u5fc3\u53c8\u7f9e\u6127\uff1f","options":["He saw how ugly he was, so different from the beautiful cottagers","The water was too dirty to drink","He was afraid of the deep water"],"answer":0}]},{"id":"u11","section":"The Monster's Narrative","tag":"CHAPTER 11","title_en":"The Beautiful Stranger","title_cn":"\u7f8e\u4e3d\u7684\u964c\u751f\u4eba","teaser_cn":"\u4e00\u4f4d\u795e\u79d8\u5973\u5b50\u6765\u5230\u5c0f\u5c4b\uff0c\u4e00\u5207\u90fd\u53d8\u4e86\u3002","icon":"\ud83c\udfe0","itemName":"\u5c0f\u6728\u5c4b","words":443,"paras":["One day in the spring a young lady arrived at the cottage. As soon as he saw her, Felix's {expression} changed from sadness to great {joy}. When the young lady spoke to the cottagers, they did not understand her. It seemed she had a language of her own. She was very beautiful, with dark hair and eyes. Felix called her his 'sweet Arabian'. She did not understand but smiled. The old man {embraced} the young stranger {affectionately}. Gentle Agatha kissed her hands.","'In the evening I {noticed} that the cottagers were {repeating} the same sounds again and again. The young stranger repeated after them. I realized that they were teaching her their language. If I listened, I too could learn. When the stranger went to bed, Felix said, 'Goodnight, sweet Safie.'","'The days passed {peacefully}. The only {difference} was that now my cottagers were happy {instead of} sad. Safie and I learned the language very quickly. {Meanwhile}, the woods were full of flowers, and the nights grew warm and pleasant.","'{My days were spent} in study. I learned more quickly than Safie. We learned to read {as well as} to speak. The book Felix used to teach. Safie was Volney's {Ruins} of {Empires}. Felix {explained} everything as he read aloud. Through this book I learned a little about the histories, {governments}, {customs}, and {religions} of many different countries. I heard of the Greeks and early Romans. I heard of the decline of the Roman Empire, {chivalry}, {Christianity}, and kings. I heard of the discovery of America and {wept} with Safie over the sad {fate} of the American Indians.","'These stories {amazed} me. How could {human beings} be so {powerful}, {noble}, and good, but, at the same time, so {violent} and {evil}? I {learned} of the {division} of {property}, the rich and the poor, and of {aristocratic} families.","'I learned that to be rich and from an aristocratic family was the best {condition}. A person could be {respected} with only one of these {advantages}, but with {neither of} them he was a {slave}. He had to work for the good of the {fortunate} few.","'And what was I? I knew nothing of my creator. I had no money, no friends, and no {property}, and I was horribly ugly. I was not even a human being. I saw and heard of no others like me. The smiles of Safie and the gentle words of Agatha were not for me. I was a monster, {alone} in the world. My sadness grew with my {knowledge}. I wished that I had stayed in the woods and never known anything more than hunger, thirst, and cold.'"],"quiz":[{"q":"Who came to the cottage in the spring?","cn":"\u6625\u5929\uff0c\u8c01\u6765\u5230\u4e86\u5c0f\u5c4b\uff1f","options":["Safie, a beautiful young lady","A doctor from the village","Felix's old teacher"],"answer":0},{"type":"who","q":"Goodnight, sweet Safie.","cn":"\u665a\u5b89\uff0c\u4eb2\u7231\u7684\u8428\u83f2\u3002","options":["Felix","the monster","the old man"],"answer":0},{"q":"How did the monster learn to speak and read?","cn":"\u602a\u7269\u662f\u600e\u4e48\u5b66\u4f1a\u8bf4\u8bdd\u548c\u8ba4\u5b57\u7684\uff1f","options":["The old man taught him at night","He found a book of lessons in the woods","He listened while the family taught Safie their language"],"answer":2},{"type":"tf","q":"The monster cried with Safie about the sad story of the American Indians.","cn":"\u602a\u7269\u548c\u8428\u83f2\u4e00\u8d77\u4e3a\u7f8e\u6d32\u5370\u7b2c\u5b89\u4eba\u7684\u60b2\u60e8\u6545\u4e8b\u54ed\u6ce3\u3002","answer":true},{"q":"Why did the monster become sadder as he learned more?","cn":"\u61c2\u5f97\u8d8a\u591a\uff0c\u602a\u7269\u4e3a\u4ec0\u4e48\u8d8a\u4f24\u5fc3\uff1f","options":["The lessons were too hard for him","He understood that he was alone, ugly, and had no friends or family","He missed the forest of Ingolstadt"],"answer":1}]},{"id":"u12","section":"The Monster's Narrative","tag":"CHAPTER 12","title_en":"The Family's Sad Story","title_cn":"\u4e00\u5bb6\u4eba\u7684\u5f80\u4e8b","teaser_cn":"\u5c0f\u5c4b\u4e00\u5bb6\u4e3a\u4ec0\u4e48\u8fd9\u4e48\u7a77\uff1f\u80cc\u540e\u6709\u4e2a\u5927\u79d8\u5bc6\u3002","icon":"\ud83d\udcd6","itemName":"\u8bed\u8a00\u4e4b\u4e66","words":487,"paras":["Slowly I came to understand the history of my cottagers. The old man's name was De Lacey. He was a Frenchman of good family. They had lived in Paris in a beautiful house. Safie 's father was a Turkish {merchant} who had lived in Paris for many years. On the day Safie arrived from Constantinople to live with him, her father was put in {prison} by the French {government} for some {crime} I did not understand. Many people felt that he had been {unjustly condemned}. Felix was {present} in the court when the Turk was {condemned} to death. Horrified, Felix decided to help him to escape from prison. The Turk {offered} money, but Felix {refused} to take it. Then he saw the lovely Safie, and he fell in love with her.","'In the days before the escape, Safie wrote several letters to Felix, with the help of a servant who understood French. I have copies of these letters, which I will give to you. They will {prove} that my story is true. In her letters, Safie explained that her mother was a Christian Arab who had been {enslaved} by the {Turks}. Safie's father fell in love with her and married her. Her mother, born in {freedom}, taught Safie to be a Christian and to want more {liberty} than {Muslim} women are allowed. Although her mother was dead, Safie remembered these things. She did not want to return to {Asia} and live in a harem. She wanted to marry a Christian and live in a Christian country.","'On the day of the escape, old De Lacey and Agatha left their house and hid in an {obscure} {part} of Paris. Felix, {meanwhile}, left Paris with the Turk and Safie, who were travelling on {passports in the names} of old De Lacey and Agatha. They left France and travelled {through} Italy. Safie's father {wished} to return to Turkey. He promised Safie and Felix that they would be married, but {secretly} he hated the idea of his daughter marrying a Christian.","'News came from Paris that old De Lacey and Agatha had been {arrested} and put in prison for helping the Turk to escape. Felix {immediately} went back to Paris. The Turk agreed to leave Safie in a {convent} in Leghorn, where Felix could find her when he returned. Felix and his family were put on {trial} and {found guilty}. They lost their {fortune} and were {exiled} from France. Felix wrote to the Turk to tell of his {misfortunes} and his new home in {Germany}, but the Turk had not kept his promise. He had returned to Turkey, {ordering} Safie to follow with his property when it arrived in Leghorn. Safie tried to argue with him, but he left in anger, ordering her again to follow him in a few days. Once alone, Safie sold her {jewels} and travelled with a servant to Germany to find Felix and his family.'"],"quiz":[{"q":"What happened to Safie's father in Paris?","cn":"\u8d5b\u83f2\u7684\u7236\u4eb2\u5728\u5df4\u9ece\u53d1\u751f\u4e86\u4ec0\u4e48\u4e8b\uff1f","options":["He lost all his money in business","He was put in prison by the French government","He became very sick"],"answer":1},{"type":"fill","q":"Felix would not take the ___ that the Turk offered him.","cn":"\u571f\u8033\u5176\u4eba\u60f3\u7ed9\u83f2\u5229\u514b\u65af___\uff0c\u4f46\u4ed6\u4e0d\u80af\u8981\u3002","options":["money","map","letter"],"answer":0},{"q":"What did Safie do after her father went back to Turkey?","cn":"\u7236\u4eb2\u56de\u571f\u8033\u5176\u540e\uff0c\u8d5b\u83f2\u505a\u4e86\u4ec0\u4e48\uff1f","options":["She sold her jewels and travelled to Germany to find Felix","She followed her father to Turkey","She stayed in the convent forever"],"answer":0},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["Felix helps Safie's father escape from prison","Old De Lacey and Agatha are put in prison","The family loses everything and must leave France"]},{"q":"Why did Felix decide to help Safie's father escape from prison?","cn":"\u83f2\u5229\u514b\u65af\u4e3a\u4ec0\u4e48\u51b3\u5b9a\u5e2e\u8d5b\u83f2\u7684\u7236\u4eb2\u8d8a\u72f1\uff1f","options":["He wanted the money the Turk offered him","The Turk was his old friend","He believed the man was punished unfairly"],"answer":2}]},{"id":"u13","section":"The Monster's Narrative","tag":"CHAPTER 13","title_en":"Knocking on the Door","title_cn":"\u6572\u54cd\u5c0f\u5c4b\u7684\u95e8","teaser_cn":"\u602a\u7269\u7ec8\u4e8e\u9f13\u8d77\u52c7\u6c14\uff0c\u8d70\u5411\u5c0f\u5c4b\u7684\u95e8\u2026\u2026","icon":"\ud83c\udfbb","itemName":"\u8001\u4eba\u7684\u7434","words":902,"paras":["One night in August, when I was walking in the woods, I {found} a bag full of books. I took it and ran back to my hut. The books were {Paradise} Lost, Plutarch's Lives, and The {Sorrows} of Werther. These {treasures} gave me great happiness. They showed me new worlds of {thought} and {feeling}. Sometimes they filled me with {joy}, but more often they {filled} me with sadness. I thought Werther a {divine being}, and I wept at his death, although I did not really understand it.","'As I read, I thought of my own feelings and {condition}. In some ways I {resembled} the people in these books, but in other ways I was different from them. I was alone. My body was {gigantic} and ugly. What did this mean? Who was I? What was I? Where did I come from? What was the purpose of my life? I asked myself these questions often, but I could not answer them.","'Plutarch's Lives taught me to love and {admire} the heroes of the {past}. I read about men who {governed} or murdered their {fellow human beings}. I {preferred} those who {governed peacefully}, because they {resembled} my cottagers.","'When I read Paradise Lost, I thought it was a true story. It often {reminded} me of my own condition. Like Adam, I was the only example of my kind, but God made Adam beautiful. Adam's creator cared for him and talked to him. I was completely alone. Often I thought I resembled Satan more than Adam. Like Satan, I saw the happiness of other creatures, and I felt {envious}.","'The coat I took from your {apartment} had some papers in the pocket. When I had learned to read, I looked at them. They were your {journal} for the four months before you created me. When I read it, I {cursed} my creator. Why did you make me so horribly ug1y that even you turned from me in disgust? Even Satan had friends, the other devils, to admire him, but I had nobody. My creator had {abandoned} me.","'The {autumn} passed. I saw, with surprise and {grief}, the leaves fall from the trees. Nature became once again cold and sad, as it was when I first awoke in the woods. In summer the flowers and birds had comforted me. Now I longed even more to show myself to the cottagers. To win their {affection} was my greatest {ambition}.","'I decided to enter the cottage when the old man was alone. I knew that my ugliness frightened people, but my voice was not frightening. I thought that I could talk to the old man first and win his {sympathy}.","'One day in winter Safie, Agatha, and Felix went for a walk in the countryside. The old man was left alone in the cottage.' Trembling with excitement and fear, I knocked on the door of the cottage.","'\"Who is there?\" said the old man. \"Come in.\"","'\"I am sorry to {disturb} you,\" I said. \"I am a traveller, and I am tired. Please would you let me sit by your fire for a few minutes?\"","'\"Come in,\" said the old man. \"My children are not home, and 1 am blind, so I will not be able to get you food.\"","'\"I have food. All 1 need is a little warmth.\"","'I sat down. After a silence, the old man asked, \"Are you French?\"","'\"No,\" I replied, \"but I was educated by a French family. I am going to some friends who, I hope, will help me.\"","'\"Are they German?\" asked the old man.","'\"No. They are French. I have no other friends in the world. These people have never seen me, and 1 am afraid, because if they will not help me I have no other hope.\"","'\"Do not {despair}. If your friends are good people, they will help you.\"","'They are kind,\" I said. \"They are wonderful people, but they are {prejudiced against} me. I am not bad. I have never hurt anyone, but when they look at me they will see a horrible monster.\"","''If you really {mean} no {harm}, can you not explain that to them?\"","''Yes. I will try. I love these friends very much. For many months I have been doing small things to help them, but they believe I want to hurt them.\"","'''Where do they live?\" asked the old man.","'\"{Nearby}. \"","'\"If you will tell me your story, perhaps I can help you. I cannot see your face, but I like your voice. I want to help you.\"","'\"Thank you!\" I cried. \"Those are the first kind words that have ever been spoken to me.\"","'\"Will you tell me the names of your friends?\" he asked.","'At that moment I heard the sounds of the young people I'll turning to the cottage. \"Help me!\" I cried. \"Now is the moment! you and your family are the friends for whom I am searching. Do not {abandon} me!\"","'Felix, Safie, and Agatha {entered} the cottage. How can I describe their horror when they saw me? Agatha {fainted}. Safie ran out of the cottage. Felix attacked me and hit me with a {stick}. I could have killed him with my {bare} hands, but 1 did not. Filled with {pain} and sorrow, I ran out of the cottage and escaped {unseen} to my hut.'"],"quiz":[{"q":"What did the monster find in the woods one night?","cn":"\u4e00\u5929\u591c\u91cc\uff0c\u602a\u7269\u5728\u6811\u6797\u91cc\u53d1\u73b0\u4e86\u4ec0\u4e48\uff1f","options":["A gun and a knife","A box full of gold","A bag full of books"],"answer":2},{"type":"tf","q":"The monster read about Werther's death and felt no sadness at all.","cn":"\u602a\u7269\u8bfb\u5230\u7ef4\u7279\u7684\u6b7b\u65f6\uff0c\u4e00\u70b9\u4e5f\u4e0d\u96be\u8fc7\u3002","answer":false},{"q":"What did Felix do when he saw the monster in the cottage?","cn":"\u83f2\u5229\u514b\u65af\u5728\u5c0f\u5c4b\u91cc\u770b\u5230\u602a\u7269\u65f6\u505a\u4e86\u4ec0\u4e48\uff1f","options":["He ran out of the cottage","He attacked the monster and hit him with a stick","He asked the monster to tell his story"],"answer":1},{"type":"fill","q":"After the monster read Victor's journal, he ___ his creator.","cn":"\u602a\u7269\u8bfb\u4e86\u7ef4\u514b\u591a\u7684\u65e5\u8bb0\u540e\uff0c___\u4e86\u4ed6\u7684\u521b\u9020\u8005\u3002","options":["cursed","thanked","forgave"],"answer":0},{"q":"Why did the monster choose to talk to the old man when he was alone?","cn":"\u602a\u7269\u4e3a\u4ec0\u4e48\u9009\u62e9\u8001\u4eba\u72ec\u81ea\u5728\u5bb6\u65f6\u53bb\u548c\u4ed6\u8bf4\u8bdd\uff1f","options":["The old man was blind, so he could not see the monster's ugly face","The old man was the strongest one in the family","The old man had promised to help him before"],"answer":0}]},{"id":"u14","section":"The Monster's Narrative","tag":"CHAPTER 14","title_en":"Fire and Revenge","title_cn":"\u6012\u706b\u4e0e\u590d\u4ec7","teaser_cn":"\u88ab\u62d2\u7edd\u7684\u602a\u7269\u5fc3\u4e2d\u71c3\u8d77\u5927\u706b\uff0c\u4ed6\u8981\u53bb\u627e\u8c01\uff1f","icon":"\ud83d\udc94","itemName":"\u788e\u88c2\u4e4b\u5fc3","words":901,"paras":["{'Cursed} creator! Why did I live? Why did I not die in that horrible moment? I felt angry, and I wanted {revenge}. I could have destroyed the cottage and killed the cottagers with {pleasure}. When night came, I left the hut and ran {howling} through the woods. The cold stars {shone} down on me, and the {bare} trees {swayed} in the wind. Like Satan, I carried a hell inside me. From that moment I was at war with mankind, and above all, with the man who had given me this {miserable} life.","'When I returned to the cottage, I found that the cottagers had left. I waited all day. They did not return. That night in anger I placed wood around the cottage and set fire to it. The cottage {burned} quickly to the ground, and I ran into the woods.","'Where could I go? I thought of you. I knew from your {journal} that you were my father, my creator, and that Geneva was your hometown. I decided to go there. You were my only hope, but I hated you.","'It was a long and difficult journey. Because I was afraid of being seen by human beings, I travelled only at night. Rain and snow fell upon me. I had nowhere to hide. As I came closer to your hometown, my anger and my desire for revenge grew stronger.","'One morning I continued walking after the sun had {risen}. The forest was far from any village, so I thought I was safe. It was the beginning of spring. The sun warmed me, and I felt happy for the first time in many months. Walking by the side of a river, I heard human {voices}. I hid myself under a tree. A young woman ran towards the place where I was hidden. Suddenly, she {slipped} and fell into the river. I ran out of my hiding place and jumped into the river to save her. When I carried her onto the river bank, she {fainted}. Then a man appeared. He ran {towards} me and took the young woman from my arms. Then he turned and ran into the forest. I followed him. When the man saw me behind him, he shot me with a gun. I fell to the ground, and he escaped into the woods.","'I was in awful pain. Was this the {reward} for my kindness? I had saved a human being from death, and now I {suffered} for it. I {swore revenge} on all {mankind}. For several weeks I lived a {miserable} life in the forest, trying to nurse my wound. Finally it {healed}, and I continued my journey.","'It was evening when I reached the countryside around Geneva. I was very tired and lay down to sleep in a field. I was woken by the {approach} of a beautiful child. As I looked at him, I thought perhaps he was too young to be frightened of me. If I could take him with me and {educate} him, I would not be alone anymore. I tried to take him in my arms, but when he saw me he put his hands over his face and screamed.","'\"Why are you screaming, child?\" I said. \"I will not hurt you.\"","'\"Let me go!\" cried the child. \"Monster! Ugly monster! You want to kill me and eat me! Let me go, or I will tell my father!\"","'\"Come with me,\" I said.","'\"No!\" cried the boy. \"Let me go! My father is Mr Frankenstein, the magistrate. He will punish you.\"","'\"Frankenstein!\" I cried. \"Then you are from the family of my enemy.\"","'The child kept screaming at me. I put my hands around his {throat} to silence him. The next moment he lay dead at my feet.","'I looked at the dead child, and I felt glad. \"I too can {cause pain},\" I thought. \"This will make Frankenstein {suffer}!\"","'Then I saw something around his neck. It was a {chain} and {locket}. In the locket was a picture of a lovely woman. For a few moments I looked at it with pleasure, then my anger returned. No woman would ever love me. If this woman could see me she would faint or {scream}.","'I left the place where I had murdered the child to look for a hiding place. I entered a barn. There I found a young woman asleep. She was not as beautiful as the woman in the picture, but she was young and {healthy}. \"She will smile at everyone {except} for me,\" I thought. I bent over her and whispered, \"Wake up, your lover is here! I would die for one of your smiles. Wake up!\"","'She moved in her sleep. I was afraid she would awaken. If she woke up, she would scream, and I would be arrested for the murder. That thought brought out the {devil} in me. \"She, not I, will suffer for the murder,\" I thought. \"It is her fault really, the fault of all the women who will never smile at me.\" I put tho locket in her clothes and ran away.","'After a few days, I came to these mountains. I am alone and {miserable}. No {human being} will love me, but someone like mysell' would love me. Make me a wife, Frankenstein. Create a {female} of my own kind. This you must do for me.'"],"quiz":[{"q":"What did the monster do to the cottage after the family left?","cn":"\u5c0f\u5c4b\u4e00\u5bb6\u79bb\u5f00\u540e\uff0c\u602a\u7269\u5bf9\u5c0f\u5c4b\u505a\u4e86\u4ec0\u4e48\uff1f","options":["He set fire to it and burned it down","He lived in it by himself","He broke all the windows"],"answer":0},{"type":"who","q":"Let me go! Monster! Ugly monster! You want to kill me and eat me!","cn":"\u653e\u5f00\u6211\uff01\u602a\u7269\uff01\u4e11\u964b\u7684\u602a\u7269\uff01\u4f60\u60f3\u6740\u4e86\u6211\u3001\u5403\u6389\u6211\uff01","options":["the little boy, William","Felix","the old man"],"answer":0},{"q":"What happened after the monster saved the young woman from the river?","cn":"\u602a\u7269\u4ece\u6cb3\u91cc\u6551\u8d77\u5e74\u8f7b\u5973\u5b50\u4e4b\u540e\uff0c\u53d1\u751f\u4e86\u4ec0\u4e48\uff1f","options":["The woman thanked him for saving her","The villagers gave him food as a reward","A man shot him with a gun"],"answer":2},{"type":"fill","q":"The monster found a young woman asleep in a ___.","cn":"\u602a\u7269\u53d1\u73b0\u4e00\u4e2a\u5e74\u8f7b\u5973\u5b50\u5728___\u91cc\u7761\u7740\u4e86\u3002","options":["barn","church","boat"],"answer":0},{"q":"Why did the monster kill the little boy?","cn":"\u602a\u7269\u4e3a\u4ec0\u4e48\u6740\u6b7b\u4e86\u90a3\u4e2a\u5c0f\u7537\u5b69\uff1f","options":["The boy tried to shoot him","The boy was from the Frankenstein family, and the monster wanted revenge on his creator","He wanted to steal the boy's locket from the start"],"answer":1}]},{"id":"u15","section":"Frankenstein's Narrative Continues","tag":"CHAPTER 15","title_en":"The Monster's Big Demand","title_cn":"\u602a\u7269\u7684\u8bf7\u6c42","teaser_cn":"\u602a\u7269\u5411\u7ef4\u514b\u591a\u63d0\u51fa\u4e00\u4e2a\u8981\u6c42\uff0c\u4ed6\u4f1a\u7b54\u5e94\u5417\uff1f","icon":"\ud83d\uddfb","itemName":"\u51b0\u5ddd\u7ed3\u6676","words":301,"paras":["The monster stopped speaking and waited for an answer'I {refuse} to do it,' I said. 'Go away! I have given you your answer. I will never create another being like you!'","'You are wrong,' said the monster, 'but {instead of} being angry, will {reason} with you. I am bad because I am sad. Everyone hates me. Why should I pity human beings when they do not {pity} me? If people would be kind to me, I would be kind to them, but that cannot be. If I cannot have love, I will have revenge. All I ask is a {female} like myself. We will be monsters, alone in the world, but we will have each other. Our lives will not be happy, but they will be {harmless}. Do not refuse me.'","I was moved. As his creator, it was my {duty} to make him happy if I could. He saw the change in my {expression} and said, 'If you agree, I will go with my wife to the forests of South America. We can live on berries. We can sleep under the trees.'","His words made me pity him, but when I looked at his face I felt nothing but {disgust}. After thinking for a long time, I said,","'I will do it. You must promise to leave Europe forever as soon as I give you a female to go with you, and you must promise to stay away from human beings.'","'I promise!' cried the monster. 'Go home and begin your work. I will watch you, and when you are ready, I will appear.'","With these words he left me. I saw him go down the mountain at great {speed}. He disappeared over the river of ice as the sun was {setting}."],"quiz":[{"q":"What did the monster ask Victor to make for him?","cn":"\u602a\u7269\u8981\u6c42\u7ef4\u514b\u591a\u4e3a\u4ed6\u505a\u4ec0\u4e48\uff1f","options":["A new house in the forest","A female monster like himself","A boat to leave Europe"],"answer":1},{"type":"who","q":"If I cannot have love, I will have revenge.","cn":"\u5982\u679c\u6211\u4e0d\u80fd\u62e5\u6709\u7231\uff0c\u90a3\u6211\u5c31\u8981\u590d\u4ec7\u3002","options":["the monster","Victor","the old man"],"answer":0},{"q":"What did the monster promise to do if Victor agreed?","cn":"\u5982\u679c\u7ef4\u514b\u591a\u7b54\u5e94\uff0c\u602a\u7269\u627f\u8bfa\u505a\u4ec0\u4e48\uff1f","options":["To become Victor's servant","To give Victor gold and jewels","To leave Europe forever and stay away from human beings"],"answer":2},{"type":"tf","q":"The monster said he and his mate would live on berries in the forests of South America.","cn":"\u602a\u7269\u8bf4\u4ed6\u548c\u4ed6\u7684\u4f34\u4fa3\u4f1a\u5728\u5357\u7f8e\u6d32\u7684\u68ee\u6797\u91cc\u9760\u6d46\u679c\u4e3a\u751f\u3002","answer":true},{"q":"Why did Victor finally say yes to the monster?","cn":"\u7ef4\u514b\u591a\u6700\u540e\u4e3a\u4ec0\u4e48\u7b54\u5e94\u4e86\u602a\u7269\uff1f","options":["He pitied the monster and felt it was his duty as creator to make him happy","He was too afraid to say no","He wanted the monster to help him with science"],"answer":0}]},{"id":"u16","section":"Frankenstein's Narrative Continues","tag":"CHAPTER 16","title_en":"A Promise and a Journey","title_cn":"\u627f\u8bfa\u4e0e\u8fdc\u884c","teaser_cn":"\u7ef4\u514b\u591a\u5e26\u7740\u53ef\u6015\u7684\u79d8\u5bc6\uff0c\u8e0f\u4e0a\u53bb\u82f1\u56fd\u7684\u8def\u3002","icon":"\ud83e\udd1d","itemName":"\u51b0\u4e0a\u7ea6\u5b9a","words":406,"paras":["I returned to Geneva, but I did not have the {courage} to begin my horrible work. I was in better health now, and, when] could forget my promise to the monster, I was happier too.","One day my father said to me, 'I am glad to see that you are better, Victor, but I notice that you are still sad sometimes. Is it because of Elizabeth? I have always hoped you and Elizabeth would marry. You have loved each other {since} you were children, but maybe I have been blind. Perhaps you love Elizabeth {as} a sister. Perhaps you love someone else and want that other person to be your wife. Am I right, Victor? Is this the reason for your sadness?'","'My dear father,' I replied. 'Do not worry. I love Elizabeth very much, and I want to marry her.'","'I am so happy to hear that. Why not marry as soon as possible?'","The idea of marrying Elizabeth immediately {filled} me with horror. I had to create the female and see the two monsters leave Europe before I could marry.","An Englishman had made new discoveries in science. I wanted to speak to this man before beginning work on a female for the monster. I thought it would be better to do my {awful} work ill England, far away from my family. {Therefore} I told my father that I had to go to England and that when I returned I would marry Elizabeth. My father and Elizabeth asked Clerval to travel with me. At first I thought that this would make it more difficult to do my work, but then I was glad. I thought the monster would not Come near me while Henry was there. I did not like to leave my family alone, {ignorant} of their enemy. But I thought that the monster would follow me to England, so my family would be safe.","Clerval and I left Geneva in September. On the journey, Clerval noticed all the beauties of nature, but I was gloomy. Slowly his love of nature {tranquillized} my {soul}, and I began to enjoy the passing {landscape} with him.","Clerval, my dear friend! Where is he now? Does he now only {exist} in my {memory}? No! His body is gone, but his spirit still {visits} me!","Forgive me for showing my sorrow. It is so {painful} to remember him. I will continue my story."],"quiz":[{"q":"Who did Victor's father want him to marry?","cn":"\u7ef4\u514b\u591a\u7684\u7236\u4eb2\u5e0c\u671b\u4ed6\u548c\u8c01\u7ed3\u5a5a\uff1f","options":["Elizabeth","Safie","Agatha"],"answer":0},{"type":"who","q":"Is this the reason for your sadness?","cn":"\u8fd9\u5c31\u662f\u4f60\u4f24\u5fc3\u7684\u539f\u56e0\u5417\uff1f","options":["Victor's father","Elizabeth","Clerval"],"answer":0},{"q":"Who travelled with Victor to England?","cn":"\u8c01\u548c\u7ef4\u514b\u591a\u4e00\u8d77\u53bb\u82f1\u56fd\uff1f","options":["His father","His friend Clerval","Elizabeth"],"answer":1},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["Victor tells his father he wants to marry Elizabeth","Victor decides to do his secret work in England","Clerval's love of nature calms Victor's sad heart"]},{"q":"Why did Victor feel horror when his father said he should marry Elizabeth soon?","cn":"\u7236\u4eb2\u63d0\u8bae\u5c3d\u5feb\u7ed3\u5a5a\u65f6\uff0c\u7ef4\u514b\u591a\u4e3a\u4ec0\u4e48\u611f\u5230\u6050\u60e7\uff1f","options":["He did not love Elizabeth at all","He was afraid of leaving Geneva","He had to finish his promise to the monster before he could marry"],"answer":2}]},{"id":"u17","section":"Frankenstein's Narrative Continues","tag":"CHAPTER 17","title_en":"The Lonely Island","title_cn":"\u5b64\u5c9b\u4e0a\u7684\u79d8\u5bc6","teaser_cn":"\u7ef4\u514b\u591a\u8eb2\u5230\u8352\u5c9b\uff0c\u5f00\u59cb\u90a3\u4ef6\u53ef\u6015\u7684\u5de5\u4f5c\u2026\u2026","icon":"\ud83c\udfdd","itemName":"\u5b64\u5c9b\u5730\u56fe","words":380,"paras":["We spent some months in London. Clerval was planning to visit India. He hoped to be able to help the {progress} of European {colonization} and {trade} there. He spoke several of the languages of India and was interested in the people. In London there were many men who could help him.","I spoke to the English scientist, then I began {collecting} the {materials} for my creation. I hated the thought of beginning this awful work. After some months, we {received} a letter from a person in Scotland who invited us to visit him.We left London in March and travelled slowly {north}. We stayed in Oxford then in Matlock.We spent two months in Cumberland and Westmorland, which were almost like the Swiss mountains. The snow on the {northern} sides of the mountains, the lakes, and the rivers made us feel at home. Then we went on to Scotland. I was not sorry. It was now many months {since} I had made my promise, and I was afraid of the monster's {disappointment}. Sometimes I feared that he {might} hurt my family. At other times I thought he would {punish} me by murdering Clerval. I felt {as if} I had {committed} some great {crime}.","When we got to Perth in Scotland, I told Clerval that I wished to travel alone for a month or two.' Enjoy your visit,' I told him, 'we will meet here when I return.' Henry did not want me to go. He told me to write to him often and to come back as soon as possible.","After I left Clerval, I travelled north. I was sure that the monster had followed me. I went to one of the smallest islands of Orkney. On the whole island there were only three {miserable} huts, and one of them was empty. I {rented} it and moved in with my {instruments} and {materials}. There I worked every morning. In the evenings I walked by the sea. As my work {proceeded} it became more and more hateful to me. Sometimes I did not work for two or three days. At other times I worked day and night, hoping to finish it quickly. The things I had to do often made me feel {sick}, but I continued to work."],"quiz":[{"q":"Where did Victor go to do his secret work?","cn":"\u7ef4\u514b\u591a\u53bb\u54ea\u91cc\u505a\u4ed6\u7684\u79d8\u5bc6\u5de5\u4f5c\uff1f","options":["A big city in England","The Swiss mountains","A small island in Scotland"],"answer":2},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["They received a letter inviting them to visit Scotland","They arrived at Perth in Scotland","Victor rented an empty hut on a small island"]},{"q":"What was Clerval planning to do?","cn":"\u514b\u83b1\u74e6\u5c14\u8ba1\u5212\u505a\u4ec0\u4e48\uff1f","options":["Visit India","Go back to Geneva","Become a scientist"],"answer":0},{"type":"fill","q":"On the island there were only three ___ huts, and Victor rented the empty one.","cn":"\u5c9b\u4e0a\u53ea\u6709\u4e09\u95f4___\u5c0f\u5c4b\uff0c\u7ef4\u514b\u591a\u79df\u4e0b\u4e86\u5176\u4e2d\u7a7a\u7740\u7684\u4e00\u95f4\u3002","options":["miserable","warm","new"],"answer":0},{"q":"Why was Victor afraid while he travelled?","cn":"\u65c5\u9014\u4e2d\u7ef4\u514b\u591a\u4e3a\u4ec0\u4e48\u5bb3\u6015\uff1f","options":["He was afraid of the sea","He thought the monster might hurt his family or Clerval","He had no money left"],"answer":1}]},{"id":"u18","section":"Frankenstein's Narrative Continues","tag":"CHAPTER 18","title_en":"A Broken Promise","title_cn":"\u6bc1\u7ea6\u4e4b\u591c","teaser_cn":"\u6708\u5149\u4e0b\uff0c\u7a97\u5916\u51fa\u73b0\u4e86\u90a3\u5f20\u53ef\u6015\u7684\u8138\u2026\u2026","icon":"\ud83c\udf0a","itemName":"\u6012\u6d77\u4e4b\u74f6","words":1201,"paras":["One evening I sat in my {laboratory}. The sun had set, and the moon was rising over the sea. I began to think about what I was doing. 'Three years ago,' I thought, 'I was doing the same thing. I created a {devil} whose {violence} has {ruined} my life. I am now creating another. She might be even more evil than her {mate}. He has promised to leave Europe and hide himself in the forests of {South America}, but she has not promised. She {might} refuse. They might even hate each other. The monster hates the {sight} of his own face. Might he not hate the sight of his monstrous mate? She might turn from him in disgust. She might leave him.","'If they {do} leave Europe together,' I thought, 'they will have children. They will create a {race} of devils that might {destroy mankind}. Have I the right, for my own {comfort}, to do something that would be a curse on future {generations}?'","Before, I had been moved by the monster's {arguments} and frightened by his {threats}. Now, for the first time, I realized how {wicked} my promise was. I thought with horror that perhaps future generations would curse me {as} the man whose {selfishness} had {caused} great {suffering} to the {whole} of mankind.","I trembled. Then, looking up, I saw the monster at the window by the light of the moon. He was watching me. His face was horribly ugly. It was an evil face. Trembling with anger, I {tore} to pieces the half-finished creature. The monster saw me destroy his mate. With a {howl} of pain, he ran away.","I left the room, {promising} myself that I would never return to that work. I went to my bedroom and spent hours by my window, looking out at the moon. There were a few fishing boats on the water. {From time to time}, the silence was broken by the voices of the fishermen calling to {one another}. Then suddenly I heard the sound of oars in the water. A boat was {approaching} the {shore}. A few minutes later, I heard my front door open. I trembled with fear and wanted to {cry out} for help, but I could not. Like someone who is dreaming a frightening dream, I could neither speak nor move. My bedroom door opened, and I saw the monster.","He spoke to me in a trembling voice. ' You have destroyed the work you began. What does this mean? Will you {break your promise}? I have followed you over Europe to this cold {gloomy} place. I have been tired and hungry, and now you destroy my hopes.'","'Go away!' I cried. 'Yes, I break my promise. I will never create another as evil and monstrous as you are.'","'Slave! I {reasoned with} you before, but you are {unreasonable}. Remember that I have the {power} to make you miserable. You are my creator, but I am your master. {Obey}!'","'Your threats cannot {force} me to do something evil,' I said.'Go away! Your words only make me angrier.'","The monster said, 'Every man has a wife. Every animal has a mate. Will I be the only creature to live alone? I was {capable} or love, but everyone hated me. I will not let you be happy while I am miserable. I want revenge more than warmth or food. Before I die, you will be sorry that you were ever born. Remember this: I will be with you on your wedding night!'","He ran away. A few moments later, I saw him in his boat, which {shot} I {across} the water with the speed of an arrow. 'So,' I thought, 'he will murder me on my {wedding} night.' I thought of poor Elizabeth. 'How she would suffer if she lost me!'","As the sun rose, I went out and walked on the beach. I would have been happy to live forever on that {miserable} island, if only I could live {in peace}. When I left the island it would be to meet my own death, or the deaths of those I loved, at the hands of a monster I myself had created.","At midday I fell asleep on the grass. When I awoke, the sun was {setting}. What had happened the night before seemed like a bad dream.","A fishing boat {landed} on the beach, and a man from the boat brought me two letters. One was from my father and the other from Clerval. Clerval wrote that he would soon return to London to {complete} the {arrangements} for his {journey} to India. He asked me to meet him at Perth as soon as possible. I decided to leave the island in two days.","First I had to pack my {chemical instruments}. The next morning, I entered my laboratory. The {remains} of the {half-finished} creature lay on the floor. I felt almost as if I had murdered a human being. With trembling hands I collected my instruments. Then I {gathered} the remains of the creature and put them in a {basket} with some heavy stones.","When the moon rose that night, I went out in a small boat. I felt like a {criminal}. I waited until a black cloud covered the moon for a few minutes, then I dropped the basket into the sea. {Relieved}, I lay down in the boat and fell into a deep sleep.","When I awoke it was morning. There was a strong wind, and my little boat was in danger. The wind had blown the boat far away from the island, and I did not know where I was. All day the little boat {tossed} on the sea.I was horribly thirsty and frightened.I thought I was going to die. Then I imagined Elizabeth, my father, and Clerval - all left behind for the monster to murder.","At sunset, I saw land in the distance. Tears of {joy} filled my eyes. As I approached the shore, I saw boats, a harbour, and a small town. I brought my boat into the harbour and stepped onto the shore. People gathered to watch,but they did not offer to help me.","'My friends,' I said, 'could you please tell me the name of this town?'","Nobody replied. The people looked angry and unfriendly. 'What is the matter?' I asked. 'The English are not usually so {unfriendly} to {strangers}.'","'I do not know about the English,' said one man, 'but the {Irish} hate murderers.'","What could this mean? Another man {stepped forward} and put his hand on my shoulder. 'Come, sir,' he said. 'You must talk to Mr Kirwin.'","'Who is Mr Kirwin? Why must I talk to him?'","'He is the {magistrate}, sir,' said the man. 'He will want to ask you some questions about a gentleman who was found murdered here last night.'","I was surprised but not {greatly} worried. I was innocent and could {prove} it. I followed the man to Mr Kirwin's house. I had no idea then of the horror that was waiting for me."],"quiz":[{"q":"What did Victor do to the half-finished creature?","cn":"\u7ef4\u514b\u591a\u5bf9\u90a3\u4e2a\u505a\u4e86\u4e00\u534a\u7684\u751f\u7269\u505a\u4e86\u4ec0\u4e48\uff1f","options":["He hid it in a cave","He tore it to pieces","He gave it to the monster"],"answer":1},{"type":"who","q":"Remember that I have the power to make you miserable. You are my creator, but I am your master. Obey!","cn":"\u8bb0\u4f4f\uff0c\u6211\u6709\u80fd\u529b\u8ba9\u4f60\u75db\u82e6\u3002\u4f60\u662f\u6211\u7684\u521b\u9020\u8005\uff0c\u4f46\u6211\u662f\u4f60\u7684\u4e3b\u4eba\u3002\u670d\u4ece\u5427\uff01","options":["Victor","the monster","Victor's father"],"answer":1},{"q":"What did the monster say before he ran away?","cn":"\u602a\u7269\u8dd1\u6389\u4e4b\u524d\u8bf4\u4e86\u4ec0\u4e48\uff1f","options":["'I will leave Europe forever!'","'I will never see you again!'","'I will be with you on your wedding night!'"],"answer":2},{"type":"tf","q":"After threatening Victor, the monster escaped across the water in a boat.","cn":"\u5a01\u80c1\u7ef4\u514b\u591a\u4e4b\u540e\uff0c\u602a\u7269\u4e58\u8239\u98de\u5feb\u5730\u9003\u8fc7\u4e86\u6c34\u9762\u3002","answer":true},{"q":"Why did Victor stop making the second creature?","cn":"\u7ef4\u514b\u591a\u4e3a\u4ec0\u4e48\u4e0d\u518d\u505a\u7b2c\u4e8c\u4e2a\u751f\u7269\uff1f","options":["He feared it could bring danger to all people in the future","He did not have enough materials","The monster told him to stop"],"answer":0}]},{"id":"u19","section":"Frankenstein's Narrative Continues","tag":"CHAPTER 19","title_en":"The Prison Cell","title_cn":"\u72f1\u4e2d\u5c81\u6708","teaser_cn":"\u684c\u4e0a\u7684\u5c38\u4f53\uff0c\u7adf\u662f\u4ed6\u719f\u6089\u7684\u4eba\uff1f","icon":"\u26d3","itemName":"\u81ea\u7531\u94a5\u5319","words":660,"paras":["Mr Kirwin was a kind old gentleman. He asked one or the {witnesses} to tell his story. The man said he had been fishing the night before with a friend. The {wind grew strong}, so they landed their boat some {distance} from the {harbour}. On the beach they found the body of a young man. There were black finger-{marks} on his neck.","When I heard about the finger-marks, I began to tremble. The magistrate noticed my {nervousness}. The other fisherman said that, just before they found the body, he had seen a boat with one man in it not far from the shore. He believed it was the same boat in which I had just landed.","A woman said that she had been standing at the door of her cottage near the beach, about half an hour before the body was discovered. She had seen a boat with one man in it leave the shore near the place where the body was later found.","When Mr Kirwin had heard these witnesses, he took me to the room where the body lay. I was not worried, because I knew that I had been seen by people on the island at the time of the murder. I was sure that I could not be found guilty.","I entered the room. Imagine my horror when I saw on the table the body of my friend Clerval!'Oh Henry!' I cried. ' Have I been the {cause} of your death too?' I {fainted}. For two months I was very murderer of William, Justine, and Henry. Sometimes {begged} for help to kill the devil who was {torturing} me. At other limes I felt his fingers around my neck. Since I spoke in my own language only Mr Kirwin understood me. Why did I not die? What was I made of that I could suffer so much and still live? In two months I recovered to find myself in prison. Mr Kirwin was the only person to show me any kindness. One day he came into my prison cell.' How are you?' he asked gently.","'Nothing can comfort me,' I replied.","'When you were ill,' he said, 'I looked at the papers that were in your pockets. I found a letter from your father, so I wrote to Geneva to tell him what had happened.'","'Have you news from my family?' I asked eagerly, 'Has anything terrible happened?'","'Your family is well,' said Mr Kirwin, 'and someone has come to see you.'","{For a moment} I thought the monster had come to watch my {suffering}. 'Do not let him in!' I cried ' I cannot see him!' .","'Why? Do you not wish to see your father?' asked Mr Kirwin.","'My father!' I was weak with {relief}. 'Oh, please! Where is he?'","Mr Kirwin left the room, and a moment later, my father entered. I {stretched} out my hand to him.'Oh father, you are safe! And Elizabeth?'","'She is well. Poor Victor! What a terrible place this is! And poor Clerval!'","I wept. 'Yes, my dear father,' I said.'Some horrible destiny hangs over me!'","I recovered quickly. After the trial, I was {released} from prison, It was {proved} that I had been on the island at the time of the murder. I travelled home to Geneva with my father, feeling sad and {hopeless}. Often I {thought of} killing myself, but I had a {duty} to protect the people I loved from the monster I had created.","Ever since my {illness} I had taken {opium} I to help me sleep. The opium gave my body the rest it needed, but my mind still {suffered} in terrible dreams. Sometimes I {dreamt} that the monster's fingers were around my {neck}. Waking up to find no monster there, I felt relief. For the moment I was safe."],"quiz":[{"q":"Whose body did Victor see on the table?","cn":"\u7ef4\u514b\u591a\u5728\u684c\u4e0a\u770b\u5230\u7684\u662f\u8c01\u7684\u5c38\u4f53\uff1f","options":["His friend Henry Clerval","His brother William","The magistrate Mr Kirwin"],"answer":0},{"type":"tf","q":"Mr Kirwin showed no kindness to Victor while he was in prison.","cn":"\u67ef\u6587\u5148\u751f\u5728\u7ef4\u514b\u591a\u5750\u7262\u671f\u95f4\u5bf9\u4ed6\u6beb\u4e0d\u53cb\u5584\u3002","answer":false},{"q":"Who came to visit Victor in prison?","cn":"\u8c01\u6765\u76d1\u72f1\u770b\u671b\u7ef4\u514b\u591a\uff1f","options":["Elizabeth","His father","The monster"],"answer":1},{"type":"fill","q":"There were black finger-___ on the dead man's neck.","cn":"\u6b7b\u8005\u7684\u8116\u5b50\u4e0a\u6709\u9ed1\u8272\u7684\u624b\u6307___\u3002","options":["marks","cuts","bruises"],"answer":0},{"q":"Victor thought of killing himself. Why did he not do it?","cn":"\u7ef4\u514b\u591a\u60f3\u8fc7\u81ea\u6740\uff0c\u4e3a\u4ec0\u4e48\u6ca1\u6709\u90a3\u6837\u505a\uff1f","options":["He was afraid of dying","Mr Kirwin watched him all the time","He had to protect his family from the monster"],"answer":2}]},{"id":"u20","section":"Frankenstein's Narrative Continues","tag":"CHAPTER 20","title_en":"The Wedding Day","title_cn":"\u5a5a\u793c\u6765\u4e34","teaser_cn":"\u5a5a\u793c\u5c06\u8fd1\uff0c\u90a3\u53e5\u5a01\u80c1\u8fd8\u5728\u8033\u8fb9\u56de\u54cd\u2026\u2026","icon":"\ud83d\udc8d","itemName":"\u5a5a\u793c\u4e4b\u6212","words":710,"paras":["We stopped in Paris for a while, because I was not strong enough to travel on. There my father wished me to go out and see people. He hoped that this would {cure my sadness}, but I could not bear to see people. How they would all hate me if they knew that I had created a monster who took pleasure in","murdering them! In my {despair}, I told my father more than once that I was {responsible} for the deaths of William, Justine, and Henry.","Sometimes he asked me to explain. At other times he seemed to think my words were a {result} of my illness. I could not explain. He would have thought I was mad.","A few days before we left Paris, I received a letter from Elizabeth.","My dear Victor,","I am so glad that you are coming home. How much you must have suffered! I want you to find comfort and tranquility. For this reason, my dear friend,I am writing to explain something to you.","You know that both your parents always wanted us to get married. We have always loved each other. but perhaps our love is the love of brother and sister, Tell me, dearest victor.do you love someone else? You have been away for many years, first in Ingolstadt and then in Britain.","When you left last year, I thought maybe you were running away from me. I love you and have always dreamt of a future together with you, but I want your happiness as well as my own. Our marriage would make me miserable if I thought that you did not wish it. Believe me,victor, I love you too much to make you unhappy. Be happy, my friend. Obey me in this one request, and I will be {contented}.","Elizabeth","Geneva,18 May 17--","This letter {reminded} me of the monster's {threat} ---- 'I will be with you on your wedding night.'On that night the devil would destroy me and so destroy the only hope of happiness I had to comfort me.","Sweet Elizabeth! I read her letter several times. I dreamt of the {paradise} of her love, but the apple was already eaten, and the angel was ready to {drive} me out of the garden. I decided to marry {as soon as} I got home. I wrote to tell her this. My letter was calm and {affectionate}. 'Do not be afraid, my love,' I said.'My only hope of happiness is in marrying you. I have a terrible secret. When I tell you my secret, you will understand why I {have been} so miserable. I will tell you on the morning after our wedding. Do not ask me about it {until then}.'","My father was glad. He spoke of the comfort we would be to each other. He spoke of children being born to {replace} the loved ones we {had lost}. All I could think of was the monster's {threat}, 'I will be with you on your wedding night'. I thought it meant that he would kill me then. I was not afraid of my own death. Great God! If for one moment I had {imagined} what he really planned to do, I would have left home forever. I thought I was preparing my own death, but really I was preparing hers.","We made the {arrangements} for the wedding. As the day {approached}, I began to feel better. The monster's threat seemed like a bad dream, but my happiness with Elizabeth seemed real and close {at hand}.","Elizabeth looked a little sad on our wedding day. Perhaps she was thinking of the awful secret I would tell her the next morning. After the wedding, there was a party at my father's house. Then Elizabeth and I left for our honeymoon on Lake Como. Those were the last moments in my life when I felt happiness. The sun was shining. We saw Mont Saleve and, {in the distance},Mont Blanc. I held Elizabeth's hand.'You look sad, Elizabeth,' I said.","'I am {content},' she {replied}. 'Something tells me not to hope for happiness, but I will not listen. Look at the mountains and the lake, Victor. What a divine day! How happy nature appears!'"],"quiz":[{"q":"What did Elizabeth ask Victor in her letter?","cn":"\u4f0a\u4e3d\u838e\u767d\u5728\u4fe1\u91cc\u95ee\u7ef4\u514b\u591a\u4ec0\u4e48\uff1f","options":["If he was still ill","If he needed money","If he loved someone else"],"answer":2},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["They stopped in Paris because Victor was too weak to travel","Victor received a letter from Elizabeth","Victor and Elizabeth got married"]},{"q":"Where did Victor and Elizabeth go after the wedding?","cn":"\u5a5a\u793c\u4e4b\u540e\uff0c\u7ef4\u514b\u591a\u548c\u4f0a\u4e3d\u838e\u767d\u53bb\u4e86\u54ea\u91cc\uff1f","options":["Paris","Lake Como","London"],"answer":1},{"type":"who","q":"I am content. Something tells me not to hope for happiness, but I will not listen.","cn":"\u6211\u5f88\u6ee1\u8db3\u3002\u6709\u79cd\u611f\u89c9\u544a\u8bc9\u6211\u4e0d\u8981\u76fc\u671b\u5e78\u798f\uff0c\u4f46\u6211\u4e0d\u4f1a\u53bb\u7406\u4f1a\u5b83\u3002","options":["Elizabeth","Victor","Victor's father"],"answer":0},{"q":"What did Victor think the monster's threat really meant?","cn":"\u7ef4\u514b\u591a\u4ee5\u4e3a\u602a\u7269\u7684\u5a01\u80c1\u662f\u4ec0\u4e48\u610f\u601d\uff1f","options":["The monster would kill Victor himself","The monster would kill Elizabeth","The monster would come to say sorry"],"answer":0}]},{"id":"u21","section":"Frankenstein's Narrative Continues","tag":"CHAPTER 21","title_en":"A Terrible Night","title_cn":"\u6050\u6016\u4e4b\u591c","teaser_cn":"\u65b0\u5a5a\u4e4b\u591c\uff0c\u4e00\u58f0\u5c16\u53eb\u5212\u7834\u9ed1\u6697\u2026\u2026","icon":"\ud83d\udd6f","itemName":"\u8ffd\u5ff5\u70db\u5149","words":657,"paras":["It was evening when we arrived at the hotel. A strong wind blew from the west. Clouds raced across the moon. It began to rain. I had been calm {during} the day, but now I was afraid. I kept my hand on the gun in my pocket. Every sound frightened me.","'What is the matter, Victor?' asked Elizabeth.","'Do not ask, my love,' I replied.' After tonight, we will be safe, but tonight is terrible.'","Suddenly I thought of how frightened she would be if she saw the fight between the monster and myself. I asked her to go to bed. I would not go to her until I had discovered where my enemy was hiding.","She left me, and I walked through the house, searching everywhere. I did not find him. Suddenly I heard a {dreadful scream}. It came from Elizabeth's room. As I heard it, I realized the truth. She screamed again, and I ran into the room. Great God! Why did I not die? Why am I here to tell you this terrible {tale}? There she was, dead, lying across the bed, her head {hanging} down, and her face covered by her hair. I fainted.","When I recovered, I was {surrounded} by the people of the hotel. They had moved Elizabeth to another room. I escaped from them to that room, ran to the bed where Elizabeth lay, and embraced her. The marks of the devil's fingers were on her neck.","Looking up, I saw the monster standing outside the open window in the yellow moonlight. He {grinned} at me and {pointed} at the body of my wife. I ran to the window, taking the gun from my pocket, but he ran away at great speed and jumped into the lake.","The sound of the gun brought people running into the room. We searched for him for hours, but we did not find him. I returned to the hotel, feeling sick with horror. Suddenly I thought of my father. The monster might be going to him now. He might murder my father. I decided to return to Geneva as soon as possible.","On the journey back I wept. A devil had robbed me of every hope of future happiness. No creature has ever been as miserable as I was.","When I arrived at Geneva, I found my father alive, but he became ill when I told him the terrible news. He could not live with the horrors that surrounded him. In a few days he died in my arms.","What happened to me? I do not know. Sometimes I dreamt I was walking in flowery {fields} to the people I loved, but I awoke to find myself in prison. Slowly I {recovered}, and they {released} me. They had called me mad, and I had spent many months in a {cell} alone.","I thought I {had no use for} {liberty}, but slowly, as I recovered, I began to want revenge. I was filled with a {maddening} anger when I thought of the monster. I began to think of how I could get him. I went to a {magistrate} and told him that I knew who had destroyed my family. I told my story calmly, giving the dates and the places. I did not want him to think I was mad. He listened to me, then he said, 'If the monster is as you have described him, I will not {be able to} catch him. He can live in {caves} of ice. He can run faster than any man. I will try my best to {arrest} him, but I am afraid I will {fail}.'","'You do not care about my revenge,' I said. 'If you cannot help me, I must pursue him alone.'","He must have thought I was mad. He tried to calm me as a nurse tries to calm a child. I left the house in anger."],"quiz":[{"q":"What did Victor find when he ran into Elizabeth's room?","cn":"\u7ef4\u514b\u591a\u51b2\u8fdb\u4f0a\u4e3d\u838e\u767d\u7684\u623f\u95f4\u65f6\u770b\u5230\u4e86\u4ec0\u4e48\uff1f","options":["The room was empty","Elizabeth was dead on the bed","The monster was hiding under the bed"],"answer":1},{"type":"tf","q":"The monster jumped into the lake to escape from Victor.","cn":"\u602a\u7269\u8df3\u8fdb\u6e56\u91cc\u9003\u79bb\u4e86\u7ef4\u514b\u591a\u3002","answer":true},{"q":"What happened to Victor's father after he heard the news?","cn":"\u7ef4\u514b\u591a\u7684\u7236\u4eb2\u542c\u5230\u6d88\u606f\u540e\u600e\u4e48\u6837\u4e86\uff1f","options":["He became ill and died a few days later","He went to look for the monster","He moved to Paris"],"answer":0},{"type":"fill","q":"Victor asked Elizabeth to go to ___ while he searched the house.","cn":"\u7ef4\u514b\u591a\u8ba9\u4f0a\u4e3d\u838e\u767d\u5148\u53bb___\uff0c\u81ea\u5df1\u53bb\u641c\u67e5\u623f\u5b50\u3002","options":["bed","the garden","her mother's house"],"answer":0},{"q":"Why did the magistrate not really help Victor?","cn":"\u5730\u65b9\u5b98\u4e3a\u4ec0\u4e48\u6ca1\u6709\u771f\u6b63\u5e2e\u52a9\u7ef4\u514b\u591a\uff1f","options":["He was a friend of the monster","He wanted money first","He believed no one could catch such a creature"],"answer":2}]},{"id":"u22","section":"Frankenstein's Narrative Continues","tag":"CHAPTER 22","title_en":"Chase on the Ice","title_cn":"\u51b0\u4e0a\u8ffd\u51fb","teaser_cn":"\u590d\u4ec7\u4e4b\u8def\uff0c\u4e00\u76f4\u901a\u5411\u51b0\u5c01\u7684\u5317\u65b9\u2026\u2026","icon":"\ud83d\udef7","itemName":"\u51b0\u539f\u96ea\u6a47","words":858,"paras":["Revenge alone gave me strength. I decided to leave Geneva. I took my money and began the travels that will end only with my death. I have travelled all over the world. I have {suffered} all the {difficulties} that travellers in {deserts} and {savage} countries suffer. Often I have {prayed} for death, but {revenge} has kept me {alive}. I could not die and leave the monster living.","Before I left my hometown forever, I visited the cemetery where William, Elizabeth, and my father are {buried}. The night was {nearly} dark. The spirits of my loved ones {seemed} to be around me. They were dead, and I lived. Their murderer too was alive, and I must keep living to destroy him.","'I {swear},' said I, ' that I will find him and kill him, if he does not kill me first. Help me, good spirits, to find him. Help me to avenge you. Let him feel the {despair} that I feel now!'","In the silence of the night, I heard a loud and terrifying laugh. I felt as if hell were all around me. The laughter stopped and a voice said, 'I am {content}. You have decided to live, and I am content.'","I ran towards the sound, but I did not catch him. The moon came out from behind the clouds, and I saw him running away {at amazing speed}. I {pursued} him. For many months I have been following him. I pursued him over the Mediterranean and over the Black Sea. I followed him over Russia. Sometimes people who had seen him told me where he had gone. Sometimes he himself left some {sign} for me. He wants me to follow him. He is afraid I might {despair} and die. I travelled through snow. I saw the print of his great foot on the white ground. How can you, who are young and innocent, understand what I felt? I was cold, tired, and hungry, but that was nothing. I carried a hell inside me. Sometimes, when I was dying of hunger, I found food. I think it was left there by the good spirits who travelled with me. Often, when I was thirsty, a few {drops} of rain would fall and {relieve} me.","I tried to follow the rivers, but the monster {avoided} them, because there are more people by the river banks. In other places I saw no human beings. I ate the wild animals that I killed. I had money, and I gave it to the villagers to win heir help and friendship.","I was only happy when I slept. My good spirits gave me sweet dreams. In sleep I saw William, Clerval, Elizabeth, and my father again. Often, during the day, I told myself that I was dreaming and would wake up that night with the people I loved.","I do not know what the monster felt. Sometimes he left {messages} written on the trees. 'Follow me to the {frozen} north,' he wrote, 'where you will suffer but T will not. I have left a dead rabbit for you. Eat. We will fight to the death, I but you will suffer {tortures} before that moment arrives.'","I hate him! I will get my revenge! I will search for him until I die! Then how happy I will be to go to Elizabeth and the others. They are waiting for me!","As I travelled north, the weather became colder. The rivers were covered with ice, and I could get no fish. The monster was happy when I suffered. In one message he wrote, 'This is just the beginning! You will suffer much more than this!'","I bought a {sledge} and some dogs to pull it. In the sledge, I could move very quickly. I did not know if the monster had the same advantages, but every day I got closer to him. I reached a village on the sea shore. There the people told me of a gigantic being who had taken food and a sledge with dogs. He had a gun, they said. He had set off in the sledge over the sea of ice. They believed that the ice would break and he would be killed.","I followed him. I do not know how many days have passed since then. One day one of my dogs died of cold and fatigue. I nearly despaired, but then I saw a dark {speck} {in the distance}. It was him!","It was then that the ice broke. The sea rolled between me and my enemy. I was left as you found me, on a floating sheet of ice. If I die before he does, swear to me, Walton, that he will not escape. Kill him for me! I do not ask you to follow him, but, if he appears when I am dead, swear you will kill him! He speaks well and his words might {persuade} you, as they once persuaded me. Do not trust him. Remember the spirits of William, Justine, Clerval, Elizabeth, my father, and your unhappy Victor. Kill him. My spirit will be near to help you."],"quiz":[{"q":"What did Victor buy to travel fast over the snow?","cn":"\u4e3a\u4e86\u5728\u96ea\u5730\u4e0a\u5feb\u901f\u524d\u8fdb\uff0c\u7ef4\u514b\u591a\u4e70\u4e86\u4ec0\u4e48\uff1f","options":["A sledge and some dogs","A horse","A small boat"],"answer":0},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["Victor swore at the cemetery that he would kill the monster","Victor heard the monster's laugh in the darkness","The ice broke and separated Victor from the monster"]},{"q":"What did Victor ask Walton to do if he died?","cn":"\u7ef4\u514b\u591a\u8bf7\u6c83\u5c14\u987f\u5728\u4ed6\u6b7b\u540e\u505a\u4ec0\u4e48\uff1f","options":["Take his money to Geneva","Write his story in a book","Kill the monster and not trust his words"],"answer":2},{"type":"who","q":"Follow me to the frozen north, where you will suffer but I will not.","cn":"\u8ddf\u6211\u6765\u51b0\u5c01\u7684\u5317\u65b9\u5427\uff0c\u5728\u90a3\u91cc\u4f60\u4f1a\u53d7\u82e6\uff0c\u4f46\u6211\u4e0d\u4f1a\u3002","options":["Victor","the monster","Walton"],"answer":1},{"q":"Why did the monster leave food and messages for Victor?","cn":"\u602a\u7269\u4e3a\u4ec0\u4e48\u7ed9\u7ef4\u514b\u591a\u7559\u4e0b\u98df\u7269\u548c\u7559\u8a00\uff1f","options":["He felt sorry and wanted to be friends","He wanted Victor to keep following him","He wanted Victor to go back home"],"answer":1}]},{"id":"u23","section":"Bonus: Walton's Letters","tag":"TRACK 1: LETTER ONE","title_en":"Dream of the Pole","title_cn":"\u5317\u6781\u4e4b\u68a6","teaser_cn":"\u4e00\u4f4d\u63a2\u9669\u5bb6\u5199\u4fe1\u7ed9\u59d0\u59d0\uff0c\u68a6\u60f3\u7740\u8fdc\u65b9\u2026\u2026","icon":"\u2709\ufe0f","itemName":"\u7b2c\u4e00\u5c01\u4fe1","words":207,"paras":["To Mrs Margard Saville, England","St Petersburgh, 11 December 17\u2014","My dear sister,","I arrived here yesterday, in good health and full of hope. The cold wind from the north fills me with excitement. I dream of the North Pole, the goal of my voyage. In my dream, it is a beautiful place where the sun never sets, and I will be the first men to walk upon its virgin snow. I am not afraid of danger or death.","Who knows? I might find a passage to the East that will help our trades, or perhaps I will discover something useful to science. So do not worry about me,Margard. you know that I always wanted to be a explorer, except for the few years when I tried to be a poet and failed.","Ever since I inherited my fortune six yeas ago. I have dreamt of this voyage. In two weeks, I will go to Archangel to hire a ship and a crew. In June we will sail north. When will I return to you? I do not know.","If I succeed, years will pass before we meet again. If I fail, you will see me soon or never.","Goodbye, my dear Margard.","Your affectionate brother,","R.Walton"],"quiz":[{"q":"What is the goal of Walton's voyage?","cn":"\u6c83\u5c14\u987f\u8fd9\u6b21\u822a\u884c\u7684\u76ee\u6807\u662f\u4ec0\u4e48\uff1f","options":["To catch fish in the north sea","To reach the North Pole","To visit his sister"],"answer":1},{"type":"fill","q":"Walton hoped to find a ___ to the East that would help trade.","cn":"\u6c83\u5c14\u987f\u5e0c\u671b\u627e\u5230\u4e00\u6761\u901a\u5f80\u4e1c\u65b9\u7684___\uff0c\u80fd\u5e2e\u52a9\u8d38\u6613\u3002","options":["passage","island","treasure"],"answer":0},{"q":"How does Walton feel about his voyage?","cn":"\u6c83\u5c14\u987f\u5bf9\u8fd9\u6b21\u822a\u884c\u662f\u4ec0\u4e48\u611f\u89c9\uff1f","options":["Excited and full of hope","Bored and tired","Angry and sad"],"answer":0}]},{"id":"u24","section":"Bonus: Walton's Letters","tag":"TRACK 2: LETTER TWO","title_en":"No Friend at Sea","title_cn":"\u6d77\u4e0a\u65e0\u53cb","teaser_cn":"\u8239\u548c\u8239\u5458\u90fd\u6709\u4e86\uff0c\u4ed6\u8fd8\u7f3a\u4ec0\u4e48\u5462\uff1f","icon":"\ud83d\udcdc","itemName":"\u7b2c\u4e8c\u5c01\u4fe1","words":101,"paras":["To Mrs Saville, England","Archangel 28 March 17\u2014","I have hired a ship and crew. The men are brave and diligent, but I have no friend. I have no one to talk to about my hopes and fears. I will not find a friend here at Archangel or on the sea.","As I wait the voyage to begin, I am full of excitement. Sometimes I am happy. At other times I am afraid. Will I see you again, dear Margard? Write to me often. Your letters comfort me. If you never hear from me again, remember me with affection.","Yours brother,","Robert Walton"],"quiz":[{"q":"What has Walton done at Archangel?","cn":"\u6c83\u5c14\u987f\u5728\u963f\u5c14\u6c49\u683c\u5c14\u505a\u4e86\u4ec0\u4e48\uff1f","options":["He wrote a poem","He found a good friend","He hired a ship and a crew"],"answer":2},{"type":"tf","q":"Walton said his sailors were brave and diligent.","cn":"\u6c83\u5c14\u987f\u8bf4\u4ed6\u7684\u6c34\u624b\u4eec\u52c7\u6562\u53c8\u52e4\u594b\u3002","answer":true},{"q":"What does Walton say he does not have?","cn":"\u6c83\u5c14\u987f\u8bf4\u81ea\u5df1\u7f3a\u5c11\u4ec0\u4e48\uff1f","options":["Money for the voyage","A friend to talk to","Brave sailors"],"answer":1}]},{"id":"u25","section":"Bonus: Walton's Letters","tag":"TRACK 3: LETTER THREE","title_en":"The Voyage Begins","title_cn":"\u626c\u5e06\u8d77\u822a","teaser_cn":"\u6696\u98ce\u5439\u5411\u5317\u65b9\uff0c\u822a\u7a0b\u7ec8\u4e8e\u5f00\u59cb\u4e86\uff01","icon":"\ud83d\udd4a","itemName":"\u548c\u5e73\u767d\u9e3d","words":51,"paras":["To Mrs Saville, England","7 July 17\u2014","My dear sister,","The voyage has begun at last. I am well and in good spirit. Although great sheds of ice float past as on the sea, it is summer,and warm winds blow us north. Now I feel sure that I will succeed!","Goodbye, Margard!"],"quiz":[{"q":"What season is it when the voyage begins?","cn":"\u822a\u884c\u5f00\u59cb\u7684\u65f6\u5019\u662f\u4ec0\u4e48\u5b63\u8282\uff1f","options":["Summer","Winter","Spring"],"answer":0},{"type":"fill","q":"Although there was ice on the sea, warm winds blew them ___.","cn":"\u867d\u7136\u6d77\u4e0a\u6709\u51b0\uff0c\u4f46\u6696\u98ce\u5439\u7740\u4ed6\u4eec\u5411___\u65b9\u5411\u524d\u8fdb\u3002","options":["north","south","west"],"answer":0},{"q":"How does Walton feel now about his plan?","cn":"\u73b0\u5728\u6c83\u5c14\u987f\u5bf9\u4ed6\u7684\u8ba1\u5212\u662f\u4ec0\u4e48\u611f\u89c9\uff1f","options":["He wants to give up","He is afraid the ship will sink","He feels sure he will succeed"],"answer":2}]}];
+const GLOSSARY = {"'cursed":{"cn":"\u8be5\u8bc5\u5492\u7684","emoji":"\ud83c\udf29\ufe0f"},"'devil":{"cn":"\u6076\u9b54","emoji":"\ud83d\ude08"},"'hateful":{"cn":"\u53ef\u6068\u7684","emoji":"\ud83d\ude20"},"a few":{"cn":"\u51e0\u4e2a;\u4e00\u4e9b","emoji":"\ud83d\udd22"},"abandon":{"cn":"\u629b\u5f03","emoji":"\ud83d\udeaa"},"abandoned":{"cn":"\u88ab\u629b\u5f03\u7684","emoji":"\ud83d\ude22"},"above":{"cn":"\u5728\u2026\u4e0a\u65b9","emoji":"\u2b06\ufe0f"},"accept":{"cn":"\u63a5\u53d7","emoji":"\ud83e\udd1d"},"across":{"cn":"\u7a7f\u8fc7;\u8d8a\u8fc7","emoji":"\u2194\ufe0f"},"admire":{"cn":"\u94a6\u4f69;\u6b23\u8d4f","emoji":"\ud83e\udd29"},"adopted":{"cn":"\u88ab\u6536\u517b\u7684","emoji":"\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67"},"advantages":{"cn":"\u4f18\u52bf;\u597d\u5904","emoji":"\u2795"},"affection":{"cn":"\u5173\u7231;\u559c\u7231","emoji":"\ud83d\udc95"},"affectionate":{"cn":"\u5145\u6ee1\u7231\u7684","emoji":"\ud83e\udd70"},"affectionately":{"cn":"\u6df1\u60c5\u5730","emoji":"\ud83d\udc96"},"after a while":{"cn":"\u8fc7\u4e86\u4e00\u4f1a\u513f","emoji":"\u23f3"},"alive":{"cn":"\u6d3b\u7740\u7684","emoji":"\ud83d\udc93"},"allowed":{"cn":"\u88ab\u5141\u8bb8","emoji":"\u2705"},"alone":{"cn":"\u72ec\u81ea;\u5b64\u5355","emoji":"\ud83d\udeb6"},"amazed":{"cn":"\u975e\u5e38\u60ca\u8bb6\u7684","emoji":"\ud83d\ude32"},"amazing speed":{"cn":"\u60ca\u4eba\u7684\u901f\u5ea6","emoji":"\u26a1"},"ambition":{"cn":"\u62b1\u8d1f;\u91ce\u5fc3","emoji":"\ud83c\udfaf"},"ambitious":{"cn":"\u6709\u96c4\u5fc3\u7684","emoji":"\ud83d\ude80"},"anxious":{"cn":"\u7126\u8651\u4e0d\u5b89\u7684","emoji":"\ud83d\ude30"},"anxiously":{"cn":"\u7126\u6025\u5730","emoji":"\ud83d\ude1f"},"apartment":{"cn":"\u516c\u5bd3;\u4f4f\u6240","emoji":"\ud83c\udfe2"},"appeared":{"cn":"\u51fa\u73b0\u4e86","emoji":"\ud83d\udc40"},"approach":{"cn":"\u9760\u8fd1;\u63a5\u8fd1","emoji":"\u27a1\ufe0f"},"approached":{"cn":"\u8d70\u8fd1\u4e86","emoji":"\ud83d\udc63"},"approaching":{"cn":"\u6b63\u5728\u9760\u8fd1","emoji":"\ud83d\udd1c"},"arguments":{"cn":"\u4e89\u8bba;\u7406\u7531","emoji":"\ud83d\udde3\ufe0f"},"aristocratic":{"cn":"\u8d35\u65cf\u7684","emoji":"\ud83d\udc51"},"arrangements":{"cn":"\u5b89\u6392","emoji":"\ud83d\udccb"},"arrest":{"cn":"\u902e\u6355","emoji":"\ud83d\udc6e"},"arrested":{"cn":"\u88ab\u902e\u6355\u4e86","emoji":"\ud83d\ude94"},"as":{"cn":"\u4f5c\u4e3a;\u5f53\u2026\u65f6","emoji":"\ud83d\udd17"},"as if":{"cn":"\u597d\u50cf;\u4eff\u4f5b","emoji":"\ud83c\udfad"},"as soon as":{"cn":"\u4e00\u2026\u5c31","emoji":"\u23f1\ufe0f"},"as well as":{"cn":"\u548c;\u4e5f","emoji":"\u2795"},"asia":{"cn":"\u4e9a\u6d32","emoji":"\ud83c\udf0f"},"at amazing speed":{"cn":"\u4ee5\u60ca\u4eba\u7684\u901f\u5ea6","emoji":"\ud83d\udca8"},"at hand":{"cn":"\u4e34\u8fd1;\u5728\u773c\u524d","emoji":"\u23f0"},"at my feet":{"cn":"\u5728\u6211\u811a\u8fb9","emoji":"\ud83e\uddb6"},"at the end of":{"cn":"\u5728\u2026\u7684\u5c3d\u5934","emoji":"\ud83d\udd1a"},"attacked":{"cn":"\u88ad\u51fb\u4e86","emoji":"\u2694\ufe0f"},"attic":{"cn":"\u9601\u697c","emoji":"\ud83c\udfe0"},"autumn":{"cn":"\u79cb\u5929","emoji":"\ud83c\udf42"},"avenge":{"cn":"\u62a5\u4ec7;\u590d\u4ec7","emoji":"\ud83d\udde1\ufe0f"},"avoided":{"cn":"\u907f\u5f00\u4e86","emoji":"\ud83d\ude48"},"awful":{"cn":"\u53ef\u6015\u7684;\u7cdf\u7cd5\u7684","emoji":"\ud83d\ude31"},"bare":{"cn":"\u5149\u79c3\u79c3\u7684","emoji":"\ud83c\udf35"},"barn":{"cn":"\u8c37\u4ed3","emoji":"\ud83c\udfda\ufe0f"},"basket":{"cn":"\u7bee\u5b50","emoji":"\ud83e\uddfa"},"be able to":{"cn":"\u80fd\u591f","emoji":"\ud83d\udcaa"},"begged":{"cn":"\u6073\u6c42\u4e86","emoji":"\ud83d\ude4f"},"berries":{"cn":"\u6d46\u679c","emoji":"\ud83e\uded0"},"blind":{"cn":"\u5931\u660e\u7684","emoji":"\ud83e\uddaf"},"break your promise":{"cn":"\u8fdd\u80cc\u4f60\u7684\u8bfa\u8a00","emoji":"\ud83d\udc94"},"breathed":{"cn":"\u547c\u5438\u4e86","emoji":"\ud83c\udf2c\ufe0f"},"bucket":{"cn":"\u6c34\u6876","emoji":"\ud83e\udea3"},"buried":{"cn":"\u57cb\u846c\u4e86","emoji":"\u26b0\ufe0f"},"burned":{"cn":"\u70e7\u6bc1\u4e86","emoji":"\ud83d\udd25"},"burning":{"cn":"\u71c3\u70e7\u7684","emoji":"\ud83d\udd25"},"by the light of":{"cn":"\u501f\u7740\u2026\u7684\u5149","emoji":"\ud83d\udd6f\ufe0f"},"calmed":{"cn":"\u5e73\u9759\u4e0b\u6765","emoji":"\ud83d\ude0c"},"capable":{"cn":"\u6709\u80fd\u529b\u7684","emoji":"\ud83d\udcaa"},"caught the illness":{"cn":"\u67d3\u4e0a\u4e86\u75be\u75c5","emoji":"\ud83e\udd12"},"cause":{"cn":"\u539f\u56e0;\u8d77\u56e0","emoji":"\u2753"},"cause pain":{"cn":"\u9020\u6210\u75db\u82e6","emoji":"\ud83d\udca2"},"caused":{"cn":"\u9020\u6210\u4e86","emoji":"\u26a0\ufe0f"},"caves":{"cn":"\u5c71\u6d1e","emoji":"\ud83d\udd73\ufe0f"},"cell":{"cn":"\u7262\u623f","emoji":"\ud83d\udd12"},"chain":{"cn":"\u94c1\u94fe","emoji":"\u26d3\ufe0f"},"chemical instruments":{"cn":"\u5316\u5b66\u4eea\u5668","emoji":"\ud83e\uddea"},"chemistry":{"cn":"\u5316\u5b66","emoji":"\u2697\ufe0f"},"chemists":{"cn":"\u5316\u5b66\u5bb6","emoji":"\ud83d\udc68\u200d\ud83d\udd2c"},"chivalry":{"cn":"\u9a91\u58eb\u7cbe\u795e","emoji":"\ud83d\udee1\ufe0f"},"christianity":{"cn":"\u57fa\u7763\u6559","emoji":"\u271d\ufe0f"},"circulates":{"cn":"\u5faa\u73af\u6d41\u52a8","emoji":"\ud83d\udd04"},"coach":{"cn":"\u516c\u5171\u9a6c\u8f66","emoji":"\ud83d\udc34"},"collected":{"cn":"\u6536\u96c6\u4e86","emoji":"\ud83d\udce6"},"collecting":{"cn":"\u6536\u96c6;\u91c7\u96c6","emoji":"\ud83e\uddf2"},"colonization":{"cn":"\u6b96\u6c11","emoji":"\ud83c\udf0d"},"comfort":{"cn":"\u5b89\u6170","emoji":"\ud83e\udd17"},"committed":{"cn":"\u72af\u4e0b(\u7f6a\u884c)","emoji":"\u2696\ufe0f"},"communicate":{"cn":"\u4ea4\u6d41;\u6c9f\u901a","emoji":"\ud83d\udcac"},"complete":{"cn":"\u5b8c\u6210;\u5b8c\u6574\u7684","emoji":"\u2714\ufe0f"},"completed":{"cn":"\u5b8c\u6210\u4e86","emoji":"\ud83c\udfc1"},"condemned":{"cn":"\u88ab\u5224\u7f6a\u7684","emoji":"\ud83d\udd28"},"condition":{"cn":"\u6761\u4ef6;\u72b6\u51b5","emoji":"\ud83d\udcdc"},"conquered":{"cn":"\u5f81\u670d\u4e86","emoji":"\ud83c\udfc6"},"content":{"cn":"\u6ee1\u8db3\u7684","emoji":"\ud83d\ude0a"},"contented":{"cn":"\u5fc3\u6ee1\u610f\u8db3\u7684","emoji":"\ud83d\ude0c"},"convent":{"cn":"\u5973\u4fee\u9053\u9662","emoji":"\u26ea"},"cottagers":{"cn":"\u519c\u820d\u5c45\u6c11","emoji":"\ud83c\udfe1"},"cottages":{"cn":"\u519c\u820d;\u5c0f\u5c4b","emoji":"\ud83d\uded6"},"courage":{"cn":"\u52c7\u6c14","emoji":"\ud83e\udd81"},"court":{"cn":"\u6cd5\u5ead","emoji":"\u2696\ufe0f"},"crack":{"cn":"\u7f1d\u9699","emoji":"\ud83e\uddf1"},"created":{"cn":"\u521b\u9020\u4e86","emoji":"\u2728"},"creation":{"cn":"\u521b\u9020;\u9020\u7269","emoji":"\ud83c\udf1f"},"creator":{"cn":"\u521b\u9020\u8005","emoji":"\ud83e\uddd1\u200d\ud83d\udd2c"},"creature":{"cn":"\u751f\u7269;\u602a\u7269","emoji":"\ud83d\udc79"},"crime":{"cn":"\u7f6a\u884c","emoji":"\ud83d\udeab"},"criminal":{"cn":"\u7f6a\u72af","emoji":"\ud83e\uddb9"},"crossing":{"cn":"\u7a7f\u8d8a;\u6e21\u8fc7","emoji":"\ud83c\udf09"},"cry out":{"cn":"\u5927\u58f0\u558a\u53eb","emoji":"\ud83d\udce2"},"cure my sadness":{"cn":"\u6cbb\u597d\u6211\u7684\u60b2\u4f24","emoji":"\ud83d\udc8a"},"curse":{"cn":"\u8bc5\u5492","emoji":"\ud83c\udf29\ufe0f"},"cursed":{"cn":"\u8bc5\u5492;\u88ab\u8bc5\u5492\u7684","emoji":"\ud83d\ude3e"},"customs":{"cn":"\u98ce\u4fd7\u4e60\u60ef","emoji":"\ud83c\udf8e"},"darkness":{"cn":"\u9ed1\u6697","emoji":"\ud83c\udf11"},"decay":{"cn":"\u8150\u70c2","emoji":"\ud83e\udda0"},"defence":{"cn":"\u8fa9\u62a4","emoji":"\ud83d\udee1\ufe0f"},"delayed":{"cn":"\u63a8\u8fdf\u4e86","emoji":"\u23f8\ufe0f"},"departure":{"cn":"\u51fa\u53d1;\u79bb\u5f00","emoji":"\ud83d\udeeb"},"describe":{"cn":"\u63cf\u8ff0","emoji":"\ud83d\udcdd"},"deserts":{"cn":"\u6c99\u6f20","emoji":"\ud83c\udfdc\ufe0f"},"desire":{"cn":"\u6e34\u671b","emoji":"\ud83d\udcad"},"despair":{"cn":"\u7edd\u671b","emoji":"\ud83d\ude1e"},"despite":{"cn":"\u5c3d\u7ba1","emoji":"\ud83e\udd37"},"destroy mankind":{"cn":"\u6bc1\u706d\u4eba\u7c7b","emoji":"\ud83d\udca5"},"devil":{"cn":"\u9b54\u9b3c","emoji":"\ud83d\ude08"},"difference":{"cn":"\u5dee\u522b;\u4e0d\u540c","emoji":"\ud83c\udd9a"},"difficulties":{"cn":"\u56f0\u96be","emoji":"\ud83e\uddd7"},"diligent":{"cn":"\u52e4\u594b\u7684","emoji":"\ud83d\udcda"},"disappointed":{"cn":"\u5931\u671b\u7684","emoji":"\ud83d\ude14"},"disappointment":{"cn":"\u5931\u671b","emoji":"\ud83d\ude1e"},"discovered":{"cn":"\u53d1\u73b0\u4e86","emoji":"\ud83d\udd0d"},"disgust":{"cn":"\u538c\u6076;\u6076\u5fc3","emoji":"\ud83e\udd22"},"distance":{"cn":"\u8ddd\u79bb;\u8fdc\u5904","emoji":"\ud83d\udccf"},"distinguish":{"cn":"\u8fa8\u522b","emoji":"\ud83d\udc41\ufe0f"},"disturb":{"cn":"\u6253\u6270","emoji":"\ud83d\udd15"},"divine being":{"cn":"\u795e\u4e00\u6837\u7684\u4eba","emoji":"\ud83d\ude07"},"division":{"cn":"\u5212\u5206;\u5206\u914d","emoji":"\u2797"},"do":{"cn":"\u505a;\u5e72","emoji":"\ud83d\udee0\ufe0f"},"dome":{"cn":"\u5706\u9876","emoji":"\ud83d\udd4c"},"dreadful scream":{"cn":"\u53ef\u6015\u7684\u5c16\u53eb","emoji":"\ud83d\ude31"},"dreamt":{"cn":"\u68a6\u89c1(dream\u8fc7\u53bb\u5f0f)","emoji":"\ud83d\udca4"},"drive":{"cn":"\u8d76\u8d70;\u9a71\u8d76","emoji":"\ud83d\udc4b"},"drops":{"cn":"\u6c34\u6ef4","emoji":"\ud83d\udca7"},"during":{"cn":"\u5728\u2026\u671f\u95f4","emoji":"\ud83d\udd50"},"duty":{"cn":"\u8d23\u4efb;\u4e49\u52a1","emoji":"\ud83c\udf96\ufe0f"},"duty towards":{"cn":"\u5bf9\u2026\u7684\u8d23\u4efb","emoji":"\ud83e\udd32"},"eager expression":{"cn":"\u70ed\u5207\u7684\u8868\u60c5","emoji":"\ud83e\udd29"},"earthquakes":{"cn":"\u5730\u9707","emoji":"\ud83c\udf0b"},"educate":{"cn":"\u6559\u80b2","emoji":"\ud83c\udf93"},"else":{"cn":"\u5176\u4ed6;\u522b\u7684","emoji":"\u2754"},"embraced":{"cn":"\u62e5\u62b1\u4e86","emoji":"\ud83e\udd17"},"emotions":{"cn":"\u60c5\u611f","emoji":"\ud83d\udc97"},"empires":{"cn":"\u5e1d\u56fd","emoji":"\ud83c\udfdb\ufe0f"},"empty":{"cn":"\u7a7a\u7684","emoji":"\ud83d\udced"},"enemies":{"cn":"\u654c\u4eba","emoji":"\u2694\ufe0f"},"enslaved":{"cn":"\u88ab\u5974\u5f79\u7684","emoji":"\u26d3\ufe0f"},"entered":{"cn":"\u8fdb\u5165\u4e86","emoji":"\ud83d\udeaa"},"envious":{"cn":"\u5ac9\u5992\u7684","emoji":"\ud83d\ude12"},"escape":{"cn":"\u9003\u8dd1;\u9003\u8131","emoji":"\ud83c\udfc3"},"evil":{"cn":"\u90aa\u6076\u7684","emoji":"\ud83d\udc7f"},"examined":{"cn":"\u68c0\u67e5\u4e86","emoji":"\ud83d\udd2c"},"example":{"cn":"\u4f8b\u5b50;\u699c\u6837","emoji":"\ud83d\udcd6"},"except":{"cn":"\u9664\u4e86","emoji":"\u2796"},"exiled":{"cn":"\u88ab\u6d41\u653e\u7684","emoji":"\ud83e\uddf3"},"exist":{"cn":"\u5b58\u5728","emoji":"\ud83c\udf10"},"existence":{"cn":"\u5b58\u5728;\u751f\u547d","emoji":"\ud83c\udf31"},"expected":{"cn":"\u9884\u6599\u5230","emoji":"\ud83d\udd2e"},"explained":{"cn":"\u89e3\u91ca\u4e86","emoji":"\ud83d\udca1"},"explored":{"cn":"\u63a2\u7d22\u4e86","emoji":"\ud83e\udded"},"expression":{"cn":"\u8868\u60c5","emoji":"\ud83d\ude42"},"fail":{"cn":"\u5931\u8d25","emoji":"\u274c"},"failed":{"cn":"\u5931\u8d25\u4e86","emoji":"\ud83d\ude23"},"fainted":{"cn":"\u660f\u5012\u4e86","emoji":"\ud83d\ude35"},"fair":{"cn":"\u516c\u5e73\u7684","emoji":"\u2696\ufe0f"},"fantasies":{"cn":"\u5e7b\u60f3","emoji":"\ud83e\udd84"},"fate":{"cn":"\u547d\u8fd0","emoji":"\ud83c\udfb2"},"feeling":{"cn":"\u611f\u89c9;\u611f\u60c5","emoji":"\ud83d\udcad"},"fellow human beings":{"cn":"\u4eba\u7c7b\u540c\u80de","emoji":"\ud83d\udc65"},"fellow students":{"cn":"\u540c\u5b66\u4eec","emoji":"\ud83e\uddd1\u200d\ud83c\udf93"},"female":{"cn":"\u5973\u6027\u7684","emoji":"\u2640\ufe0f"},"fever":{"cn":"\u53d1\u70e7;\u9ad8\u70e7","emoji":"\ud83e\udd12"},"fields":{"cn":"\u7530\u91ce","emoji":"\ud83c\udf3e"},"filled":{"cn":"\u5145\u6ee1\u4e86","emoji":"\ud83e\uded7"},"filled me with anxiety":{"cn":"\u8ba9\u6211\u6ee1\u5fc3\u7126\u8651","emoji":"\ud83d\ude30"},"filthy":{"cn":"\u5351\u9119\u90aa\u6076\u7684","emoji":"\ud83e\udd2e"},"flash":{"cn":"\u95ea\u5149","emoji":"\u26a1"},"flew":{"cn":"\u98de(fly\u8fc7\u53bb\u5f0f)","emoji":"\ud83d\udc26"},"folds":{"cn":"\u8936\u76b1","emoji":"\ud83e\uddf5"},"for a moment":{"cn":"\u6709\u4e00\u4f1a\u513f","emoji":"\u23f2\ufe0f"},"force":{"cn":"\u529b\u91cf;\u5f3a\u8feb","emoji":"\ud83d\udcaa"},"forehead":{"cn":"\u524d\u989d","emoji":"\ud83d\udc64"},"form":{"cn":"\u8eab\u5f71;\u5f62\u4f53","emoji":"\ud83d\udc7b"},"fortunate":{"cn":"\u5e78\u8fd0\u7684","emoji":"\ud83c\udf40"},"fortune":{"cn":"\u8d22\u5bcc;\u8fd0\u6c14","emoji":"\ud83d\udcb0"},"found":{"cn":"\u627e\u5230(find\u8fc7\u53bb\u5f0f)","emoji":"\ud83d\udd0d"},"found guilty":{"cn":"\u88ab\u5224\u6709\u7f6a","emoji":"\u2696\ufe0f"},"freedom":{"cn":"\u81ea\u7531","emoji":"\ud83d\udd4a\ufe0f"},"friendship":{"cn":"\u53cb\u8c0a","emoji":"\ud83e\udd1d"},"from time to time":{"cn":"\u65f6\u4e0d\u65f6;\u5076\u5c14","emoji":"\ud83d\udd01"},"frozen":{"cn":"\u51b0\u51bb\u7684","emoji":"\ud83e\uddca"},"full of":{"cn":"\u5145\u6ee1\u2026\u7684","emoji":"\ud83c\udf15"},"gates":{"cn":"\u57ce\u95e8;\u5927\u95e8","emoji":"\ud83c\udff0"},"gathered":{"cn":"\u805a\u96c6;\u91c7\u96c6\u4e86","emoji":"\ud83e\uddfa"},"generations":{"cn":"\u4e16\u4e16\u4ee3\u4ee3","emoji":"\ud83d\udc74"},"generous":{"cn":"\u6177\u6168\u5927\u65b9\u7684","emoji":"\ud83c\udf81"},"gentle":{"cn":"\u6e29\u67d4\u7684","emoji":"\ud83c\udf38"},"germany":{"cn":"\u5fb7\u56fd","emoji":"\ud83c\udde9\ud83c\uddea"},"gigantic":{"cn":"\u5de8\u5927\u7684","emoji":"\ud83d\uddff"},"gigantic figure nearby":{"cn":"\u9644\u8fd1\u7684\u5de8\u5927\u8eab\u5f71","emoji":"\ud83e\uddcc"},"glacier":{"cn":"\u51b0\u5ddd","emoji":"\ud83c\udfd4\ufe0f"},"glistened":{"cn":"\u95ea\u95ea\u53d1\u5149","emoji":"\u2728"},"gloomy":{"cn":"\u9634\u90c1\u7684","emoji":"\ud83c\udf2b\ufe0f"},"godlike":{"cn":"\u795e\u5723\u7684","emoji":"\ud83d\ude07"},"governed":{"cn":"\u7edf\u6cbb;\u6cbb\u7406","emoji":"\ud83c\udfdb\ufe0f"},"governed peacefully":{"cn":"\u548c\u5e73\u5730\u6cbb\u7406","emoji":"\u262e\ufe0f"},"government":{"cn":"\u653f\u5e9c","emoji":"\ud83c\udfdb\ufe0f"},"governments":{"cn":"\u5404\u56fd\u653f\u5e9c","emoji":"\ud83c\udf10"},"graceful":{"cn":"\u4f18\u96c5\u7684","emoji":"\ud83e\udda2"},"graveworms crawling":{"cn":"\u575f\u5893\u86c6\u866b\u722c\u52a8","emoji":"\ud83e\udeb1"},"greatly":{"cn":"\u975e\u5e38;\u5927\u5927\u5730","emoji":"\ud83d\udcc8"},"grew":{"cn":"\u53d8\u5f97;\u751f\u957f","emoji":"\ud83c\udf31"},"grew up":{"cn":"\u957f\u5927","emoji":"\ud83e\uddd2"},"grief":{"cn":"\u60b2\u75db","emoji":"\ud83d\ude2d"},"grinned":{"cn":"\u54a7\u5634\u72de\u7b11","emoji":"\ud83d\ude01"},"grown":{"cn":"\u957f\u5927\u4e86\u7684","emoji":"\ud83c\udf33"},"guilty":{"cn":"\u6709\u7f6a\u7684;\u5185\u759a\u7684","emoji":"\ud83d\ude13"},"had lost":{"cn":"\u5931\u53bb\u4e86","emoji":"\ud83d\udc94"},"had no use for":{"cn":"\u7528\u4e0d\u7740","emoji":"\ud83d\uddd1\ufe0f"},"half-finished":{"cn":"\u505a\u4e86\u4e00\u534a\u7684","emoji":"\ud83e\udde9"},"hanged":{"cn":"\u88ab\u7ede\u6b7b","emoji":"\ud83e\udea2"},"hanging":{"cn":"\u5782\u7740;\u60ac\u6302","emoji":"\u2b07\ufe0f"},"harbour":{"cn":"\u6e2f\u53e3","emoji":"\u2693"},"harm":{"cn":"\u4f24\u5bb3","emoji":"\ud83e\udd15"},"harmless":{"cn":"\u65e0\u5bb3\u7684","emoji":"\ud83d\udc11"},"hatred":{"cn":"\u4ec7\u6068","emoji":"\ud83d\udca2"},"have been":{"cn":"\u4e00\u76f4\u662f;\u66fe\u662f","emoji":"\u23f3"},"healed":{"cn":"\u75ca\u6108","emoji":"\ud83e\ude79"},"healthy":{"cn":"\u5065\u5eb7\u7684","emoji":"\ud83c\udf4e"},"hell":{"cn":"\u5730\u72f1","emoji":"\ud83d\udd25"},"hometown":{"cn":"\u5bb6\u4e61","emoji":"\ud83c\udfd8\ufe0f"},"hopeless":{"cn":"\u7edd\u671b\u7684","emoji":"\ud83d\ude29"},"horrible":{"cn":"\u6050\u6016\u7684","emoji":"\ud83d\udc7b"},"horror":{"cn":"\u6050\u60e7;\u60ca\u6050","emoji":"\ud83d\ude31"},"how ill":{"cn":"\u75c5\u5f97\u591a\u4e48\u91cd","emoji":"\ud83e\udd12"},"howl":{"cn":"\u568e\u53eb","emoji":"\ud83d\udc3a"},"howling":{"cn":"\u568e\u53eb;\u547c\u5578","emoji":"\ud83c\udf2c\ufe0f"},"human being":{"cn":"\u4eba;\u4eba\u7c7b","emoji":"\ud83e\uddcd"},"human beings":{"cn":"\u4eba\u7c7b","emoji":"\ud83d\udc65"},"hut":{"cn":"\u5c0f\u5c4b;\u68da\u5c4b","emoji":"\ud83d\uded6"},"ignorant":{"cn":"\u4e0d\u77e5\u9053","emoji":"\ud83e\udd37"},"illness":{"cn":"\u75be\u75c5","emoji":"\ud83e\udd27"},"imagined":{"cn":"\u60f3\u8c61\u4e86","emoji":"\ud83d\udcad"},"imitate":{"cn":"\u6a21\u4eff","emoji":"\ud83e\udd9c"},"immediately":{"cn":"\u7acb\u523b;\u9a6c\u4e0a","emoji":"\u26a1"},"in peace":{"cn":"\u5b89\u5b81\u5730","emoji":"\u262e\ufe0f"},"in the distance":{"cn":"\u5728\u8fdc\u5904","emoji":"\ud83d\udd2d"},"innocence":{"cn":"\u6e05\u767d;\u65e0\u8f9c","emoji":"\ud83d\udd4a\ufe0f"},"innocent":{"cn":"\u65e0\u8f9c\u7684","emoji":"\ud83d\ude07"},"instead":{"cn":"\u53cd\u800c;\u4ee3\u66ff","emoji":"\ud83d\udd04"},"instead of":{"cn":"\u800c\u4e0d\u662f","emoji":"\u2194\ufe0f"},"instruments":{"cn":"\u4eea\u5668","emoji":"\ud83d\udd27"},"irish":{"cn":"\u7231\u5c14\u5170\u7684","emoji":"\ud83c\uddee\ud83c\uddea"},"it was a long time before":{"cn":"\u8fc7\u4e86\u5f88\u4e45\u624d","emoji":"\u23f3"},"jewels":{"cn":"\u73e0\u5b9d","emoji":"\ud83d\udc8e"},"journal":{"cn":"\u65e5\u8bb0","emoji":"\ud83d\udcd3"},"journey":{"cn":"\u65c5\u7a0b","emoji":"\ud83e\uddf3"},"joy":{"cn":"\u5feb\u4e50;\u559c\u60a6","emoji":"\ud83d\ude04"},"kind":{"cn":"\u5584\u826f\u7684","emoji":"\ud83d\udc97"},"kindness":{"cn":"\u5584\u826f;\u597d\u610f","emoji":"\ud83d\udc9d"},"knowledge":{"cn":"\u77e5\u8bc6","emoji":"\ud83d\udcda"},"laboratory":{"cn":"\u5b9e\u9a8c\u5ba4","emoji":"\ud83e\uddea"},"landed":{"cn":"\u4e0a\u5cb8;\u767b\u9646","emoji":"\ud83d\udef6"},"landscape":{"cn":"\u98ce\u666f","emoji":"\ud83c\udfde\ufe0f"},"later":{"cn":"\u540e\u6765;\u4e4b\u540e","emoji":"\u23e9"},"lay":{"cn":"\u8eba(lie\u8fc7\u53bb\u5f0f)","emoji":"\ud83d\udecf\ufe0f"},"learned":{"cn":"\u5b66\u5230\u4e86","emoji":"\ud83c\udf93"},"lecture":{"cn":"\u8bb2\u5ea7;\u8bb2\u8bfe","emoji":"\ud83c\udfa4"},"liberty":{"cn":"\u81ea\u7531","emoji":"\ud83d\udd4a\ufe0f"},"lightning":{"cn":"\u95ea\u7535","emoji":"\u26a1"},"lit":{"cn":"\u70b9\u71c3(light\u8fc7\u53bb\u5f0f)","emoji":"\ud83d\udd25"},"locked":{"cn":"\u9501\u4e0a\u4e86","emoji":"\ud83d\udd12"},"locket":{"cn":"\u5c0f\u76d2\u540a\u5760","emoji":"\ud83d\udcff"},"lonely":{"cn":"\u5b64\u72ec\u7684","emoji":"\ud83d\ude14"},"longed":{"cn":"\u6e34\u671b","emoji":"\ud83e\udd7a"},"mad":{"cn":"\u53d1\u75af\u7684","emoji":"\ud83e\udd2f"},"maddening":{"cn":"\u4f7f\u4eba\u75af\u72c2","emoji":"\ud83d\ude35"},"magistrate":{"cn":"\u5730\u65b9\u6cd5\u5b98","emoji":"\u2696\ufe0f"},"magnificent":{"cn":"\u58ee\u4e3d\u7684","emoji":"\ud83c\udfd4\ufe0f"},"mankind":{"cn":"\u4eba\u7c7b","emoji":"\ud83d\udc65"},"marks":{"cn":"\u75d5\u8ff9","emoji":"\ud83d\udd0d"},"mastered":{"cn":"\u638c\u63e1","emoji":"\ud83c\udf93"},"mate":{"cn":"\u914d\u5076;\u4f34\u4fa3","emoji":"\ud83d\udc91"},"materials":{"cn":"\u6750\u6599","emoji":"\ud83e\uddf1"},"mean":{"cn":"\u610f\u601d\u662f;\u610f\u5473\u7740","emoji":"\ud83d\udcad"},"meanwhile":{"cn":"\u4e0e\u6b64\u540c\u65f6","emoji":"\u23f3"},"memory":{"cn":"\u8bb0\u5fc6","emoji":"\ud83e\udde0"},"merchant":{"cn":"\u5546\u4eba","emoji":"\ud83d\udcb0"},"messages":{"cn":"\u53e3\u4fe1;\u6d88\u606f","emoji":"\u2709\ufe0f"},"might":{"cn":"\u53ef\u80fd;\u4e5f\u8bb8\u4f1a","emoji":"\ud83e\udd14"},"miserable":{"cn":"\u60b2\u60e8\u7684","emoji":"\ud83d\ude22"},"misfortune":{"cn":"\u4e0d\u5e78","emoji":"\ud83c\udf27\ufe0f"},"misfortunes":{"cn":"\u79cd\u79cd\u4e0d\u5e78","emoji":"\ud83c\udf27\ufe0f"},"modern chemistry":{"cn":"\u73b0\u4ee3\u5316\u5b66","emoji":"\ud83e\uddea"},"monstrous":{"cn":"\u4e11\u6076\u7684","emoji":"\ud83d\udc79"},"monstrous appearance":{"cn":"\u4e11\u6076\u7684\u5916\u8868","emoji":"\ud83d\udc79"},"murdered":{"cn":"\u88ab\u8c0b\u6740","emoji":"\ud83d\udd2a"},"murderer":{"cn":"\u51f6\u624b","emoji":"\ud83d\udd2a"},"musical instrument":{"cn":"\u4e50\u5668","emoji":"\ud83c\udfb8"},"muslim":{"cn":"\u7a46\u65af\u6797","emoji":"\ud83d\udd4c"},"my days were spent":{"cn":"\u6211\u7684\u65e5\u5b50\u5728\u2026\u4e2d\u5ea6\u8fc7","emoji":"\ud83d\udcc5"},"mysteries":{"cn":"\u5965\u79d8;\u8c1c","emoji":"\ud83d\udd2e"},"nature":{"cn":"\u5927\u81ea\u7136;\u672c\u6027","emoji":"\ud83c\udf3f"},"nearby":{"cn":"\u9644\u8fd1","emoji":"\ud83d\udccd"},"nearly":{"cn":"\u51e0\u4e4e;\u5dee\u70b9","emoji":"\ud83e\udd0f"},"neck":{"cn":"\u8116\u5b50","emoji":"\ud83e\udde3"},"neither of":{"cn":"\u4e24\u4e2a\u90fd\u4e0d","emoji":"\ud83d\udeab"},"nervous":{"cn":"\u7d27\u5f20\u4e0d\u5b89\u7684","emoji":"\ud83d\ude30"},"nervousness":{"cn":"\u7d27\u5f20\u4e0d\u5b89","emoji":"\ud83d\ude30"},"noble":{"cn":"\u9ad8\u8d35\u7684","emoji":"\ud83d\udc51"},"nobleman":{"cn":"\u8d35\u65cf","emoji":"\ud83c\udfa9"},"north":{"cn":"\u5317\u65b9","emoji":"\ud83e\udded"},"northern":{"cn":"\u5317\u65b9\u7684","emoji":"\ud83e\udded"},"notice":{"cn":"\u6ce8\u610f\u5230","emoji":"\ud83d\udc40"},"noticed":{"cn":"\u6ce8\u610f\u5230\u4e86","emoji":"\ud83d\udc40"},"nursed":{"cn":"\u62a4\u7406","emoji":"\ud83e\ude7a"},"nursing":{"cn":"\u7167\u6599;\u62a4\u7406","emoji":"\ud83e\ude7a"},"obey":{"cn":"\u670d\u4ece","emoji":"\ud83d\ude47"},"obscure":{"cn":"\u504f\u50fb","emoji":"\ud83c\udf2b\ufe0f"},"offered":{"cn":"\u4e3b\u52a8\u63d0\u4f9b","emoji":"\ud83e\udd32"},"one another":{"cn":"\u5f7c\u6b64;\u4e92\u76f8","emoji":"\ud83e\udd1d"},"opium":{"cn":"\u9e26\u7247","emoji":"\ud83d\udc8a"},"ordering":{"cn":"\u547d\u4ee4","emoji":"\ud83d\udce2"},"ordinary":{"cn":"\u666e\u901a\u7684","emoji":"\ud83d\ude42"},"oriental":{"cn":"\u4e1c\u65b9\u56fd\u5bb6\u7684","emoji":"\ud83c\udf0f"},"pain":{"cn":"\u75db\u82e6;\u75bc\u75db","emoji":"\ud83d\udc94"},"painful":{"cn":"\u75db\u82e6\u7684","emoji":"\ud83d\udc94"},"pale":{"cn":"\u82cd\u767d\u7684","emoji":"\ud83d\ude36"},"paradise":{"cn":"\u5929\u5802;\u4e50\u56ed","emoji":"\ud83c\udf08"},"part":{"cn":"\u90e8\u5206;\u5730\u533a","emoji":"\ud83e\udde9"},"passports in the names":{"cn":"\u7528\u2026\u540d\u5b57\u7684\u62a4\u7167","emoji":"\ud83d\udec2"},"past":{"cn":"\u8fc7\u53bb;\u5f80\u6614","emoji":"\ud83d\udd70\ufe0f"},"path":{"cn":"\u5c0f\u8def","emoji":"\ud83d\udee4\ufe0f"},"peace":{"cn":"\u5e73\u9759;\u548c\u5e73","emoji":"\u262e\ufe0f"},"peacefully":{"cn":"\u5e73\u9759\u5730","emoji":"\ud83d\ude0c"},"peaks":{"cn":"\u5c71\u5cf0","emoji":"\u26f0\ufe0f"},"penetrated":{"cn":"\u6d1e\u5bdf","emoji":"\ud83d\udd0d"},"perform miracles":{"cn":"\u521b\u9020\u5947\u8ff9","emoji":"\u2728"},"perhaps":{"cn":"\u4e5f\u8bb8","emoji":"\ud83e\udd14"},"persuade":{"cn":"\u8bf4\u670d","emoji":"\ud83d\udde3\ufe0f"},"persuaded":{"cn":"\u8bf4\u670d\u4e86","emoji":"\ud83d\udde3\ufe0f"},"pity":{"cn":"\u540c\u60c5;\u601c\u60af","emoji":"\ud83e\udd7a"},"planks":{"cn":"\u957f\u6728\u677f","emoji":"\ud83e\udeb5"},"plans":{"cn":"\u8ba1\u5212","emoji":"\ud83d\udccb"},"pleased":{"cn":"\u9ad8\u5174\u7684","emoji":"\ud83d\ude0a"},"pleasure":{"cn":"\u5feb\u4e50","emoji":"\ud83d\ude04"},"poet":{"cn":"\u8bd7\u4eba","emoji":"\u2712\ufe0f"},"poetry":{"cn":"\u8bd7\u6b4c","emoji":"\ud83d\udcdc"},"pointed":{"cn":"\u6307\u7740","emoji":"\ud83d\udc49"},"power":{"cn":"\u529b\u91cf;\u80fd\u529b","emoji":"\ud83d\udcaa"},"powerful":{"cn":"\u5f3a\u5927\u7684","emoji":"\ud83d\udcaa"},"prayed":{"cn":"\u7948\u7977","emoji":"\ud83d\ude4f"},"preferred":{"cn":"\u66f4\u559c\u6b22","emoji":"\u2764\ufe0f"},"prejudiced against":{"cn":"\u5bf9\u2026\u6709\u504f\u89c1","emoji":"\ud83d\ude45"},"prepare":{"cn":"\u51c6\u5907","emoji":"\ud83e\uddf0"},"preparing":{"cn":"\u6b63\u5728\u51c6\u5907","emoji":"\ud83e\uddf0"},"present":{"cn":"\u5728\u573a\u7684","emoji":"\ud83d\ude4b"},"prison":{"cn":"\u76d1\u72f1","emoji":"\ud83d\udd12"},"proceeded":{"cn":"\u63a5\u7740\u7ee7\u7eed","emoji":"\u27a1\ufe0f"},"professors":{"cn":"\u6559\u6388\u4eec","emoji":"\ud83d\udc68\u200d\ud83c\udfeb"},"progress":{"cn":"\u8fdb\u6b65;\u8fdb\u5c55","emoji":"\ud83d\udcc8"},"progress of":{"cn":"\u2026\u7684\u8fdb\u5c55","emoji":"\ud83d\udcc8"},"promising":{"cn":"\u7b54\u5e94;\u8bb8\u8bfa","emoji":"\ud83e\udd1e"},"property":{"cn":"\u8d22\u4ea7","emoji":"\ud83c\udfe0"},"prove":{"cn":"\u8bc1\u660e","emoji":"\u2705"},"proved":{"cn":"\u8bc1\u660e\u4e86","emoji":"\u2705"},"punish":{"cn":"\u60e9\u7f5a","emoji":"\u2696\ufe0f"},"punished anyway":{"cn":"\u8fd8\u662f\u88ab\u60e9\u7f5a\u4e86","emoji":"\u2696\ufe0f"},"pursued":{"cn":"\u8ffd\u8d76;\u8ffd\u6355","emoji":"\ud83c\udfc3"},"put out":{"cn":"\u7184\u706d(\u8721\u70db\u7b49)","emoji":"\ud83d\udd6f\ufe0f"},"race":{"cn":"\u79cd\u7c7b","emoji":"\ud83e\uddec"},"real":{"cn":"\u771f\u5b9e\u7684","emoji":"\ud83d\udcaf"},"realized":{"cn":"\u610f\u8bc6\u5230","emoji":"\ud83d\udca1"},"reason":{"cn":"\u8bb2\u9053\u7406","emoji":"\ud83d\udde3\ufe0f"},"reasoned with":{"cn":"\u548c\u2026\u8bb2\u9053\u7406","emoji":"\ud83d\udde3\ufe0f"},"received":{"cn":"\u6536\u5230","emoji":"\ud83d\udcec"},"recognized":{"cn":"\u8ba4\u51fa","emoji":"\ud83d\udc41\ufe0f"},"recover":{"cn":"\u5eb7\u590d","emoji":"\ud83d\udc9a"},"recovered":{"cn":"\u5eb7\u590d\u4e86","emoji":"\ud83d\udc9a"},"reflected":{"cn":"\u6620\u51fa;\u5012\u6620","emoji":"\ud83e\ude9e"},"reflection":{"cn":"\u5012\u5f71","emoji":"\ud83e\ude9e"},"refuse":{"cn":"\u62d2\u7edd","emoji":"\ud83d\ude45"},"refused":{"cn":"\u62d2\u7edd\u4e86","emoji":"\ud83d\ude45"},"released":{"cn":"\u88ab\u91ca\u653e","emoji":"\ud83d\udd13"},"relief":{"cn":"\u5bbd\u6170;\u677e\u53e3\u6c14","emoji":"\ud83d\ude2e\u200d\ud83d\udca8"},"relieve":{"cn":"\u51cf\u8f7b;\u7f13\u89e3","emoji":"\ud83d\ude2e\u200d\ud83d\udca8"},"relieved":{"cn":"\u611f\u5230\u5bbd\u6170","emoji":"\ud83d\ude2e\u200d\ud83d\udca8"},"religions":{"cn":"\u5b97\u6559","emoji":"\ud83d\udd4a\ufe0f"},"remain":{"cn":"\u7559\u4e0b;\u4fdd\u6301","emoji":"\ud83e\uddcd"},"remains":{"cn":"\u9057\u4f53;\u6b8b\u4f59","emoji":"\u26b0\ufe0f"},"reminded":{"cn":"\u4f7f\u60f3\u8d77;\u63d0\u9192","emoji":"\ud83d\udcad"},"rented":{"cn":"\u79df\u4e0b\u4e86","emoji":"\ud83c\udfe0"},"repeating":{"cn":"\u91cd\u590d\u8bf4","emoji":"\ud83d\udd01"},"replace":{"cn":"\u4ee3\u66ff","emoji":"\ud83d\udd04"},"replied":{"cn":"\u56de\u7b54","emoji":"\ud83d\udcac"},"request":{"cn":"\u8bf7\u6c42","emoji":"\ud83d\ude4f"},"resembled":{"cn":"\u4e0e\u2026\u76f8\u4f3c","emoji":"\ud83d\udc6f"},"respected":{"cn":"\u53d7\u5c0a\u656c\u7684","emoji":"\ud83d\ude47"},"responsible":{"cn":"\u6709\u8d23\u4efb\u7684","emoji":"\ud83e\udee1"},"rest":{"cn":"\u5176\u4f59\u7684\u4eba","emoji":"\ud83d\udc65"},"rested":{"cn":"\u4f11\u606f\u4e86","emoji":"\ud83d\ude34"},"result":{"cn":"\u7ed3\u679c","emoji":"\ud83c\udfaf"},"returned from our walk":{"cn":"\u6563\u6b65\u56de\u6765","emoji":"\ud83d\udeb6"},"revenge":{"cn":"\u590d\u4ec7","emoji":"\ud83d\ude21"},"reward":{"cn":"\u5956\u8d4f;\u62a5\u7b54","emoji":"\ud83c\udfc6"},"risen":{"cn":"\u5347\u8d77(rise\u8fc7\u53bb\u5206\u8bcd)","emoji":"\ud83c\udf05"},"rose":{"cn":"\u5347\u8d77(rise\u8fc7\u53bb\u5f0f)","emoji":"\ud83c\udf05"},"ruined":{"cn":"\u6bc1\u6389\u4e86","emoji":"\ud83d\udca5"},"ruins":{"cn":"\u5e9f\u589f","emoji":"\ud83c\udfda\ufe0f"},"sadness":{"cn":"\u60b2\u4f24","emoji":"\ud83d\ude22"},"savage":{"cn":"\u672a\u5f00\u5316\u7684","emoji":"\ud83c\udf32"},"science":{"cn":"\u79d1\u5b66","emoji":"\ud83d\udd2c"},"scientific discovery":{"cn":"\u79d1\u5b66\u53d1\u73b0","emoji":"\ud83d\udd2c"},"scream":{"cn":"\u5c16\u53eb","emoji":"\ud83d\ude31"},"screamed":{"cn":"\u5c16\u53eb\u8d77\u6765","emoji":"\ud83d\ude31"},"search":{"cn":"\u641c\u5bfb","emoji":"\ud83d\udd0e"},"searched until":{"cn":"\u4e00\u76f4\u641c\u5bfb\u5230","emoji":"\ud83d\udd0e"},"secretly":{"cn":"\u79d8\u5bc6\u5730","emoji":"\ud83e\udd2b"},"seemed":{"cn":"\u770b\u8d77\u6765\u597d\u50cf","emoji":"\ud83e\udd14"},"selfishness":{"cn":"\u81ea\u79c1","emoji":"\ud83d\ude24"},"servant":{"cn":"\u4ec6\u4eba","emoji":"\ud83e\uddf9"},"sets":{"cn":"(\u592a\u9633)\u843d\u4e0b","emoji":"\ud83c\udf07"},"setting":{"cn":"(\u592a\u9633)\u6b63\u843d\u4e0b","emoji":"\ud83c\udf07"},"several":{"cn":"\u51e0\u4e2a","emoji":"\ud83d\udd22"},"shade":{"cn":"\u9634\u51c9\u5904","emoji":"\ud83c\udf33"},"shame":{"cn":"\u7f9e\u6127","emoji":"\ud83d\ude33"},"shared":{"cn":"\u5206\u4eab;\u5171\u6709","emoji":"\ud83e\udd1d"},"shivered":{"cn":"\u53d1\u6296","emoji":"\ud83e\udd76"},"shone":{"cn":"\u7167\u8000(shine\u8fc7\u53bb\u5f0f)","emoji":"\u2728"},"shore":{"cn":"\u5cb8\u8fb9","emoji":"\ud83c\udfd6\ufe0f"},"shot":{"cn":"\u98de\u5feb\u79fb\u52a8","emoji":"\ud83d\udca8"},"shroud":{"cn":"\u88f9\u5c38\u5e03","emoji":"\u26b0\ufe0f"},"sick":{"cn":"\u751f\u75c5\u7684","emoji":"\ud83e\udd12"},"sight":{"cn":"\u666f\u8c61;\u89c6\u529b","emoji":"\ud83d\udc41\ufe0f"},"sign":{"cn":"\u8ff9\u8c61;\u8e2a\u8ff9","emoji":"\ud83d\udd0d"},"signs":{"cn":"\u8ff9\u8c61;\u8bb0\u53f7","emoji":"\ud83d\udd0d"},"simple pleasures":{"cn":"\u7b80\u5355\u7684\u5feb\u4e50","emoji":"\ud83c\udf3c"},"since":{"cn":"\u81ea\u4ece;\u56e0\u4e3a","emoji":"\u23f3"},"skin":{"cn":"\u76ae\u80a4","emoji":"\ud83d\udd90\ufe0f"},"slave":{"cn":"\u5974\u96b6","emoji":"\u26d3\ufe0f"},"sledge":{"cn":"\u96ea\u6a47","emoji":"\ud83d\udef7"},"slipped":{"cn":"\u6e9c\u8d70;\u6ed1\u5012","emoji":"\ud83e\udee5"},"smelt":{"cn":"\u95fb\u5230(smell\u8fc7\u53bb\u5f0f)","emoji":"\ud83d\udc43"},"sobbed":{"cn":"\u545c\u54bd","emoji":"\ud83d\ude2d"},"sorrow":{"cn":"\u60b2\u4f24","emoji":"\ud83d\ude22"},"sorrows":{"cn":"\u79cd\u79cd\u60b2\u4f24","emoji":"\ud83d\ude22"},"soul":{"cn":"\u7075\u9b42","emoji":"\ud83d\udc7b"},"south america":{"cn":"\u5357\u7f8e\u6d32","emoji":"\ud83c\udf0e"},"speck":{"cn":"\u5c0f\u6591\u70b9","emoji":"\ud83d\udd2c"},"speed":{"cn":"\u901f\u5ea6","emoji":"\ud83c\udfce\ufe0f"},"spent his days":{"cn":"\u4ed6\u7684\u65e5\u5b50\u7528\u6765\u2026","emoji":"\ud83d\udcc5"},"spent the winter":{"cn":"\u5ea6\u8fc7\u4e86\u51ac\u5929","emoji":"\u2744\ufe0f"},"spoke of":{"cn":"\u8c08\u5230","emoji":"\ud83d\udcac"},"spoken":{"cn":"\u8bf4(speak\u8fc7\u53bb\u5206\u8bcd)","emoji":"\ud83d\udcac"},"spring":{"cn":"\u6625\u5929","emoji":"\ud83c\udf38"},"springtime":{"cn":"\u6625\u5929\u65f6\u8282","emoji":"\ud83c\udf38"},"state":{"cn":"\u72b6\u6001","emoji":"\ud83e\udde0"},"steep":{"cn":"\u9661\u5ced\u7684","emoji":"\u26f0\ufe0f"},"stepped forward":{"cn":"\u8d70\u4e0a\u524d\u53bb","emoji":"\ud83d\udeb6"},"stepping":{"cn":"\u8fc8\u6b65;\u8e0f\u4e0a","emoji":"\ud83d\udc63"},"stick":{"cn":"\u68cd\u5b50","emoji":"\ud83e\udeb5"},"strangers":{"cn":"\u964c\u751f\u4eba","emoji":"\ud83d\udd75\ufe0f"},"stretched":{"cn":"\u4f38\u5c55;\u5ef6\u4f38","emoji":"\ud83d\ude46"},"study":{"cn":"\u7814\u7a76","emoji":"\ud83d\udcda"},"succeed":{"cn":"\u6210\u529f","emoji":"\ud83c\udfc6"},"succeeded":{"cn":"\u6210\u529f\u4e86","emoji":"\ud83c\udfc6"},"such":{"cn":"\u8fd9\u6837\u7684;\u5982\u6b64","emoji":"\ud83d\udc46"},"suffer":{"cn":"\u53d7\u82e6","emoji":"\ud83d\ude16"},"suffered":{"cn":"\u906d\u53d7\u4e86","emoji":"\ud83d\ude16"},"suffered torture":{"cn":"\u53d7\u5c3d\u6298\u78e8","emoji":"\ud83d\ude16"},"suffering":{"cn":"\u82e6\u96be","emoji":"\ud83d\ude16"},"sunset":{"cn":"\u65e5\u843d","emoji":"\ud83c\udf07"},"surrounded":{"cn":"\u5305\u56f4;\u73af\u7ed5","emoji":"\u2b55"},"swayed":{"cn":"\u6447\u66f3","emoji":"\ud83c\udf2c\ufe0f"},"swear":{"cn":"\u53d1\u8a93","emoji":"\ud83e\udd1e"},"swept":{"cn":"\u626b(sweep\u8fc7\u53bb\u5f0f)","emoji":"\ud83e\uddf9"},"swore revenge":{"cn":"\u53d1\u8a93\u8981\u590d\u4ec7","emoji":"\ud83d\ude21"},"sympathy":{"cn":"\u540c\u60c5","emoji":"\ud83e\udec2"},"take care of":{"cn":"\u7167\u987e","emoji":"\ud83e\udd17"},"tale":{"cn":"\u6545\u4e8b","emoji":"\ud83d\udcd6"},"tears":{"cn":"\u773c\u6cea","emoji":"\ud83d\udca7"},"therefore":{"cn":"\u56e0\u6b64","emoji":"\u27a1\ufe0f"},"thirst":{"cn":"\u53e3\u6e34","emoji":"\ud83d\udca7"},"thirsty":{"cn":"\u53e3\u6e34\u7684","emoji":"\ud83d\udca7"},"thought":{"cn":"\u60f3\u6cd5;\u60f3\u8fc7","emoji":"\ud83d\udcad"},"thought of":{"cn":"\u60f3\u5230","emoji":"\ud83d\udcad"},"thought only of":{"cn":"\u4e00\u5fc3\u53ea\u60f3\u7740","emoji":"\ud83d\udcad"},"threat":{"cn":"\u5a01\u80c1","emoji":"\u26a0\ufe0f"},"threats":{"cn":"\u5a01\u80c1\u7684\u8bdd","emoji":"\u26a0\ufe0f"},"throat":{"cn":"\u5589\u5499","emoji":"\ud83d\udde3\ufe0f"},"through":{"cn":"\u7a7f\u8fc7","emoji":"\ud83d\udeaa"},"thunder storms":{"cn":"\u96f7\u96e8;\u96f7\u66b4","emoji":"\u26c8\ufe0f"},"to":{"cn":"\u4e3a\u4e86;\u53bb(\u505a)","emoji":"\ud83c\udfaf"},"top":{"cn":"\u9876\u90e8;\u5c71\u9876","emoji":"\ud83d\udd1d"},"torches":{"cn":"\u706b\u628a","emoji":"\ud83d\udd26"},"tore":{"cn":"\u6495\u788e(tear\u8fc7\u53bb\u5f0f)","emoji":"\ud83d\udca2"},"tortured":{"cn":"\u6298\u78e8","emoji":"\ud83d\ude16"},"tortures":{"cn":"\u6298\u78e8;\u9177\u5211","emoji":"\ud83d\ude16"},"torturing":{"cn":"\u6298\u78e8\u7740","emoji":"\ud83d\ude16"},"tossed":{"cn":"\u98a0\u7c38","emoji":"\ud83c\udf0a"},"towards":{"cn":"\u671d\u7740;\u5411","emoji":"\u27a1\ufe0f"},"trade":{"cn":"\u8d38\u6613","emoji":"\ud83d\udcb0"},"tranquillize":{"cn":"\u4f7f\u5e73\u9759","emoji":"\ud83d\ude0c"},"tranquillized":{"cn":"\u4f7f\u5e73\u9759\u4e0b\u6765","emoji":"\ud83d\ude0c"},"treasures":{"cn":"\u8d22\u5b9d","emoji":"\ud83d\udc8e"},"trembling":{"cn":"\u53d1\u6296","emoji":"\ud83d\ude28"},"trial":{"cn":"\u5ba1\u5224","emoji":"\u2696\ufe0f"},"turks":{"cn":"\u571f\u8033\u5176\u4eba","emoji":"\ud83c\uddf9\ud83c\uddf7"},"unable":{"cn":"\u4e0d\u80fd;\u65e0\u6cd5","emoji":"\ud83d\udeab"},"uncomfortable":{"cn":"\u4e0d\u8212\u670d\u7684","emoji":"\ud83d\ude23"},"uncovered":{"cn":"\u53d1\u73b0","emoji":"\ud83d\udd0d"},"unfriendly":{"cn":"\u4e0d\u53cb\u597d\u7684","emoji":"\ud83d\ude12"},"university":{"cn":"\u5927\u5b66","emoji":"\ud83c\udf93"},"unjustly condemned":{"cn":"\u88ab\u51a4\u6789\u5b9a\u7f6a","emoji":"\u2696\ufe0f"},"unreasonable":{"cn":"\u4e0d\u8bb2\u7406\u7684","emoji":"\ud83d\ude44"},"unseen":{"cn":"\u6ca1\u88ab\u770b\u89c1","emoji":"\ud83e\udee5"},"until then":{"cn":"\u5728\u90a3\u4e4b\u524d","emoji":"\u23f3"},"view":{"cn":"\u666f\u8272","emoji":"\ud83c\udfde\ufe0f"},"village":{"cn":"\u6751\u5e84","emoji":"\ud83c\udfd8\ufe0f"},"violence":{"cn":"\u66b4\u529b","emoji":"\ud83d\udc4a"},"violent":{"cn":"\u51f6\u66b4\u7684","emoji":"\ud83d\udc4a"},"visit":{"cn":"\u62dc\u8bbf","emoji":"\ud83d\udeaa"},"visits":{"cn":"\u62dc\u8bbf;\u63a2\u671b","emoji":"\ud83d\udeaa"},"voices":{"cn":"\u8bf4\u8bdd\u58f0","emoji":"\ud83d\udde3\ufe0f"},"warmth":{"cn":"\u6e29\u6696","emoji":"\ud83d\udd25"},"watched":{"cn":"\u89c2\u5bdf;\u6ce8\u89c6","emoji":"\ud83d\udc40"},"watery":{"cn":"\u6c34\u6c6a\u6c6a\u7684","emoji":"\ud83d\udca7"},"wedding":{"cn":"\u5a5a\u793c","emoji":"\ud83d\udc92"},"well enough":{"cn":"\u6062\u590d\u5f97\u591f\u597d","emoji":"\ud83d\udcaa"},"went for a walk":{"cn":"\u53bb\u6563\u6b65","emoji":"\ud83d\udeb6"},"wept":{"cn":"\u54ed\u6ce3","emoji":"\ud83d\ude2d"},"whether":{"cn":"\u662f\u5426","emoji":"\u2753"},"whole":{"cn":"\u6574\u4e2a\u7684","emoji":"\ud83c\udf15"},"wicked":{"cn":"\u90aa\u6076\u7684","emoji":"\ud83d\ude08"},"wind grew strong":{"cn":"\u98ce\u53d8\u5927\u4e86","emoji":"\ud83c\udf2c\ufe0f"},"winds":{"cn":"\u98ce","emoji":"\ud83c\udf2c\ufe0f"},"wisdom":{"cn":"\u667a\u6167","emoji":"\ud83e\udd89"},"wished":{"cn":"\u5e0c\u671b;\u4f46\u613f","emoji":"\ud83c\udf20"},"witnesses":{"cn":"\u8bc1\u4eba","emoji":"\ud83e\uddd1\u200d\u2696\ufe0f"},"wrapped":{"cn":"\u5305\u88f9;\u88f9\u4f4f","emoji":"\ud83c\udf81"},"wrinkled":{"cn":"\u6709\u76b1\u7eb9","emoji":"\ud83d\udc74"},"written":{"cn":"\u5199(write\u8fc7\u53bb\u5206\u8bcd)","emoji":"\u270d\ufe0f"},"is in good health":{"cn":"\u8eab\u4f53\u5065\u5eb7","emoji":"\ud83d\udcaa"}};
+const SECTIONS = {"Walton's Narrative":{"cn":"\u5e8f\u5e55 \u00b7 \u5317\u6781\u6765\u4fe1","icon":"\ud83d\udea2"},"Frankenstein's Narrative":{"cn":"\u7b2c\u4e00\u5e55 \u00b7 \u79d1\u5b66\u5bb6\u7684\u79d8\u5bc6","icon":"\u2697\ufe0f"},"The Monster's Narrative":{"cn":"\u7b2c\u4e8c\u5e55 \u00b7 \u602a\u7269\u7684\u81ea\u8ff0","icon":"\ud83c\udf32"},"Frankenstein's Narrative Continues":{"cn":"\u7b2c\u4e09\u5e55 \u00b7 \u8ffd\u9010\u4e0e\u6551\u8d4e","icon":"\ud83e\uddca"},"Bonus: Walton's Letters":{"cn":"\u5f69\u86cb \u00b7 \u6c83\u5c14\u987f\u7684\u4fe1","icon":"\u2709\ufe0f"}};
+
+/* =====================================================
+   存档
+   ===================================================== */
+const SAVE_KEY = "frankenstein_game_v2";
+let save = { done:{}, stars:{}, words:{}, slow:false };
+try { const s = localStorage.getItem(SAVE_KEY); if (s) save = Object.assign(save, JSON.parse(s)); } catch(e){}
+function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){} }
+
+let cur = 0, qIdx = 0, wrongCount = 0, quizLock = false;
+
+function $(id){ return document.getElementById(id); }
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._tm); t._tm = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+function stripMarks(s){ return s.replace(/\{([^}]*)\}/g, "$1"); }
+
+/* =====================================================
+   朗读引擎 TTS —— 三层保障:
+   1) 本地 speechSynthesis(优选英文音色, 分句排队, 防长文本被浏览器掐断)
+   2) 本地不出声 → 自动切换在线发音(有道 dictvoice, 需联网)
+   3) 都不行 → 提示换浏览器
+   ===================================================== */
+const TTS = {
+  voices: [], mode: "auto",    // auto | local | online | dead
+  player: null, queue: [], playing: false, keepAlive: null, curPara: -1, unlocked: false
+};
+const IN_WECHAT = /MicroMessenger/i.test(navigator.userAgent || "");
+function ttsInit(){
+  if (!("speechSynthesis" in window) || IN_WECHAT) { TTS.mode = "online"; }
+  if (!("speechSynthesis" in window)) return;
+  const load = ()=>{ try{ TTS.voices = speechSynthesis.getVoices() || []; }catch(e){} };
+  load();
+  try{ speechSynthesis.onvoiceschanged = load; }catch(e){}
+  setTimeout(load, 500); setTimeout(load, 2000);
+}
+/* 移动端/微信自动播放限制: 用户第一次触屏时"解锁"音频通道,
+   之后延迟触发的在线发音才允许出声 */
+const SILENT_WAV = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+function ensurePlayer(){
+  if (!TTS.player) TTS.player = new Audio();
+  return TTS.player;
+}
+function unlockAudio(){
+  if (TTS.unlocked) return;
+  TTS.unlocked = true;
+  try{ const p = ensurePlayer(); p.src = SILENT_WAV; p.play().catch(()=>{ TTS.unlocked = false; }); }catch(e){}
+  try{
+    if ("speechSynthesis" in window){
+      const u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u);
+    }
+  }catch(e){}
+}
+document.addEventListener("touchend", unlockAudio, true);
+document.addEventListener("click", unlockAudio, true);
+function pickVoice(){
+  const vs = TTS.voices;
+  return vs.find(v=>/en[-_]US/i.test(v.lang) && /google|natural|online/i.test(v.name))
+      || vs.find(v=>/en[-_]US/i.test(v.lang))
+      || vs.find(v=>/^en/i.test(v.lang)) || null;
+}
+function splitSentences(text){
+  const parts = (text.match(/[^.!?]+[.!?”"']*\s*/g) || [text]).map(s=>s.trim()).filter(Boolean);
+  // 合并过短的句子, 控制每段 ≤ 190 字符(在线接口和本地引擎都友好)
+  const out = [];
+  let buf = "";
+  for (const p of parts){
+    if ((buf + " " + p).length > 190 && buf) { out.push(buf.trim()); buf = p; }
+    else buf = buf ? buf + " " + p : p;
+  }
+  if (buf.trim()) out.push(buf.trim());
+  return out;
+}
+function rate(){ return save.slow ? 0.7 : 0.88; }
+/* 预录音频的播放倍速: 原速播放(语速不变); 句间停顿靠剪静音+预加载解决 */
+function playSpeed(){ return save.slow ? 0.8 : 1.0; }
+
+/* 把一段文本切成"自然句子"(与 gen_audio.py 完全一致的切法),不做合并 */
+function splitSents(text){
+  const raw = text.match(/[^.!?]+[.!?]*["'”’]*/g) || [text];
+  const out = [];
+  for (let s of raw){
+    s = s.trim(); if (!s) continue;
+    if (!/[A-Za-z0-9]/.test(s) && out.length) out[out.length - 1] += " " + s;
+    else out.push(s);
+  }
+  return out;
+}
+function stopAll(){
+  RS = null;
+  TTS.playing = false; TTS.queue = [];
+  clearInterval(TTS.keepAlive);
+  try{ speechSynthesis.cancel(); }catch(e){}
+  if (TTS.player){ try{ TTS.player.pause(); TTS.player.onended = null; }catch(e){} }
+  highlightSent(null);
+  setPauseUI();
+}
+/* 高亮"正在读的那一句" */
+function highlightSent(it){
+  document.querySelectorAll(".story-card .sent.speaking").forEach(e=>e.classList.remove("speaking"));
+  if (!it) return;
+  const el = document.querySelector('.sent[data-pi="' + it.pi + '"][data-si="' + it.si + '"]');
+  if (el){ el.classList.add("speaking"); try{ el.scrollIntoView({behavior:"smooth", block:"center"}); }catch(e){} }
+}
+/* 记录某段"已听完",全部段落听完才解锁答题 */
+function markHeard(i){
+  if (i < 0 || cur == null) return;
+  const ch = BOOK[cur];
+  heardSet.add(i);
+  save.heard = save.heard || {};
+  save.heard[ch.id] = Array.from(heardSet);
+  persist();
+  updateQuizGate();
+}
+let heardSet = new Set();
+function allHeard(){
+  return BOOK[cur] && heardSet.size >= BOOK[cur].paras.length;
+}
+function updateQuizGate(){
+  const btn = $("btn-quiz");
+  if (!btn || cur == null) return;
+  const ch = BOOK[cur];
+  const done = !!save.done[ch.id];       // 已通关章节不再限制
+  if (done || allHeard()){
+    btn.textContent = "✅ 我读完了，去答题";
+    btn.style.opacity = "1";
+  } else {
+    const left = ch.paras.length - heardSet.size;
+    btn.textContent = "🔒 先听完故事（还剩 " + left + " 段）";
+    btn.style.opacity = ".6";
+  }
+}
+
+/* 本地引擎播放; onFail 在完全没出声时触发 */
+function speakLocal(sentences, onFail, onDone){
+  try{ speechSynthesis.cancel(); }catch(e){ onFail && onFail(); return; }
+  let started = false, finished = 0;
+  const total = sentences.length;
+  sentences.forEach(s=>{
+    const u = new SpeechSynthesisUtterance(s);
+    u.lang = "en-US"; u.rate = rate();
+    const v = pickVoice(); if (v) u.voice = v;
+    u.onstart = ()=>{ started = true; TTS.mode = "local"; };
+    u.onend = ()=>{ finished++; if (finished >= total && onDone) onDone(); };
+    try{ speechSynthesis.speak(u); }catch(e){}
+  });
+  /* Chrome 桌面版 15 秒掐断长朗读的经典 bug: 周期性 resume 保活 */
+  clearInterval(TTS.keepAlive);
+  TTS.keepAlive = setInterval(()=>{
+    try{
+      if (!speechSynthesis.speaking){ clearInterval(TTS.keepAlive); }
+      else { speechSynthesis.resume(); }
+    }catch(e){}
+  }, 10000);
+  /* 3 秒还没出声 → 判定本地引擎不可用 */
+  setTimeout(()=>{
+    if (!started){
+      try{ speechSynthesis.cancel(); }catch(e){}
+      clearInterval(TTS.keepAlive);
+      onFail && onFail();
+    }
+  }, 3000);
+}
+
+/* 预录音频(与游戏同源托管的 mp3, 最稳的通道) */
+const AUDIO_BASE = "audio/";
+function slug(w){
+  const s = w.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  return s || "x";
+}
+function detectAudio(){
+  try{
+    fetch(AUDIO_BASE + "test.mp3", {method:"HEAD"})
+      .then(r=>{ TTS.hasAudio = !!r.ok; })
+      .catch(()=>{});
+  }catch(e){}
+}
+function playFile(url, onDone, onFail){
+  const p = ensurePlayer();
+  TTS.playing = true;
+  p.src = url;
+  p.playbackRate = playSpeed();
+  p.onended = ()=>{ TTS.playing = false; onDone && onDone(); };
+  p.onerror = ()=>{ TTS.playing = false; onFail && onFail(); };
+  p.play().then(()=>{ TTS.lastErr = ""; TTS.hasAudio = true; }).catch(err=>{
+    TTS.playing = false; TTS.lastErr = "play:" + (err && err.name || "blocked");
+    toast("请再点一次 🔊,并确认媒体音量已调大");
+  });
+}
+
+/* 在线发音(有道词典接口, 需联网; 复用同一个已解锁的 Audio 元素) */
+function speakOnline(sentences, onDone, onFail){
+  TTS.queue = sentences.slice(); TTS.playing = true;
+  const p = ensurePlayer();
+  p.playbackRate = playSpeed();
+  const next = ()=>{
+    if (!TTS.playing) return;
+    if (!TTS.queue.length){ TTS.playing = false; onDone && onDone(); return; }
+    const s = TTS.queue.shift();
+    p.src = "https://dict.youdao.com/dictvoice?type=2&audio=" + encodeURIComponent(s);
+    p.onended = next;
+    p.onerror = ()=>{ TTS.playing = false; TTS.lastErr = "online:loaderror";
+      if (onFail) onFail(); else toast("在线朗读失败:请检查网络;首页有[声音检测]可排查"); };
+    p.play().catch(err=>{ TTS.playing = false; TTS.lastErr = "play:" + (err && err.name || "blocked");
+      toast("请再点一次 🔊,并把媒体音量调大"); });
+  };
+  next();
+}
+
+/* 统一入口: 依次尝试 预录音频 → 本地引擎 → 在线发音;
+   用户在[声音检测]里手动固定过模式则只走该通道(音频模式保留在线兜底) */
+function speak(text, onDone, hint){
+  stopAll();
+  const forced = (save.ttsMode && save.ttsMode !== "auto") ? save.ttsMode : null;
+  const sentences = splitSentences(text || "");
+  /* 有预录音频就直接先试播,加载失败会自动落到下一通道,
+     不再依赖启动时的 hasAudio 探测(某些环境探测请求会被拦而播放正常) */
+  const url = hint
+    ? AUDIO_BASE + (hint.file ? hint.file : "w/" + slug(hint.word) + ".mp3")
+    : null;
+  const chain = [];
+  if (url && (!forced || forced === "recorded"))
+    chain.push(fail=>playFile(url, onDone, fail));
+  if (sentences.length && (!forced || forced === "local"))
+    chain.push(fail=>speakLocal(sentences, fail, onDone));
+  if (sentences.length && (!forced || forced === "online" || forced === "recorded"))
+    chain.push(fail=>speakOnline(sentences, onDone, fail));
+  if (!chain.length) return;
+  const step = i=>{
+    if (i >= chain.length){ toast("朗读失败:请到首页[声音检测]排查"); return; }
+    chain[i](()=>step(i + 1));
+  };
+  step(0);
+}
+
+/* ============ 逐句朗读引擎(支持暂停/继续) ============ */
+let RS = null;   // { items:[{pi,si,file,text}], pos, paused }
+function sentFile(ch, pi, si){ return "s/" + ch.id + "_" + pi + "_" + si + ".mp3"; }
+function buildItems(paraIdxs){
+  const ch = BOOK[cur]; const items = [];
+  paraIdxs.forEach(pi=>{
+    const sents = splitSents(ch.paras[pi]);
+    sents.forEach((s, si)=>items.push({ pi, si, file: sentFile(ch, pi, si), text: stripMarks(s) }));
+  });
+  return items;
+}
+function paraSentCount(pi){ return splitSents(BOOK[cur].paras[pi]).length; }
+function setPauseUI(){
+  const b = $("btn-pause"); if (!b) return;
+  b.textContent = (RS && RS.paused) ? "▶️ 继续" : "⏸ 暂停";
+}
+function readItems(items, startPos){
+  stopAll();
+  if (!items.length) return;
+  RS = { items: items, pos: startPos || 0, paused: false };
+  setPauseUI();
+  rsStep();
+}
+function rsStep(){
+  if (!RS || RS.paused) return;
+  if (RS.pos >= RS.items.length){ RS = null; highlightSent(null); setPauseUI(); return; }
+  const it = RS.items[RS.pos];
+  highlightSent(it);
+  prefetchNext();                        // 预加载下一句, 缩短句间加载停顿
+  speakSentence(it, ()=>{
+    if (it.si === paraSentCount(it.pi) - 1) markHeard(it.pi);   // 该段最后一句读完 → 记已听
+    if (!RS || RS.paused) return;
+    RS.pos++;
+    rsStep();
+  });
+}
+function prefetchNext(){
+  const nx = RS && RS.items[RS.pos + 1];
+  if (!nx || !nx.file) return;
+  try{ const a = new Audio(); a.preload = "auto"; a.src = AUDIO_BASE + nx.file; TTS._pre = a; }catch(e){}
+}
+/* 播放单句:预录音频 → 本地引擎 → 在线,任一成功即止 */
+function speakSentence(it, onDone){
+  const forced = (save.ttsMode && save.ttsMode !== "auto") ? save.ttsMode : null;
+  const chain = [];
+  if (!forced || forced === "recorded") chain.push(fail=>playFile(AUDIO_BASE + it.file, onDone, fail));
+  if (!forced || forced === "local")    chain.push(fail=>speakLocal([it.text], fail, onDone));
+  if (!forced || forced === "online" || forced === "recorded") chain.push(fail=>speakOnline([it.text], onDone, fail));
+  const step = i=>{ if (i >= chain.length){ toast("朗读失败:请到首页[声音检测]排查"); return; } chain[i](()=>step(i + 1)); };
+  step(0);
+}
+function pauseToggle(){
+  if (!RS){ readAloud(); return; }        // 没在读 → 直接开始读
+  if (RS.paused) readResume(); else readPause();
+}
+function readPause(){
+  if (!RS) return;
+  RS.paused = true;
+  try{ if (TTS.player) TTS.player.pause(); }catch(e){}
+  try{ if ("speechSynthesis" in window) speechSynthesis.pause(); }catch(e){}
+  setPauseUI();
+}
+function readResume(){
+  if (!RS) return;
+  RS.paused = false;
+  setPauseUI();
+  let resumed = false;
+  try{ if (TTS.player && TTS.player.src && TTS.player.paused){ TTS.player.play(); resumed = true; } }catch(e){}
+  try{ if ("speechSynthesis" in window && speechSynthesis.paused){ speechSynthesis.resume(); resumed = true; } }catch(e){}
+  if (!resumed) rsStep();                  // 暂停恰好卡在两句之间 → 直接接着下一句
+}
+function readAloud(){ readItems(buildItems(BOOK[cur].paras.map((_, i)=>i)), 0); }
+function readPara(i){ readItems(buildItems([i]), 0); }
+function stopAloud(){ stopAll(); }
+function toggleRate(){
+  save.slow = !save.slow; persist();
+  $("btn-rate").textContent = save.slow ? "🐇 正常速" : "🐢 慢速";
+  toast(save.slow ? "已切换为慢速朗读 🐢" : "已切换为正常语速 🐇");
+}
+
+/* =====================================================
+   首页
+   ===================================================== */
+function isUnlocked(i){ return i === 0 || !!save.done[BOOK[i-1].id]; }
+function firstUndone(){
+  for (let i = 0; i < BOOK.length; i++) if (!save.done[BOOK[i].id]) return i;
+  return BOOK.length - 1;
+}
+function renderHome(){
+  const doneN = BOOK.filter(c=>save.done[c.id]).length;
+  const starN = Object.values(save.stars).reduce((a,b)=>a+b, 0);
+  const wordN = Object.keys(save.words).length;
+  $("st-ch").textContent = doneN + "/" + BOOK.length;
+  $("st-star").textContent = starN;
+  $("st-word").textContent = wordN;
+  $("prog-bar").style.width = Math.round(doneN / BOOK.length * 100) + "%";
+  $("prog-label").textContent = doneN === BOOK.length
+    ? "🎉 全书通关!你读完了一整本英文小说!"
+    : "整本书进度 " + Math.round(doneN / BOOK.length * 100) + "%";
+  $("btn-continue").textContent = doneN === 0 ? "▶️ 开始冒险" :
+    (doneN === BOOK.length ? "🎉 再玩一遍喜欢的章节" : "▶️ 继续冒险:" + BOOK[firstUndone()].title_cn);
+  $("wb-count").textContent = wordN ? "(" + wordN + ")" : "";
+
+  const map = $("map"); map.innerHTML = "";
+  let lastSection = null;
+  const nextIdx = firstUndone();
+  BOOK.forEach((ch, i)=>{
+    if (ch.section !== lastSection){
+      lastSection = ch.section;
+      const s = SECTIONS[ch.section] || {cn: ch.section, icon: "📖"};
+      const h = document.createElement("div");
+      h.className = "section-head";
+      h.innerHTML = `<span class="s-icon">${s.icon}</span><span class="s-name">${s.cn}</span><span class="s-en">${ch.section}</span>`;
+      map.appendChild(h);
+    }
+    const unlocked = isUnlocked(i);
+    const done = !!save.done[ch.id];
+    const node = document.createElement("div");
+    node.className = "map-node" + (unlocked ? "" : " locked") + (i === nextIdx && unlocked && !done ? " next" : "");
+    const stars = done ? "★".repeat(save.stars[ch.id] || 1) : "";
+    node.innerHTML = `
+      <div class="icon">${ch.icon}</div>
+      <div class="info">
+        <div class="name">${ch.title_en}</div>
+        <div class="place">${ch.title_cn} · ${ch.words}词 ${done ? "" : "· " + ch.teaser_cn}</div>
+      </div>
+      <div class="state">${ done ? `<span class="badge-done">${stars}</span>` : (unlocked ? "▶️" : "🔒") }</div>`;
+    node.onclick = unlocked ? (()=>openChapter(i)) : (()=>toast("先完成上一章才能解锁哦 🔒"));
+    map.appendChild(node);
+  });
+}
+function continueGame(){ openChapter(firstUndone()); }
+function goHome(){ stopAll(); renderHome(); show("scr-home"); }
+function resetProgress(){
+  if (!confirm("确定要清空所有进度和单词册,重新开始吗?")) return;
+  save = { done:{}, stars:{}, words:{}, heard:{}, slow: save.slow, ttsMode: save.ttsMode }; persist(); renderHome(); toast("已重新开始 ✨");
+}
+
+/* =====================================================
+   阅读页
+   ===================================================== */
+function openChapter(i){
+  stopAll();
+  cur = i;
+  const ch = BOOK[i];
+  $("read-tag").textContent = ch.tag;
+  $("read-title").textContent = ch.title_en;
+  $("read-title-cn").textContent = ch.title_cn + " · " + ch.words + " 词";
+  $("btn-rate").textContent = save.slow ? "🐇 正常速" : "🐢 慢速";
+  const gwHtml = (frag)=>frag.replace(/\{([^}]+)\}/g, (m, w)=>{
+    const learned = save.words[w.trim().toLowerCase()] ? " learned" : "";
+    return `<span class="gw${learned}" data-w="${w.replace(/"/g,'&quot;')}">${w}</span>`;
+  });
+  const body = $("story-body");
+  body.innerHTML = ch.paras.map((par, pi)=>{
+    // 把段落切成句子, 每句包一个 .sent(供逐句高亮), 生词 gw 仍在句内
+    const sents = splitSents(par).map((s, si)=>
+      `<span class="sent" data-pi="${pi}" data-si="${si}">${gwHtml(s)}</span>`).join(" ");
+    return `<p data-pi="${pi}">${sents} <span class="pspk" data-p="${pi}">🔊</span></p>`;
+  }).join("");
+  body.querySelectorAll(".gw").forEach(el=>{ el.onclick = (ev)=>{ ev.stopPropagation(); showWordCard(el.dataset.w, el); }; });
+  body.querySelectorAll(".pspk").forEach(el=>{ el.onclick = (ev)=>{ ev.stopPropagation(); readPara(+el.dataset.p); }; });
+  // 恢复本章已听进度(持久化,重进不用重听)
+  save.heard = save.heard || {};
+  heardSet = new Set(save.heard[ch.id] || []);
+  updateQuizGate();
+  show("scr-read");
+}
+function backToRead(){ openChapter(cur); }
+
+/* ---------- 单词卡 ---------- */
+function sentenceOf(word){
+  const ch = BOOK[cur];
+  const low = word.toLowerCase();
+  for (const par of ch.paras){
+    if (par.toLowerCase().indexOf("{" + low) === -1 &&
+        par.toLowerCase().indexOf(low) === -1) continue;
+    const plain = stripMarks(par);
+    const ss = plain.match(/[^.!?]+[.!?”"']*/g) || [plain];
+    for (const s of ss) if (s.toLowerCase().includes(low)) return s.trim();
+  }
+  return "";
+}
+function showWordCard(word, el){
+  const key = word.trim().toLowerCase();
+  const g = GLOSSARY[key] || { cn: "(点🔊听发音)", emoji: "⭐" };
+  const firstTime = !save.words[key];
+  if (firstTime){
+    save.words[key] = { ch: BOOK[cur].id };
+    persist();
+    if (el) el.classList.add("learned");
+  }
+  const eg = sentenceOf(word);
+  $("word-card").innerHTML = `
+    <div class="w-emoji">${g.emoji}</div>
+    <div class="w-word">${word}</div>
+    <div class="w-cn">${g.cn}</div>
+    ${eg ? `<div class="w-eg">“${eg}”</div>` : ""}
+    <div class="w-collect">${firstTime ? "🎉 新单词已收进单词册!" : "✅ 已在单词册里"}</div>
+    <button class="btn btn-primary btn-block" id="w-speak">🔊 听发音</button>`;
+  $("w-speak").onclick = ()=>speak(word + (eg ? ". " + eg : ""), null, {word: key});
+  $("word-overlay").classList.add("show");
+  speak(word, null, {word: key});
+}
+function closeWordCard(ev){
+  if (ev.target.id === "word-overlay"){ $("word-overlay").classList.remove("show"); stopAll(); }
+}
+
+/* =====================================================
+   答题
+   ===================================================== */
+function tryStartQuiz(){
+  const ch = BOOK[cur];
+  if (!save.done[ch.id] && !allHeard()){
+    const left = ch.paras.length - heardSet.size;
+    toast("先点 🔊 把故事听完哦(还剩 " + left + " 段)~");
+    // 自动帮忙从第一段没听的地方开始读
+    return;
+  }
+  startQuiz();
+}
+function startQuiz(){
+  stopAll();
+  qIdx = 0; wrongCount = 0; quizLock = false;
+  $("quiz-tag").textContent = BOOK[cur].tag + " · QUIZ";
+  renderQuestion();
+  show("scr-quiz");
+}
+const KIND_LABEL = { choice:"🔤 选一选", tf:"⚖️ 判断对错", fill:"✏️ 选词填空", who:"💬 谁说的？", order:"🔢 按顺序排一排" };
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function renderQuestion(){
+  const q = BOOK[cur].quiz[qIdx];
+  const type = q.type || "choice";
+  $("quiz-progress").textContent = "第 " + (qIdx+1) + " / " + BOOK[cur].quiz.length + " 题";
+  $("quiz-feedback").textContent = "";
+  $("q-kind").textContent = KIND_LABEL[type] || KIND_LABEL.choice;
+  $("q-text").innerHTML = ""; $("q-cn").textContent = ""; $("q-options").innerHTML = "";
+  quizLock = false;
+  if (type === "tf") renderTF(q);
+  else if (type === "fill") renderFill(q);
+  else if (type === "who") renderWho(q);
+  else if (type === "order") renderOrder(q);
+  else renderChoice(q);
+}
+const PRAISE = ["Great job! 🎉","Excellent! ⭐","You got it! 💪","Amazing! 🌟","Perfect! 🏆"];
+function qPass(){
+  quizLock = true;
+  $("quiz-feedback").textContent = PRAISE[qIdx % PRAISE.length];
+  setTimeout(()=>{
+    qIdx++;
+    if (qIdx < BOOK[cur].quiz.length) renderQuestion();
+    else finishChapter();
+  }, 900);
+}
+function qFail(el, msg){
+  wrongCount++;
+  if (el){ el.classList.add("wrong"); setTimeout(()=>el.classList.remove("wrong"), 600); }
+  $("quiz-feedback").textContent = msg || "再想想～答案就藏在故事里 🔍(左上角可以回去再读)";
+}
+/* 兼容旧调用 */
+function answer(el, right){ if (!quizLock){ if (right){ el.classList.add("right"); qPass(); } else qFail(el); } }
+
+function renderChoice(q){
+  $("q-text").textContent = q.q;
+  $("q-cn").textContent = q.cn || "";
+  const box = $("q-options");
+  q.options.forEach((opt, i)=>{
+    const d = document.createElement("div");
+    d.className = "option"; d.textContent = String.fromCharCode(65+i) + ".  " + opt;
+    d.onclick = ()=>{ if (quizLock) return; if (i === q.answer){ d.classList.add("right"); qPass(); } else qFail(d); };
+    box.appendChild(d);
+  });
+}
+function renderTF(q){
+  $("q-text").textContent = q.q;
+  $("q-cn").textContent = q.cn || "这句话对不对？";
+  const box = $("q-options"); box.className = "options tf-row";
+  [{t:"✓ 对", v:true},{t:"✗ 错", v:false}].forEach(o=>{
+    const d = document.createElement("div");
+    d.className = "option tf-opt"; d.textContent = o.t;
+    d.onclick = ()=>{ if (quizLock) return; if (o.v === q.answer){ d.classList.add("right"); qPass(); } else qFail(d); };
+    box.appendChild(d);
+  });
+}
+function renderFill(q){
+  // q.q 里用 ___ 表示空格
+  $("q-text").innerHTML = (q.q || "").replace("___", '<span class="blank" id="the-blank">?</span>');
+  $("q-cn").textContent = q.cn || "把正确的词填进空格里";
+  const box = $("q-options"); box.className = "options chip-box";
+  q.options.forEach((opt, i)=>{
+    const d = document.createElement("div");
+    d.className = "chip"; d.textContent = opt;
+    d.onclick = ()=>{
+      if (quizLock) return;
+      if (i === q.answer){
+        d.classList.add("right");
+        const bl = $("the-blank"); if (bl){ bl.textContent = opt; bl.classList.add("filled"); }
+        qPass();
+      } else qFail(d);
+    };
+    box.appendChild(d);
+  });
+}
+function renderWho(q){
+  $("q-text").innerHTML = '<div class="quote-bubble">“' + q.q + '”</div><div style="margin-top:14px">这句话是谁说的？</div>';
+  $("q-cn").textContent = q.cn || "";
+  const box = $("q-options"); box.className = "options";
+  q.options.forEach((opt, i)=>{
+    const d = document.createElement("div");
+    d.className = "option"; d.textContent = String.fromCharCode(65+i) + ".  " + opt;
+    d.onclick = ()=>{ if (quizLock) return; if (i === q.answer){ d.classList.add("right"); qPass(); } else qFail(d); };
+    box.appendChild(d);
+  });
+}
+function renderOrder(q){
+  $("q-text").textContent = q.q || "按事情发生的先后，依次点一点：";
+  $("q-cn").textContent = q.cn || "";
+  const box = $("q-options"); box.className = "options";
+  // q.items 已按正确顺序; 打乱显示, 每项记住其正确序号
+  const shuffled = shuffle(q.items.map((t, idx)=>({ t, idx })));
+  let expect = 0;                       // 下一个应点的正确序号
+  shuffled.forEach(it=>{
+    const d = document.createElement("div");
+    d.className = "order-item";
+    d.innerHTML = '<span class="order-badge">•</span><span>' + it.t + '</span>';
+    d.onclick = ()=>{
+      if (quizLock || d.classList.contains("placed")) return;
+      if (it.idx === expect){
+        d.classList.add("placed");
+        d.querySelector(".order-badge").textContent = (expect + 1);
+        expect++;
+        if (expect === q.items.length) qPass();
+      } else {
+        qFail(d, "顺序不对哦，想想哪件事先发生 🤔");
+      }
+    };
+    box.appendChild(d);
+  });
+}
+function finishChapter(){
+  const ch = BOOK[cur];
+  const stars = wrongCount === 0 ? 3 : (wrongCount <= 2 ? 2 : 1);
+  const firstClear = !save.done[ch.id];
+  save.done[ch.id] = true;
+  save.stars[ch.id] = Math.max(save.stars[ch.id] || 0, stars);
+  persist();
+  $("reward-part").textContent = ch.icon;
+  $("reward-title").textContent = (firstClear ? "获得纪念品:" : "纪念品已擦亮:") + ch.itemName + "!";
+  $("reward-stars").textContent = "⭐".repeat(stars);
+  const nx = cur + 1;
+  $("reward-sub").innerHTML = nx < BOOK.length
+    ? `已解锁下一章 <b>${BOOK[nx].title_en}</b><br>${BOOK[nx].teaser_cn}`
+    : `🎉🎉🎉<br>你独立读完了一整本 ${BOOK.reduce((a,c)=>a+c.words,0)} 词的英文小说!<br>这是了不起的成就!`;
+  show("scr-reward");
+}
+
+/* =====================================================
+   单词册 & 收藏馆
+   ===================================================== */
+function showWordbook(){
+  const list = $("wordbook-list");
+  const byCh = {};
+  Object.entries(save.words).forEach(([w, info])=>{
+    (byCh[info.ch] = byCh[info.ch] || []).push(w);
+  });
+  const total = Object.keys(GLOSSARY).length;
+  const got = Object.keys(save.words).length;
+  if (!got){
+    list.innerHTML = `<div class="wb-empty">单词册还是空的 📭<br>去故事里点一点紫色的单词吧!</div>`;
+  } else {
+    let html = `<div class="chapter-title-cn">已收集 ${got} / ${total} 个生词</div>`;
+    BOOK.forEach(ch=>{
+      const ws = byCh[ch.id];
+      if (!ws || !ws.length) return;
+      html += `<div class="wb-chapter">${ch.icon} ${ch.title_cn}(${ws.length})</div>`;
+      html += ws.sort().map(w=>{
+        const g = GLOSSARY[w] || {cn:"", emoji:"⭐"};
+        return `<div class="wb-item">
+          <div class="wb-emoji">${g.emoji}</div>
+          <div class="wb-main"><div class="wb-word">${w}</div><div class="wb-cn">${g.cn}</div></div>
+          <div class="wb-sound" data-w="${w.replace(/"/g,'&quot;')}">🔊</div>
+        </div>`;
+      }).join("");
+    });
+    list.innerHTML = html;
+    list.querySelectorAll(".wb-sound").forEach(el=>{ el.onclick = ()=>speak(el.dataset.w, null, {word: el.dataset.w}); });
+  }
+  show("scr-wordbook");
+}
+function showShelf(){
+  const grid = $("shelf-grid");
+  grid.innerHTML = BOOK.map(ch=>{
+    const owned = !!save.done[ch.id];
+    return `<div class="shelf-cell${owned ? "" : " miss"}">
+      <div class="c-emoji">${owned ? ch.icon : "❓"}</div>
+      <div class="c-name">${owned ? ch.itemName : "???"}</div>
+    </div>`;
+  }).join("");
+  show("scr-shelf");
+}
+
+/* =====================================================
+   声音检测
+   ===================================================== */
+const TEST_TEXT = "Hello! Welcome to Frankenstein. Can you hear me?";
+function testFile(){
+  stopAll();
+  playFile(AUDIO_BASE + "test.mp3", ()=>toast("测试⓪播放完毕,听到了吗?"),
+    ()=>toast("音频文件加载失败 ❌(离线打开的单文件版没有音频包)"));
+}
+function testLocal(){
+  stopAll();
+  speakLocal(splitSentences(TEST_TEXT), ()=>toast("本地引擎没出声 ❌ 试试别的测试"));
+}
+function testOnline(){
+  stopAll();
+  speakOnline(splitSentences(TEST_TEXT));
+}
+const MODE_NAMES = {auto: "已设为自动选择 🤖", recorded: "已固定用音频文件 ⓪",
+  local: "已固定用本地发音 ①", online: "已固定用在线发音 ②"};
+function setMode(m){
+  save.ttsMode = m; persist();
+  paintMode();
+  toast(MODE_NAMES[m]);
+}
+function paintMode(){
+  const cur = save.ttsMode || "auto";
+  ["auto","recorded","local","online"].forEach(m=>{
+    const b = $("m-" + m);
+    b.style.borderColor = (m === cur) ? "#ffd54f" : "#4c4380";
+    b.style.color = (m === cur) ? "#ffd54f" : "#e8e2ff";
+  });
+}
+function showSound(){
+  paintMode();
+  let vn = 0;
+  try{ vn = ("speechSynthesis" in window) ? speechSynthesis.getVoices().length : -1; }catch(e){}
+  $("snd-diag").innerHTML = "诊断: 音频包" + (TTS.hasAudio ? "✓" : "✗")
+    + " | 本地引擎音色数 " + vn
+    + " | 微信环境 " + (IN_WECHAT ? "是" : "否")
+    + (TTS.lastErr ? " | 上次错误 " + TTS.lastErr : "")
+    + "<br>浏览器: " + (navigator.userAgent || "").slice(0, 90);
+  show("scr-sound");
+}
+
+ttsInit();
+detectAudio();
+renderHome();
+</script>
+</body>
+</html>
