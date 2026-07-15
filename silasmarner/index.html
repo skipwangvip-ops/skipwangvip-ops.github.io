@@ -4,6 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Silas Marner · 织工马南</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  #site-gate{position:fixed;inset:0;z-index:99999;background:linear-gradient(180deg,#1a1f3c,#2b2350);
+    display:flex;align-items:center;justify-content:center;font-family:-apple-system,"PingFang SC",sans-serif}
+  #site-gate .sg-box{text-align:center;color:#f3efe4;padding:24px}
+  #site-gate .sg-t{font-size:22px;font-weight:800;margin-top:10px;
+    background:linear-gradient(90deg,#ffe082,#a5ffb0,#8ecfff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  #site-gate .sg-s{color:#bfb8d9;font-size:14px;margin:8px 0 18px}
+  #site-gate input{display:block;margin:0 auto;width:220px;max-width:70vw;padding:13px 16px;border-radius:14px;
+    border:1px solid #4c4380;background:#262148;color:#f3efe4;font-size:17px;text-align:center;outline:none}
+  #site-gate button{margin-top:14px;padding:13px 30px;border:none;border-radius:14px;font-size:16px;font-weight:800;
+    background:linear-gradient(90deg,#ffb300,#ff8f00);color:#2b1a00;cursor:pointer;font-family:inherit}
+  #site-gate .sg-m{color:#ff8a80;min-height:20px;margin-top:10px;font-size:14px}
+</style>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body { height:100%; }
@@ -253,6 +267,32 @@
 </style>
 </head>
 <body>
+<!-- 全站共享密码门(同源, 一次解锁全部书) -->
+<div id="site-gate">
+  <div class="sg-box">
+    <div style="font-size:44px">🔒📖</div>
+    <div class="sg-t">阅读大冒险</div>
+    <div class="sg-s">请输入密码开始阅读</div>
+    <input id="sg-pw" type="password" autocomplete="off" placeholder="密码" />
+    <button id="sg-btn">进入 ▶</button>
+    <div class="sg-m" id="sg-m"></div>
+  </div>
+</div>
+<script>
+(function(){
+  function H(s){var x=5381;for(var i=0;i<s.length;i++)x=((x*33)^s.charCodeAt(i))>>>0;return x;}
+  var TARGET=2088000572, g=document.getElementById("site-gate");
+  if(localStorage.getItem("rg_gate")==="ok"){ g.style.display="none"; return; }
+  function tryPw(){
+    var v=(document.getElementById("sg-pw").value||"").trim().toLowerCase();
+    if(H(v)===TARGET){ localStorage.setItem("rg_gate","ok"); g.style.display="none"; }
+    else { document.getElementById("sg-m").textContent="密码不对，再试一次~"; }
+  }
+  document.getElementById("sg-btn").onclick=tryPw;
+  document.getElementById("sg-pw").addEventListener("keydown",function(e){ if(e.key==="Enter")tryPw(); });
+  setTimeout(function(){ try{document.getElementById("sg-pw").focus();}catch(e){} },100);
+})();
+</script>
 
 <!-- ============ 首页 ============ -->
 <div class="screen active" id="scr-home">
