@@ -98,6 +98,8 @@ const BOOKS = [
     desc:"惊悚 · FBI探员追捕变异凶手（较吓人）", saveKey:"xfiles_game_v1", chapters:10, words:7070 },
   { id:"charlie", path:"./charlie/", cover:"🍫", title:"Charlie & the Chocolate Factory 查理和巧克力工厂",
     desc:"欢乐 · 金奖券开启的巧克力工厂奇遇（放心给娃）", saveKey:"charlie_game_v1", chapters:29, words:32000 },
+  { id:"sherlock", path:"./sherlock/", cover:"🔍", title:"Sherlock Holmes 福尔摩斯探案记",
+    desc:"侦探 · 福尔摩斯的三个推理故事（放心给娃）", saveKey:"sherlock_game_v1", chapters:6, words:9715 },
 ];
 const HUB_KEY="reading_hub_v1";
 function hub(){ try{return JSON.parse(localStorage.getItem(HUB_KEY))||{}}catch(e){return{}} }
