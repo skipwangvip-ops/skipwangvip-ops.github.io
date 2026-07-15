@@ -1,11 +1,123 @@
-<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>阅读小游戏</title><style>
-body{font-family:-apple-system,"PingFang SC",sans-serif;background:linear-gradient(180deg,#1a1f3c,#2b2350);color:#f3efe4;text-align:center;padding:56px 20px;min-height:100vh;margin:0}
-h1{font-size:26px}p{color:#bfb8d9}
-.card{display:block;max-width:420px;margin:18px auto;padding:20px 24px;background:#262148;border:1px solid #443b74;border-radius:18px;text-decoration:none;color:#f3efe4;text-align:left}
-.card b{font-size:19px;color:#ffd54f}.card span{display:block;font-size:13px;color:#a79fce;margin-top:6px}
-.go{display:inline-block;margin-top:12px;padding:12px 20px;background:linear-gradient(90deg,#ffb300,#ff8f00);color:#2b1a00;border-radius:12px;font-weight:700}
-</style></head><body>
-<h1>📖 阅读大冒险</h1><p>点一本，开始读故事闯关</p>
-<a class="card" href="./frankenstein/"><b>⚡ Frankenstein 科学怪人</b><span>科幻 · 造出生命的科学家与他的怪物</span><span class="go">开始阅读 →</span></a>
-<a class="card" href="./moonstone/"><b>💎 The Moonstone 月亮石</b><span>侦探 · 一颗印度圣钻在生日夜离奇失窃</span><span class="go">开始破案 →</span></a>
-</body></html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>阅读大冒险 · 我的书架</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:linear-gradient(180deg,#1a1f3c 0%,#2b2350 60%,#3a2c5e 100%);color:#f3efe4;min-height:100vh;padding:26px 18px 50px}
+  .wrap{max-width:760px;margin:0 auto}
+  .head{text-align:center;margin:12px 0 6px}
+  .head .bolt{font-size:44px}
+  h1{font-size:26px;margin-top:6px;background:linear-gradient(90deg,#ffe082,#a5ffb0,#8ecfff);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:#bfb8d9;font-size:14px;margin-top:6px}
+  .kid{text-align:center;margin:14px 0 0;color:#e8e2ff;font-size:15px}
+  .kid b{color:#ffd54f}
+  .kid a{color:#8ecfff;font-size:13px;margin-left:8px;text-decoration:none}
+  .stats{display:flex;gap:10px;margin:16px 0 6px}
+  .stat{flex:1;background:#262148;border:1px solid #443b74;border-radius:16px;padding:14px 8px;text-align:center}
+  .stat .n{font-size:24px;font-weight:800;color:#ffd54f}
+  .stat .l{font-size:12px;color:#a79fce;margin-top:4px}
+  .shelf-title{font-size:16px;font-weight:800;color:#ffd54f;margin:24px 0 4px}
+  .book{display:block;background:#262148;border:1px solid #443b74;border-radius:18px;padding:16px 18px;
+    margin:12px 0;text-decoration:none;color:#f3efe4;position:relative;transition:transform .12s}
+  .book:active{transform:scale(.99)}
+  .book .row{display:flex;align-items:center;gap:14px}
+  .book .cover{font-size:34px;width:48px;text-align:center}
+  .book .info{flex:1;min-width:0}
+  .book .bt{font-size:18px;font-weight:800}
+  .book .bd{font-size:13px;color:#a79fce;margin-top:3px}
+  .book .go{font-size:20px;color:#ffd54f}
+  .book .pwrap{background:#1c1838;border-radius:8px;height:10px;margin-top:12px;overflow:hidden}
+  .book .pbar{height:100%;background:linear-gradient(90deg,#66bb6a,#ffd54f);border-radius:8px}
+  .book .pl{font-size:12px;color:#a79fce;margin-top:5px;display:flex;justify-content:space-between}
+  .book .done-badge{position:absolute;top:14px;right:16px;font-size:13px;color:#2b1a00;background:#ffd54f;
+    border-radius:20px;padding:3px 10px;font-weight:800}
+  .foot{text-align:center;color:#8d84b8;font-size:12px;margin-top:26px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div class="bolt">📚✨</div>
+    <h1>阅读大冒险</h1>
+    <div class="sub">读英文原著 · 闯关 · 收集 · 成长</div>
+  </div>
+
+  <div class="kid" id="kid"></div>
+
+  <div class="stats">
+    <div class="stat"><div class="n" id="s-words">0</div><div class="l">累计已读词数</div></div>
+    <div class="stat"><div class="n" id="s-streak">0</div><div class="l">🔥 连读天数</div></div>
+    <div class="stat"><div class="n" id="s-books">0</div><div class="l">读完的书</div></div>
+  </div>
+
+  <div class="shelf-title">📖 我的书架</div>
+  <div id="shelf"></div>
+
+  <div class="foot">
+    进度和成绩存在这台设备上 · 每天读一章，看着数字越变越大 💪<br>
+    换设备或清了浏览器数据会重新开始
+  </div>
+</div>
+
+<script>
+/* 书架书目(新增书就往这里加一项) */
+const BOOKS = [
+  { id:"frankenstein", path:"./frankenstein/", cover:"⚡", title:"Frankenstein 科学怪人",
+    desc:"科幻 · 造出生命的科学家与他的怪物", saveKey:"frankenstein_game_v2", chapters:26, words:13740 },
+  { id:"moonstone", path:"./moonstone/", cover:"💎", title:"The Moonstone 月亮石",
+    desc:"侦探 · 一颗印度圣钻在生日夜离奇失窃", saveKey:"moonstone_game_v1", chapters:9, words:11607 },
+];
+const HUB_KEY="reading_hub_v1";
+function hub(){ try{return JSON.parse(localStorage.getItem(HUB_KEY))||{}}catch(e){return{}} }
+function load(k){ try{return JSON.parse(localStorage.getItem(k))||{}}catch(e){return{}} }
+
+function render(){
+  const h=hub();
+  // 名字
+  const name=h.kidName||"";
+  document.getElementById("kid").innerHTML = name
+    ? `👦 <b>${name}</b> 的阅读成绩单 <a href="javascript:setName()">改名</a>`
+    : `<a href="javascript:setName()" style="color:#ffd54f">✏️ 写上名字，生成你的阅读成绩单</a>`;
+  // 跨书总词数
+  let tw=0; const hw=h.words||{};
+  for(const b in hw) for(const c in hw[b]) tw+=hw[b][c]||0;
+  document.getElementById("s-words").textContent=tw;
+  const streak=(h.streak&&h.streak.count)||0;
+  document.getElementById("s-streak").textContent=streak;
+
+  let doneBooks=0;
+  const shelf=document.getElementById("shelf"); shelf.innerHTML="";
+  BOOKS.forEach(b=>{
+    const s=load(b.saveKey);
+    const doneN=Object.keys(s.done||{}).length;
+    const pct=Math.round(doneN/b.chapters*100);
+    const finished=doneN>=b.chapters;
+    if(finished) doneBooks++;
+    const a=document.createElement("a");
+    a.className="book"; a.href=b.path;
+    a.innerHTML=`
+      ${finished?'<div class="done-badge">🏅 已通关</div>':''}
+      <div class="row">
+        <div class="cover">${b.cover}</div>
+        <div class="info"><div class="bt">${b.title}</div><div class="bd">${b.desc}</div></div>
+        <div class="go">▶</div>
+      </div>
+      <div class="pwrap"><div class="pbar" style="width:${pct}%"></div></div>
+      <div class="pl"><span>${doneN>0?(finished?'读完啦 🎉':'继续读'):'开始阅读'}</span><span>${doneN}/${b.chapters} 章 · ${pct}%</span></div>`;
+    shelf.appendChild(a);
+  });
+  document.getElementById("s-books").textContent=doneBooks+"/"+BOOKS.length;
+}
+function setName(){
+  const h=hub(); const n=prompt("写上你的名字：", h.kidName||"");
+  if(n!=null){ h.kidName=n.trim().slice(0,16); localStorage.setItem(HUB_KEY,JSON.stringify(h)); render(); }
+}
+render();
+</script>
+</body>
+</html>
