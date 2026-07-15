@@ -96,8 +96,12 @@
 
   .story-card { background:#f7f1e1; color:#2d2a24; border-radius:20px; padding:22px 20px;
     font-size:var(--story-fs, 20px); line-height:1.85; box-shadow:0 6px 24px rgba(0,0,0,.35); }
-  .story-card p { margin-bottom:14px; position:relative; }
+  .story-card p { margin-bottom:14px; position:relative; padding-left:12px; border-left:4px solid transparent;
+    transition:border-color .3s, background .3s; }
   .story-card p:last-child { margin-bottom:0; }
+  /* 已读过的段落: 绿色左条 + 淡绿底, 一眼看出读到哪 */
+  .story-card p.read { border-left-color:#66bb6a; background:rgba(102,187,106,.10); border-radius:0 8px 8px 0; }
+  .story-card p.read::after { content:"✓"; position:absolute; left:-2px; top:-2px; font-size:11px; color:#2e7d32; }
   /* 句子级高亮:正在朗读的那一句变亮黄 */
   .story-card .sent { border-radius:6px; transition:background .12s, box-shadow .12s; }
   .story-card .sent.speaking { background:#ffe36b; box-shadow:0 0 0 4px #ffe36b; }
@@ -529,10 +533,41 @@ function markHeard(i){
   heardSet.add(i);
   save.heard = save.heard || {};
   save.heard[ch.id] = Array.from(heardSet);
+  bumpRead(i + 1);                 // 听完某段也算读过
   persist();
   updateQuizGate();
 }
 let heardSet = new Set();
+
+/* ===== 阅读进度: 记住读到第几段 + 标记已读段落 ===== */
+let readPos = 0;                   // 本章已读到的段落数(0..N), 段 i 已读 <=> i < readPos
+function saveReadPos(){
+  if (cur == null) return;
+  save.read = save.read || {};
+  save.read[BOOK[cur].id] = readPos;
+  persist();
+}
+function paintRead(){
+  document.querySelectorAll("#story-body p[data-pi]").forEach(p=>{
+    p.classList.toggle("read", (+p.dataset.pi) < readPos);
+  });
+}
+function bumpRead(n){
+  if (n > readPos){ readPos = n; saveReadPos(); paintRead(); }
+}
+let _scrollT = 0;
+function onReadScroll(){
+  if (!$("scr-read").classList.contains("active")) return;
+  const now = Date.now();
+  if (now - _scrollT < 180) return; _scrollT = now;
+  const line = window.innerHeight * 0.5;    // 段落底部越过屏幕中线 = 读完这段
+  let fp = readPos;
+  document.querySelectorAll("#story-body p[data-pi]").forEach(p=>{
+    if (p.getBoundingClientRect().bottom < line){ const pi = (+p.dataset.pi) + 1; if (pi > fp) fp = pi; }
+  });
+  bumpRead(fp);
+}
+window.addEventListener("scroll", onReadScroll, { passive:true });
 function allHeard(){
   return BOOK[cur] && heardSet.size >= BOOK[cur].paras.length;
 }
@@ -805,7 +840,7 @@ function continueGame(){ openChapter(firstUndone()); }
 function goHome(){ stopAll(); renderHome(); show("scr-home"); }
 function resetProgress(){
   if (!confirm("确定要清空所有进度和单词册,重新开始吗?")) return;
-  save = { done:{}, stars:{}, words:{}, heard:{}, slow: save.slow, ttsMode: save.ttsMode, fontIdx: save.fontIdx }; persist(); renderHome(); toast("已重新开始 ✨");
+  save = { done:{}, stars:{}, words:{}, heard:{}, read:{}, slow: save.slow, ttsMode: save.ttsMode, fontIdx: save.fontIdx }; persist(); renderHome(); toast("已重新开始 ✨");
 }
 
 /* =====================================================
@@ -836,9 +871,22 @@ function openChapter(i){
   // 恢复本章已听进度(持久化,重进不用重听)
   save.heard = save.heard || {};
   heardSet = new Set(save.heard[ch.id] || []);
+  // 恢复本章"读到哪"进度
+  save.read = save.read || {};
+  readPos = save.read[ch.id] || 0;
+  paintRead();
   updateQuizGate();
   applyFont();
   show("scr-read");
+  // 上次没读完 → 自动滚回上次位置继续
+  if (readPos > 0 && readPos < ch.paras.length){
+    setTimeout(()=>{
+      const t = $("story-body").querySelector('p[data-pi="' + readPos + '"]');
+      if (t){ t.scrollIntoView({block:"center"}); toast("⏱ 已回到上次读到的地方，接着读吧"); }
+    }, 220);
+  } else {
+    window.scrollTo(0, 0);
+  }
 }
 function backToRead(){ openChapter(cur); }
 
@@ -1021,6 +1069,8 @@ function finishChapter(){
   const firstClear = !save.done[ch.id];
   save.done[ch.id] = true;
   save.stars[ch.id] = Math.max(save.stars[ch.id] || 0, stars);
+  save.read = save.read || {};
+  save.read[ch.id] = ch.paras.length;      // 通关 = 整章已读
   persist();
   recordWords(ch.id, ch.words);            // 累计跨书阅读词数
   markStreak();
