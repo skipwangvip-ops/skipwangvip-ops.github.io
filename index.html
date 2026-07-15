@@ -75,6 +75,8 @@ const BOOKS = [
     desc:"温暖 · 织工丢了金子，却捡回一个金发女孩", saveKey:"silasmarner_game_v1", chapters:11, words:12800 },
   { id:"robinson", path:"./robinson/", cover:"🏝", title:"Robinson Crusoe 鲁滨逊漂流记",
     desc:"冒险 · 一个人的荒岛求生28年", saveKey:"robinson_game_v1", chapters:6, words:13844 },
+  { id:"wuthering", path:"./wuthering/", cover:"🌩", title:"Wuthering Heights 呼啸山庄",
+    desc:"哥特 · 荒原上的爱、恨与命运（题材较沉重）", saveKey:"wuthering_game_v1", chapters:18, words:25364 },
 ];
 const HUB_KEY="reading_hub_v1";
 function hub(){ try{return JSON.parse(localStorage.getItem(HUB_KEY))||{}}catch(e){return{}} }
