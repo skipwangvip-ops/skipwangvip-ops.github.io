@@ -79,6 +79,8 @@ const BOOKS = [
     desc:"哥特 · 荒原上的爱、恨与命运（题材较沉重）", saveKey:"wuthering_game_v1", chapters:18, words:25364 },
   { id:"faustus", path:"./faustus/", cover:"📜", title:"Dr Faustus 浮士德的悲剧",
     desc:"警世 · 为知识把灵魂卖给魔鬼（题材较沉重）", saveKey:"faustus_game_v1", chapters:9, words:8768 },
+  { id:"xfiles", path:"./xfiles/", cover:"🔦", title:"X-Files: Squeeze X档案之突变异种",
+    desc:"惊悚 · FBI探员追捕变异凶手（较吓人）", saveKey:"xfiles_game_v1", chapters:10, words:7070 },
 ];
 const HUB_KEY="reading_hub_v1";
 function hub(){ try{return JSON.parse(localStorage.getItem(HUB_KEY))||{}}catch(e){return{}} }

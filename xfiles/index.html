@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>The X-Files: Squeeze · X档案之突变异种</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: linear-gradient(180deg,#1a1f3c 0%,#2b2350 60%,#3a2c5e 100%);
+    color:#f3efe4; min-height:100%; overflow-x:hidden;
+  }
+  .screen { display:none; max-width:760px; margin:0 auto; padding:24px 20px 48px; min-height:100vh; }
+  .screen.active { display:block; animation:fadein .35s ease; }
+  @keyframes fadein { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+
+  /* ---------- 首页 ---------- */
+  .title-zone { text-align:center; margin:20px 0 8px; }
+  .title-zone .bolt { font-size:44px; }
+  h1.game-title { font-size:28px; letter-spacing:1px; margin-top:6px;
+    background:linear-gradient(90deg,#ffe082,#a5ffb0,#8ecfff);
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .subtitle { color:#bfb8d9; font-size:14px; margin-top:6px; }
+
+  .shelf-link { display:inline-block; margin:12px auto 0; padding:7px 16px; border-radius:20px;
+    background:#2e2856; border:1px solid #4c4380; color:#e8e2ff; font-size:14px; text-decoration:none; }
+  .growth-banner { margin:12px 0 0; padding:12px 14px; border-radius:14px;
+    background:linear-gradient(90deg,#33295c,#3a2c5e); border:1px solid #4c4380;
+    text-align:center; font-size:15px; color:#ffe082; font-weight:700; line-height:1.7; }
+  .growth-banner .g-sub { color:#a79fce; font-weight:400; font-size:12px; }
+  /* 通关证书 */
+  .cert-wrap { padding:18px 6px; }
+  .cert { background:linear-gradient(160deg,#fffdf5,#fff2cf); color:#3a2a10; border-radius:20px;
+    padding:30px 24px; text-align:center; border:3px solid #e0b84a;
+    box-shadow:0 10px 30px rgba(0,0,0,.4); position:relative; }
+  .cert .seal { font-size:52px; }
+  .cert h2 { font-size:22px; margin:8px 0 4px; color:#8a6d1a; letter-spacing:1px; }
+  .cert .cert-sub { font-size:13px; color:#9a7d2a; }
+  .cert .cert-name { font-size:30px; font-weight:900; margin:16px 0 6px; color:#5a4410;
+    border-bottom:2px dashed #e0b84a; display:inline-block; padding:0 18px 6px; }
+  .cert .cert-book { font-size:18px; font-weight:800; margin:14px 0 4px; }
+  .cert .cert-stats { display:flex; justify-content:center; gap:18px; margin:16px 0 6px; flex-wrap:wrap; }
+  .cert .cert-stat { text-align:center; }
+  .cert .cert-stat b { display:block; font-size:22px; color:#b8860b; }
+  .cert .cert-stat span { font-size:12px; color:#9a7d2a; }
+  .cert .cert-date { font-size:12px; color:#9a7d2a; margin-top:12px; }
+
+  .stat-row { display:flex; gap:10px; margin:18px 0 6px; }
+  .stat-box { flex:1; background:#262148; border:1px solid #443b74; border-radius:16px;
+    padding:12px 8px; text-align:center; }
+  .stat-box .num { font-size:22px; font-weight:800; color:#ffd54f; }
+  .stat-box .lbl { font-size:12px; color:#a79fce; margin-top:3px; }
+
+  .progress-wrap { background:#241f42; border-radius:10px; height:14px; margin:12px 0 4px; overflow:hidden; }
+  .progress-bar { height:100%; background:linear-gradient(90deg,#66bb6a,#ffd54f); border-radius:10px;
+    transition:width .5s; }
+  .progress-label { text-align:center; font-size:12px; color:#a79fce; margin-bottom:10px; }
+
+  .section-head { display:flex; align-items:center; gap:10px; margin:26px 0 4px; }
+  .section-head .s-icon { font-size:22px; }
+  .section-head .s-name { font-size:16px; font-weight:800; color:#ffd54f; }
+  .section-head .s-en { font-size:12px; color:#8d84b8; }
+
+  .map-node { display:flex; align-items:center; gap:14px; background:#262148;
+    border:1px solid #443b74; border-radius:18px; padding:14px 16px; margin:10px 0;
+    cursor:pointer; transition:transform .12s; }
+  .map-node:active { transform:scale(.98); }
+  .map-node.locked { opacity:.42; cursor:default; }
+  .map-node.next { border-color:#ffd54f; box-shadow:0 0 12px rgba(255,213,79,.25); }
+  .map-node .icon { font-size:30px; width:44px; text-align:center; }
+  .map-node .info { flex:1; min-width:0; }
+  .map-node .name { font-size:16px; font-weight:700; }
+  .map-node .place { font-size:12px; color:#a79fce; margin-top:3px; }
+  .map-node .state { font-size:18px; min-width:60px; text-align:right; }
+  .badge-done { color:#ffd54f; letter-spacing:1px; }
+
+  .toolbar { display:flex; gap:12px; margin-top:24px; }
+  .btn { border:none; border-radius:16px; padding:15px 20px; font-size:16px; font-weight:700;
+    cursor:pointer; font-family:inherit; color:#2b1a00; }
+  .btn:active { transform:scale(.97); }
+  .btn-primary { background:linear-gradient(90deg,#ffb300,#ff8f00); }
+  .btn-ghost { background:#2e2856; color:#e8e2ff; border:1px solid #4c4380; }
+  .btn-block { display:block; width:100%; }
+  .toolbar .btn { flex:1; }
+  .btn-continue { margin-top:16px; font-size:17px; }
+
+  /* ---------- 阅读页 ---------- */
+  .chapter-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap; }
+  .back-btn { background:#2e2856; border:1px solid #4c4380; color:#e8e2ff; border-radius:12px;
+    padding:8px 14px; font-size:15px; cursor:pointer; font-family:inherit; }
+  .chapter-tag { font-size:13px; color:#ffd54f; letter-spacing:2px; }
+  h2.chapter-title { font-size:23px; margin:10px 0 2px; }
+  .chapter-title-cn { color:#bfb8d9; font-size:14px; margin-bottom:14px; }
+
+  .story-card { background:#f7f1e1; color:#2d2a24; border-radius:20px; padding:22px 20px;
+    font-size:var(--story-fs, 20px); line-height:1.85; box-shadow:0 6px 24px rgba(0,0,0,.35); }
+  .story-card p { margin-bottom:14px; position:relative; padding-left:12px; border-left:4px solid transparent;
+    transition:border-color .3s, background .3s; }
+  .story-card p:last-child { margin-bottom:0; }
+  /* 已读过的段落: 绿色左条 + 淡绿底, 一眼看出读到哪 */
+  .story-card p.read { border-left-color:#66bb6a; background:rgba(102,187,106,.10); border-radius:0 8px 8px 0; }
+  .story-card p.read::after { content:"✓"; position:absolute; left:-2px; top:-2px; font-size:11px; color:#2e7d32; }
+  /* 句子级高亮:正在朗读的那一句变亮黄 */
+  .story-card .sent { border-radius:6px; transition:background .12s, box-shadow .12s; }
+  .story-card .sent.speaking { background:#ffe36b; box-shadow:0 0 0 4px #ffe36b; }
+  .gw { color:#8e24aa; font-weight:700; border-bottom:2px dotted #8e24aa; cursor:pointer; }
+  .gw.learned { color:#2e7d32; border-bottom-color:#2e7d32; }
+  .pspk { font-size:14px; opacity:.45; cursor:pointer; margin-left:6px; user-select:none; }
+
+  .read-tools { display:flex; gap:10px; margin:6px 0 10px; }
+  .read-tools .btn { flex:1; font-size:15px; padding:13px 8px; }
+  .fs-row { display:flex; align-items:center; justify-content:center; gap:8px; margin:0 0 14px;
+    color:#a79fce; font-size:14px; }
+  .fs-btn { background:#2e2856; border:1px solid #4c4380; color:#e8e2ff; border-radius:10px;
+    width:44px; height:38px; font-weight:800; cursor:pointer; font-family:inherit; }
+  .fs-btn:active { transform:scale(.95); }
+  .fs-btn.small { font-size:14px; }
+  .fs-btn.big { font-size:20px; }
+  .hint-line { text-align:center; font-size:13px; color:#a79fce; margin-top:10px; line-height:1.8; }
+
+  /* ---------- 单词卡弹窗 ---------- */
+  .overlay { position:fixed; inset:0; background:rgba(10,8,26,.72); display:none;
+    align-items:center; justify-content:center; z-index:50; padding:24px; }
+  .overlay.show { display:flex; }
+  .word-card { background:#fffef8; color:#2d2a24; border-radius:22px; padding:24px 22px;
+    width:100%; max-width:420px; text-align:center; animation:pop .22s ease; }
+  @keyframes pop { from{transform:scale(.85); opacity:0;} to{transform:none; opacity:1;} }
+  .word-card .w-emoji { font-size:38px; }
+  .word-card .w-word { font-size:29px; font-weight:800; color:#6a1b9a; margin-top:6px; word-break:break-word; }
+  .word-card .w-cn { font-size:20px; margin-top:8px; }
+  .word-card .w-eg { font-size:15px; color:#6d675c; margin-top:12px; line-height:1.6; font-style:italic; }
+  .word-card .w-collect { margin-top:10px; font-size:13px; color:#2e7d32; }
+  .word-card .btn { margin-top:14px; }
+
+  /* ---------- 答题页 ---------- */
+  .quiz-progress { font-size:14px; color:#ffd54f; margin:8px 0 14px; letter-spacing:1px; }
+  .question-card { background:#262148; border:1px solid #443b74; border-radius:20px; padding:20px; }
+  .question-text { font-size:19px; line-height:1.6; font-weight:700; }
+  .question-cn { font-size:13px; color:#a79fce; margin-top:6px; }
+  .options { margin-top:18px; }
+  .option { background:#312a5e; border:2px solid #4c4380; border-radius:16px; padding:15px;
+    font-size:16px; margin:10px 0; cursor:pointer; transition:all .15s; line-height:1.5; }
+  .option:active { transform:scale(.98); }
+  .option.right { background:#1b5e20; border-color:#66bb6a; }
+  .option.wrong { background:#7f1d1d; border-color:#ef5350; animation:shake .3s; }
+  @keyframes shake { 0%,100%{transform:none;} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+  .quiz-feedback { min-height:30px; text-align:center; font-size:16px; margin-top:12px; }
+  /* 题型小标签 */
+  .q-kind { display:inline-block; font-size:12px; font-weight:800; color:#2b1a00;
+    background:#ffd54f; border-radius:20px; padding:4px 12px; margin-bottom:12px; }
+  /* 判断对错 */
+  .tf-row { display:flex; gap:12px; margin-top:18px; }
+  .tf-row .option { flex:1; text-align:center; font-size:20px; font-weight:800; margin:0; }
+  /* 选词填空 */
+  .blank { display:inline-block; min-width:64px; border-bottom:3px solid #ffd54f; color:#ffd54f;
+    font-weight:800; text-align:center; margin:0 4px; }
+  .blank.filled { border-bottom-color:#66bb6a; color:#a5ffb0; }
+  .chip-box { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+  .chip { background:#312a5e; border:2px solid #4c4380; border-radius:14px; padding:12px 18px;
+    font-size:17px; cursor:pointer; transition:all .15s; }
+  .chip:active { transform:scale(.96); }
+  .chip.right { background:#1b5e20; border-color:#66bb6a; }
+  .chip.wrong { background:#7f1d1d; border-color:#ef5350; animation:shake .3s; }
+  /* 谁说的 */
+  .quote-bubble { background:#f7f1e1; color:#2d2a24; border-radius:16px; padding:16px 18px;
+    font-size:19px; font-style:italic; line-height:1.5; position:relative; margin:4px 0 4px; }
+  .quote-bubble::after { content:""; position:absolute; left:28px; bottom:-12px; border:8px solid transparent;
+    border-top-color:#f7f1e1; border-bottom:0; }
+  /* 排序 */
+  .order-item { display:flex; align-items:center; gap:12px; background:#312a5e; border:2px solid #4c4380;
+    border-radius:16px; padding:14px; margin:10px 0; font-size:16px; cursor:pointer; line-height:1.45; }
+  .order-item:active { transform:scale(.98); }
+  .order-item.placed { background:#1b5e20; border-color:#66bb6a; cursor:default; }
+  .order-item.wrong { animation:shake .3s; border-color:#ef5350; }
+  .order-badge { width:28px; height:28px; border-radius:50%; background:#4c4380; color:#e8e2ff;
+    font-weight:800; display:flex; align-items:center; justify-content:center; flex:0 0 auto; font-size:15px; }
+  .order-item.placed .order-badge { background:#ffd54f; color:#2b1a00; }
+
+  /* ---------- 奖励页 ---------- */
+  .reward-zone { text-align:center; padding-top:56px; }
+  .reward-part { font-size:92px; animation:drop .6s cubic-bezier(.2,1.4,.4,1); display:inline-block; }
+  @keyframes drop { from{transform:translateY(-80px) scale(.4); opacity:0;} to{transform:none; opacity:1;} }
+  .reward-title { font-size:24px; font-weight:800; margin-top:14px; color:#ffd54f; }
+  .reward-sub { color:#bfb8d9; margin-top:10px; font-size:16px; line-height:1.8; }
+  .reward-stars { font-size:30px; margin-top:12px; letter-spacing:6px; }
+  .reward-zone .btn { margin-top:26px; }
+
+  /* ---------- 单词册 & 收藏馆 ---------- */
+  .wb-chapter { font-size:14px; font-weight:800; color:#ffd54f; margin:18px 0 4px; }
+  .wb-item { background:#262148; border:1px solid #443b74; border-radius:16px; padding:12px 16px;
+    margin:8px 0; display:flex; align-items:center; gap:12px; }
+  .wb-item .wb-emoji { font-size:24px; }
+  .wb-item .wb-main { flex:1; min-width:0; }
+  .wb-item .wb-word { font-weight:800; font-size:17px; color:#ce93d8; word-break:break-word; }
+  .wb-item .wb-cn { font-size:14px; color:#cfc8ea; margin-top:2px; }
+  .wb-item .wb-sound { font-size:22px; cursor:pointer; padding:4px; }
+  .wb-empty { text-align:center; color:#a79fce; margin-top:60px; line-height:2; }
+  .shelf-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:10px; margin-top:16px; }
+  .shelf-cell { background:#262148; border:1px solid #443b74; border-radius:16px; padding:12px 6px;
+    text-align:center; }
+  .shelf-cell .c-emoji { font-size:30px; }
+  .shelf-cell .c-name { font-size:12px; color:#cfc8ea; margin-top:6px; }
+  .shelf-cell.miss { opacity:.32; filter:grayscale(1); }
+
+  /* 金色生词 */
+  .gw.gold { color:#c58a00; border-bottom-color:#e0a800; }
+  .word-card.goldcard { background:linear-gradient(160deg,#fffdf2,#fff0c4); border:2px solid #e0b84a; }
+  .w-goldtag { display:inline-block; margin-top:8px; font-size:12px; font-weight:800; color:#8a6d1a;
+    background:#ffe9a8; border-radius:20px; padding:3px 12px; }
+  .wb-item.gold { border-color:#e0b84a; background:linear-gradient(90deg,#2c2545,#3a3018); }
+  .wb-item.gold .wb-word { color:#ffd766; }
+  .wb-chapter.gold-hd { color:#ffd766; }
+
+  /* 预测/揭晓弹窗 */
+  .pred-card { background:#fffef8; color:#2d2a24; border-radius:22px; padding:24px 22px;
+    width:100%; max-width:440px; text-align:center; animation:pop .22s ease; }
+  .pred-card .p-icon { font-size:40px; }
+  .pred-card .p-q { font-size:18px; font-weight:800; margin:10px 0 4px; line-height:1.5; }
+  .pred-card .p-opt { background:#f0ebff; border:2px solid #d5c9f2; color:#3a2d5e; border-radius:14px;
+    padding:13px; margin:9px 0; font-size:16px; cursor:pointer; font-weight:700; }
+  .pred-card .p-opt:active { transform:scale(.98); }
+  .pred-card .p-reveal { font-size:16px; line-height:1.7; color:#3a2d1a; margin:10px 0; }
+  .pred-card .p-verdict { font-size:22px; font-weight:900; margin:6px 0; }
+  .pred-card .p-verdict.right { color:#2e7d32; }
+  .pred-card .p-verdict.wrong { color:#c56000; }
+
+  /* 生词复习小游戏 */
+  .rv-top { text-align:center; margin:8px 0 14px; }
+  .rv-progress { font-size:14px; color:#ffd54f; letter-spacing:1px; }
+  .rv-scorebar { background:#241f42; border-radius:8px; height:10px; margin:10px 0 0; overflow:hidden; }
+  .rv-scorebar .b { height:100%; background:linear-gradient(90deg,#66bb6a,#ffd54f); width:0; transition:width .3s; }
+  .rv-card { background:#262148; border:1px solid #443b74; border-radius:20px; padding:26px 20px; text-align:center; }
+  .rv-word { font-size:34px; font-weight:900; color:#ce93d8; word-break:break-word; }
+  .rv-word.gold { color:#ffd766; }
+  .rv-listen { margin-top:10px; font-size:24px; cursor:pointer; }
+  .rv-opts { margin-top:20px; }
+  .rv-opt { background:#312a5e; border:2px solid #4c4380; border-radius:16px; padding:15px; font-size:18px;
+    margin:10px 0; cursor:pointer; }
+  .rv-opt:active { transform:scale(.98); }
+  .rv-opt.right { background:#1b5e20; border-color:#66bb6a; }
+  .rv-opt.wrong { background:#7f1d1d; border-color:#ef5350; animation:shake .3s; }
+  .rv-feedback { text-align:center; min-height:26px; font-size:16px; margin-top:12px; }
+  .rv-done { text-align:center; padding-top:40px; }
+  .rv-done .big { font-size:70px; }
+
+  .toast { position:fixed; left:50%; bottom:34px; transform:translateX(-50%);
+    background:#ffd54f; color:#3a2a00; font-weight:700; padding:12px 22px; border-radius:30px;
+    font-size:15px; display:none; z-index:60; box-shadow:0 4px 18px rgba(0,0,0,.4);
+    max-width:86vw; text-align:center; }
+  .toast.show { display:block; animation:fadein .25s ease; }
+</style>
+</head>
+<body>
+
+<!-- ============ 首页 ============ -->
+<div class="screen active" id="scr-home">
+  <div class="title-zone">
+    <div class="bolt" id="home-bolt">📖</div>
+    <h1 class="game-title" id="home-title"></h1>
+    <div class="subtitle" id="home-subtitle"></div>
+  </div>
+
+  <a class="shelf-link" href="../">📚 我的书架</a>
+  <div class="growth-banner" id="growth-banner"></div>
+
+  <div class="stat-row">
+    <div class="stat-box"><div class="num" id="st-ch">0</div><div class="lbl">已通关章节</div></div>
+    <div class="stat-box"><div class="num" id="st-star">0</div><div class="lbl">获得星星</div></div>
+    <div class="stat-box"><div class="num" id="st-word">0</div><div class="lbl">收集单词</div></div>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="prog-bar" style="width:0%"></div></div>
+  <div class="progress-label" id="prog-label"></div>
+
+  <button class="btn btn-primary btn-block btn-continue" id="btn-continue" onclick="continueGame()">▶️ 继续冒险</button>
+
+  <div id="map"></div>
+
+  <div class="toolbar">
+    <button class="btn btn-ghost" onclick="showWordbook()">📖 单词册 <span id="wb-count"></span></button>
+    <button class="btn btn-ghost" onclick="showShelf()">🏆 收藏馆</button>
+    <button class="btn btn-ghost" onclick="resetProgress()">🔄 重置</button>
+  </div>
+  <div class="toolbar">
+    <button class="btn btn-ghost" onclick="showSound()">🔧 朗读没声音?点这里检测</button>
+  </div>
+</div>
+
+<!-- ============ 通关证书 ============ -->
+<div class="screen" id="scr-cert">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 返回</button>
+    <span class="chapter-tag">CERTIFICATE</span>
+  </div>
+  <div class="cert-wrap">
+    <div class="cert" id="cert-card">
+      <div class="seal">🏅</div>
+      <h2>阅读大冒险 · 通关证书</h2>
+      <div class="cert-sub">READING ADVENTURE · CERTIFICATE</div>
+      <div class="cert-name" id="cert-name">小读者</div>
+      <div class="cert-sub">独立读完了英文原著</div>
+      <div class="cert-book" id="cert-book"></div>
+      <div class="cert-stats">
+        <div class="cert-stat"><b id="cert-words">0</b><span>阅读词数</span></div>
+        <div class="cert-stat"><b id="cert-vocab">0</b><span>收集生词</span></div>
+        <div class="cert-stat"><b id="cert-stars">0</b><span>获得星星</span></div>
+      </div>
+      <div class="cert-date" id="cert-date"></div>
+    </div>
+  </div>
+  <button class="btn btn-ghost btn-block" style="margin-top:14px" onclick="editKidName()">✏️ 改名字</button>
+  <div class="hint-line">📸 截图保存，发给爸爸妈妈、爷爷奶奶看看吧！</div>
+</div>
+
+<!-- ============ 声音检测 ============ -->
+<div class="screen" id="scr-sound">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag">SOUND CHECK</span>
+  </div>
+  <h2 class="chapter-title">🔧 声音检测</h2>
+  <div class="chapter-title-cn">先把平板的<b>媒体音量</b>调大,再依次点下面的按钮</div>
+  <button class="btn btn-ghost btn-block" style="margin:10px 0" onclick="testFile()">▶️ 测试⓪ 音频文件(推荐)</button>
+  <button class="btn btn-ghost btn-block" style="margin:10px 0" onclick="testLocal()">▶️ 测试① 本地发音引擎</button>
+  <button class="btn btn-ghost btn-block" style="margin:10px 0" onclick="testOnline()">▶️ 测试② 在线发音(需联网)</button>
+  <div class="chapter-title-cn" style="margin-top:18px">哪个有声音,就选用哪个:</div>
+  <div class="toolbar" style="margin-top:8px">
+    <button class="btn btn-ghost" id="m-auto" onclick="setMode('auto')">🤖 自动</button>
+    <button class="btn btn-ghost" id="m-recorded" onclick="setMode('recorded')">⓪ 音频</button>
+    <button class="btn btn-ghost" id="m-local" onclick="setMode('local')">① 本地</button>
+    <button class="btn btn-ghost" id="m-online" onclick="setMode('online')">② 在线</button>
+  </div>
+  <div class="hint-line" style="margin-top:22px; text-align:left">
+    都没声音时请检查:<br>
+    · 平板<b>媒体音量</b>是否调大(和铃声音量是两回事)<br>
+    · 是否连着<b>蓝牙耳机/音箱</b>——声音可能被送去了别的设备<br>
+    · 微信里打开的话,点右上角 ⋯ 选择<b>"在浏览器打开"</b>再试<br>
+    · 先在浏览器里放一个视频:视频也没声就是平板设置问题
+  </div>
+  <div class="hint-line" style="margin-top:12px; text-align:left; opacity:.7" id="snd-diag"></div>
+</div>
+
+<!-- ============ 阅读页 ============ -->
+<div class="screen" id="scr-read">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag" id="read-tag"></span>
+  </div>
+  <h2 class="chapter-title" id="read-title"></h2>
+  <div class="chapter-title-cn" id="read-title-cn"></div>
+  <div class="read-tools">
+    <button class="btn btn-ghost" id="btn-readaloud" onclick="readAloud()">🔊 读给我听</button>
+    <button class="btn btn-ghost" id="btn-pause" onclick="pauseToggle()">⏸ 暂停</button>
+    <button class="btn btn-ghost" id="btn-rate" onclick="toggleRate()">🐢 慢速</button>
+  </div>
+  <div class="fs-row">
+    <span>字号</span>
+    <button class="fs-btn small" onclick="changeFont(-1)">A－</button>
+    <span id="fs-label" style="min-width:44px;text-align:center">中</span>
+    <button class="fs-btn big" onclick="changeFont(1)">A＋</button>
+  </div>
+  <div class="story-card" id="story-body"></div>
+  <button class="btn btn-primary btn-block" id="btn-quiz" onclick="tryStartQuiz()">✅ 我读完了，去答题</button>
+  <div class="hint-line">💡 点"🔊 读给我听"把整章听完就能解锁答题 · 每段末尾的 🔊 可单独听一段 · 紫色单词点一下有惊喜</div>
+</div>
+
+<!-- ============ 答题页 ============ -->
+<div class="screen" id="scr-quiz">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="backToRead()">← 回去再读读</button>
+    <span class="chapter-tag" id="quiz-tag"></span>
+  </div>
+  <div class="quiz-progress" id="quiz-progress"></div>
+  <div class="question-card">
+    <div class="q-kind" id="q-kind"></div>
+    <div class="question-text" id="q-text"></div>
+    <div class="question-cn" id="q-cn"></div>
+    <div class="options" id="q-options"></div>
+  </div>
+  <div class="quiz-feedback" id="quiz-feedback"></div>
+</div>
+
+<!-- ============ 奖励页 ============ -->
+<div class="screen" id="scr-reward">
+  <div class="reward-zone">
+    <div class="reward-part" id="reward-part"></div>
+    <div class="reward-title" id="reward-title"></div>
+    <div class="reward-stars" id="reward-stars"></div>
+    <div class="reward-sub" id="reward-sub"></div>
+    <button class="btn btn-primary btn-block" onclick="goHome()">🗺 回到地图，继续冒险</button>
+  </div>
+</div>
+
+<!-- ============ 单词册 ============ -->
+<div class="screen" id="scr-wordbook">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag">MY WORD BOOK</span>
+  </div>
+  <h2 class="chapter-title">📖 我的单词册</h2>
+  <button class="btn btn-primary btn-block" style="margin:6px 0 4px" onclick="startReview()">🎮 复习生词小游戏</button>
+  <div id="wordbook-list"></div>
+</div>
+
+<!-- ============ 生词复习小游戏 ============ -->
+<div class="screen" id="scr-review">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="showWordbook()">← 单词册</button>
+    <span class="chapter-tag">VOCAB REVIEW</span>
+  </div>
+  <div class="rv-top">
+    <div class="rv-progress" id="rv-progress"></div>
+    <div class="rv-scorebar"><div class="b" id="rv-bar"></div></div>
+  </div>
+  <div id="rv-body"></div>
+  <div class="rv-feedback" id="rv-feedback"></div>
+</div>
+
+<!-- ============ 收藏馆 ============ -->
+<div class="screen" id="scr-shelf">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag">COLLECTION</span>
+  </div>
+  <h2 class="chapter-title">🏆 我的收藏馆</h2>
+  <div class="chapter-title-cn">每通关一章，就能获得一件故事纪念品</div>
+  <div class="shelf-grid" id="shelf-grid"></div>
+</div>
+
+<!-- 单词卡弹窗 -->
+<div class="overlay" id="word-overlay" onclick="closeWordCard(event)">
+  <div class="word-card" id="word-card"></div>
+</div>
+
+<!-- 预测/揭晓弹窗 -->
+<div class="overlay" id="pred-overlay">
+  <div class="pred-card" id="pred-card"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ======== 数据(由构建脚本注入) ======== */
+const BOOK = [{"id":"u00","section":"\u7b2c\u4e00\u5e55 \u00b7 \u79bb\u5947\u547d\u6848","tag":"START","title_en":"Working Late","title_cn":"\u6df1\u591c\u52a0\u73ed","teaser_cn":"\u52a0\u73ed\u7684\u7537\u4eba\u9047\u5230\u4e86\u53ef\u6015\u7684\u4e8b","icon":"\ud83d\udd26","itemName":"\u63a2\u5458\u624b\u7535","words":454,"paras":["At seven thirty p.m. the Baltimore sky was {striped} with a bloodred sunset. Hundreds of workers {crowded} the streets, {hurrying} to get home.","On the contrary George Usher, a middle-aged {businessman}, was returning to his office for a long evening of work.","When Usher left the {elevator} on the {fifteenth} floor of his office building, he looked at the long, silent {hallways}, lit with Exit signs that {shone} in the dark.","The office felt different at night. Usher reminded himself, Nobody can get in unless they work here.","He walked into his office, turned on the light, and dialled a number on his phone. An answering machine {clicked} on and his wife's voice asked {callers} to leave a message after the {beep}.","\"Hello, darling,\" he said. \"It's about seven thirty and it looks like. I'll be here for a while. Call me back. I love you. Bye.\"","After hanging up, Usher looked at the dark hallway outside his office. Suddenly he felt an odd {tremor}: it was fear!","He thought that a cup of coffee would help him, so he headed for the coffee machine.","A tiny noise broke the silence the moment he left his office. High on the wall, the cover of an air {vent} began to move slowly. The two {screws} holding the vent in place started to turn. First the right. Then the left. Then, very slowly, long, {skinny} {fingertips} came out from inside the vent, pushing the cover to one side.","When Usher came back with his coffee, he stopped outside his office door; he was sure that he'd left the light on inside. He went in and tried to switch on the lamp on his desk. Then, all of a sudden, the door {slammed} shut with an unearthly force. And Usher suddenly realised that he wasn't alone.","Frantically he reached for the door. He got hold of the {knob} and tried to open it. But someone or something had hold of him.","Usher fought in the stranger's {grasp} and {slipped} free. He rolled across the desk only to feel powerful hands lock around his throat. He couldn't breathe. He couldn't make a sound as his body was raised into the air with {inhuman} strength.","For a moment the hands left his throat and his desperate scream {rang} through the office as his body slammed into the door with enough force to {splinter} it.","And then there was only silence.","An hour later Usher's office was a mess and the carpet was {drenched} with blood.","Directly above Usher's body, one of the screws in the cover of the air vent began to turn. Something inside the vent was screwing the cover back into the wall. Slowly. Victoriously."],"quiz":[{"q":"What did George Usher do before he went to get coffee?","cn":"Usher\u53bb\u5012\u5496\u5561\u524d\u5148\u505a\u4e86\u4ec0\u4e48\uff1f","options":["He called his wife and left a voice message.","He fixed the air vent on the wall.","He read some office documents."],"answer":0},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["Usher left the elevator on the fifteenth floor","Usher called his wife and left a message","Usher went to get a cup of coffee"]},{"q":"What did Usher see coming out of the air vent?","cn":"Usher\u770b\u5230\u4ec0\u4e48\u4ece\u901a\u98ce\u53e3\u91cc\u4f38\u51fa\u6765\uff1f","options":["A cat that had gotten stuck inside.","Long, thin fingers.","A bright flashing light."],"answer":1},{"type":"fill","q":"The two ___ holding the vent in place started to turn.","cn":"\u56fa\u5b9a\u901a\u98ce\u53e3\u76d6\u5b50\u7684\u4e24\u9897___\u5f00\u59cb\u8f6c\u52a8\u3002","options":["screws","nails","bolts"],"answer":0},{"q":"Why did the vent's screw turn by itself at the end of the chapter?","cn":"\u7ae0\u8282\u7ed3\u5c3e\uff0c\u901a\u98ce\u53e3\u7684\u87ba\u4e1d\u4e3a\u4ec0\u4e48\u81ea\u5df1\u8f6c\u52a8\uff1f","options":["Someone was repairing the vent for the building.","A strong wind was blowing through the vent.","The creature that attacked Usher was climbing back inside."],"answer":2}]},{"id":"u01","section":"\u7b2c\u4e00\u5e55 \u00b7 \u79bb\u5947\u547d\u6848","tag":"CHAPTER 1","title_en":"The Fingerprint","title_cn":"\u8be1\u5f02\u7684\u6307\u7eb9","teaser_cn":"\u51f6\u624b\u7684\u6307\u7eb9\u7adf\u4e0d\u5c5e\u4e8e\u4eba\u7c7b","icon":"\ud83e\udeaa","itemName":"X\u6863\u6848\u5fbd\u7ae0","words":694,"paras":["Scully was having lunch with Tom Colton, an old friend from the F.B.I. training academy, who worked for the Violent Crimes Section. He was telling her about a strange case: three murders over the last six weeks victims {varying} in age, gender and race, and no known connections to each other. The only thing in common was the lack of entry.","\"One victim,\" Colton said, \"was a college girl. She was killed in her room and when she was found, the windows wore locked and the door was {chained} from the inside. The last incident was two days ago in a high-security office building. It was evening and everybody had gone home. The guy {parked} in the garage and took the elevator to the fifteenth floor. No one else came into the building. The guy never came out.\"","\"Could they be {suicides}?\" asked Scully.","Colton shook his head and handed Scully a photograph. \"All the victims' {livers} have been removed - without tools.\"","\"This sounds like an X-file,\" said Scully. An \"X-file\" was what the F.B.I. called a case that involved strange {happenings} and {unexplained} {phenomena}.","\"Well, I don't know about that but I'd like you to look at the case {histories} and see the crime scene.\"","When Scully went to Usher's office, Mulder was already there. The office was a mess and blood was {splattered} everywhere.","\"Morning,\" Mulder said to Scully.","Fox Mulder looked incredibly young for an agent with so much experience. He was a tall, thin man who wore his hair {unusually} long for an F.B.I. agent. Scully thought there was something a little {deceptive} about Mulder's appearance. He appeared so innocent, almost {boyish}, until you looked into his clear {hazel} eyes. That was when you realised that Fox Mulder had seen more than most people. And it had cost him.","Mulder was {concentrating} on something {shining} on the carpet: he recognised some tiny metal {filings}.","Using {tweezers}, Mulder lifted a filing and thought for a second, then looked up. High above on the wall was the metal {grille} that covered the office's air vent.","He stood up and went to his {forensic} kit. He took the {fingerprint} powder, tape and brush. Then he began to powder the area surrounding the vent.","A long, thin print was emerging, bit by bit. It had some of the qualities of a human fingerprint, but it was certainly not human.","Mulder was sure that he'd seen those prints before.","Some time later, in the basement of F.B.I. headquarters, Scully focused her attention on some {slides} that Mulder was showing her. There were six and each of them showed an {elongated} fingerprint. The prints were too long and thin to be human.","Mulder pointed to one of the slides. \"This is the print I took yesterday from Usher's office,\" he said. \"All the others are from the X-files.\"","\"How many murders are we talking about?\" Scully asked.","\"Eleven, counting Usher,\" Mulder replied.","\"Ten murders before him. All in the Baltimore area. No point of entrance in any of them. Each victim was murdered the same way. These prints are from five of those other ten crime scenes.\"","\"Ten other murders?\" Scully still couldn't believe it.","Then Mulder pointed to three of the slides. \"These three prints were lifted in 1963, and these two were taken in 1933.\"","Scully's eyes {widened}. \"You're saying the same murderer was fit' work thirty years ago and sixty years ago?\"","\"And ninety,\" Mulder said. \"Unfortunately, we don't have prints for that one. Fingerprinting wasn't too common in 1903. And police records weren't very complete. But there was at least one similar murder at that time.\"","\"Of course,\" Scully said sarcastically. She thought, If you leave it to Mulder, he'll come up with an absolutely unbelievable case history.","Mulder ignored her tone and added: \"Five murders, every thirty years. That means he's got two more to go this year.\"","Scully stood up and turned away from her partner.","There must be a more rational explanation, she told herself. She was a scientist, a doctor. There was no way she could believe I his."],"quiz":[{"q":"What was missing from all the murder victims?","cn":"\u6240\u6709\u9047\u5bb3\u8005\u8eab\u4e0a\u90fd\u5c11\u4e86\u4ec0\u4e48\uff1f","options":["Their livers","Their wallets","Their house keys"],"answer":0},{"type":"tf","q":"The fingerprints found at Usher's office were completely human.","cn":"\u5728\u5384\u820d\u529e\u516c\u5ba4\u53d1\u73b0\u7684\u6307\u7eb9\u5b8c\u5168\u662f\u4eba\u7c7b\u7684\u6307\u7eb9\u3002","answer":false},{"q":"What did Mulder find shining on the carpet in Usher's office?","cn":"Mulder\u5728\u5730\u6bef\u4e0a\u53d1\u73b0\u4e86\u4ec0\u4e48\u95ea\u5149\u7684\u4e1c\u897f\uff1f","options":["Broken glass","Tiny metal filings","Coins"],"answer":1},{"type":"who","q":"This sounds like an X-file.","cn":"\u8fd9\u542c\u8d77\u6765\u50cf\u4e2aX\u6863\u6848\u3002","options":["Scully","Mulder","Colton"],"answer":0},{"q":"Why does Mulder think the same killer has been active for ninety years?","cn":"Mulder\u4e3a\u4ec0\u4e48\u8ba4\u4e3a\u540c\u4e00\u51f6\u624b\u4f5c\u6848\u5df2\u7ecf\u957f\u8fbe\u4e5d\u5341\u5e74\uff1f","options":["Because witnesses described the same face","Because the murder weapon was always the same","Because the strange fingerprints from different decades all match"],"answer":2}]},{"id":"u02","section":"\u7b2c\u4e00\u5e55 \u00b7 \u79bb\u5947\u547d\u6848","tag":"CHAPTER 2","title_en":"Profile of the Killer","title_cn":"\u4fa7\u5199\u8fde\u73af\u6740\u624b","teaser_cn":"\u63a2\u5458\u610f\u5916\u6293\u5230\u4e00\u4e2a\u53ef\u7591\u7537\u5b50","icon":"\ud83d\udd90","itemName":"\u795e\u79d8\u6307\u7eb9","words":511,"paras":["At 10:00 p.m. Scully was in her apartment with her eyes fixed on the computer screen. Her notes from the case were on her desk. She'd read through Mulder's X-files and now she was writing a profile of the killer.","Once again she carefully thought about Mulder's theory. And then she went ahead with her own.","\"After a careful review of the violent nature of these murders,\" she wrote, \"I believe the killer to be a male, twenty-five to thirty&not; five years old. He has above-average intelligence. His method of entry has so far been {undetermined}. This may be due to his great knowledge of the internal structure of buildings and {ducts}.\"","Scully studied the slide of the elongated fingerprint. Then she put it down, feeling {puzzled}.She couldn't explain the odd print; instead, she dealt with another aspect of the murder.","\"The removal of the liver is the most important detail of these crimes. The liver {possesses} {restorative} qualities. It purifies the blood.\"","The next morning Scully presented her report to Colton and other agents at the Violent Crimes Section.","\"The taking of the liver may allow the killer to believe he's cleaning himself of his own {impurities},\" she said. \"I think he's acting under the classic form of {obsessive}-{compulsive} behavior.\"","\"since the victims are {unrelated},\" she continued, \"we can't predict who will be next. But we can use the fact that when serial {killers} don't succeed in finding a victim, they sometimes return to the site of the previous murder to {recapture} the emotional high. So I think we should target those sites where he's already killed.\"","The stakeouts of the murder sites began that night.","Three days later Scully parked her car in the garage below George Usher's office building. Mulder was already there. He was {examining} the duct system because he had heard some {banging} sounds.","Mulder shone his light around the area and realised that the gate was {sufficiently} open for someone to slip through. He {paced} through the open gate. The {ventilation} duct {flexed} from the inside, almost as if it were breathing.","Something was {scaling} the duct from inside.","\"Scully!\" he {shouted}, racing towards her car. \"Call for backup and get over here!\"","Scully made a call on the radio and went up to him. \"In there,\" said Mulder pointing towards the ducts.","Scully drew her gun. \"Federal agent!\" she shouted. \"Don't move! I'm armed!\"","She could just {distinguish} a man in the darkness of the opening. He {hesitated} beyond the {glare} of the agents' {flashlights}.Then he {crawled} out feet first.","He looked about twenty. He had a childlike face with a high forehead. He wore a tan uniform with an emblem that read ANIMAL CONTROL. His face glistened with sweat. He raised his hands over his head, looking scared to death, like a rabbit caught in handcuffed.","The agents handcuffed him. \"you are under arrest, you have the right to remain silent. Anything you say can and will be held against you in a court of law... \""],"quiz":[{"q":"In Scully's profile, why might the killer be taking the victims' livers?","cn":"\u6839\u636eScully\u7684\u4fa7\u5199\uff0c\u51f6\u624b\u4e3a\u4ec0\u4e48\u8981\u6458\u53d6\u809d\u810f\uff1f","options":["He believes it purifies him of his own impurities.","He wants to sell them for money.","He is trying to frame someone else for the murders."],"answer":0},{"type":"who","q":"Federal agent! Don't move! I'm armed!","cn":"\u8054\u90a6\u63a2\u5458\uff01\u4e0d\u8bb8\u52a8\uff01\u6211\u6709\u6b66\u5668\uff01","options":["Scully","Mulder","Colton"],"answer":0},{"q":"Who did the agents catch coming out of the duct at Usher's building?","cn":"\u63a2\u5458\u5728\u901a\u98ce\u7ba1\u9053\u91cc\u6293\u5230\u4e86\u8c01\uff1f","options":["A security guard investigating a noise","A young man in an Animal Control uniform","An elderly janitor"],"answer":1},{"type":"fill","q":"He wore a tan uniform with an emblem that read ___.","cn":"\u4ed6\u7a7f\u7740\u68d5\u8910\u8272\u5236\u670d\uff0c\u4e0a\u9762\u7684\u6807\u5fd7\u5199\u7740___\u3002","options":["ANIMAL CONTROL","POLICE DEPARTMENT","FIRE DEPARTMENT"],"answer":0},{"q":"Why did Scully suggest watching the earlier murder sites?","cn":"Scully\u4e3a\u4ec0\u4e48\u5efa\u8bae\u76d1\u89c6\u4e4b\u524d\u7684\u6848\u53d1\u73b0\u573a\uff1f","options":["Because the killer always leaves clues there","Because the police wanted extra security","Because serial killers sometimes return to relive the murder"],"answer":2}]},{"id":"u03","section":"\u7b2c\u4e00\u5e55 \u00b7 \u79bb\u5947\u547d\u6848","tag":"CHAPTER 3","title_en":"The Lie-Detector Test","title_cn":"\u6d4b\u8c0e\u4eea\u524d\u7684\u8c0e\u8a00","teaser_cn":"\u5acc\u7591\u4eba\u88ab\u91ca\u653e\uff0c\u8c1c\u56e2\u66f4\u6df1","icon":"\ud83e\uddec","itemName":"\u53d8\u5f02DNA","words":586,"paras":["The following day Scully was sitting behind a two-way mirror in the Baltimore Police headquarters. Mulder and Colton were with her. A woman with short blonde hair was getting ready to give a lie-{detector} test to the suspect.","The suspect wore {fluorescent} orange prison {overalls}. He was sitting in a chair, facing the two-way mirror. Scully knew that though they could see him, he couldn't see them.","One of the suspect's arms was tied with a blood-pressure {cuff}. {Wires} connected the machine to {sensors} on his fingertips.","Scully knew that his blood pressure, heart rate, and breathing-rate were going to be measured. A change In anyone of them might {testify} that he was lying.","The woman {calibrated} the machine so that the ink ran through the {stylus} and the graph paper moved, then she started the test.","\"Is your full name Eugene Victor Tooms?\" she asked.","\"Yes,\" the suspect answered. \"Do you live in the state of Maryland?\u201d","\"Yes,\" Tooms said.","\"Are you employed by Baltimore Municipal Animal Control?\"","\"Yes,\" he answered again.","The {examiner} observed the graph paper and marked \"7+\" next to the response. So far, Scully knew, the suspect was telling the truth.","\"Eugene, is it your intention to lie to me about anything here today?\" the woman asked.","\"No,\" Tooms answered. He spoke in a {monotone}, and his eyes seemed {glazed}, as if he were in a {trance}.\"Were you ever {enrolled} in college?\"","\"Were you ever enrolled in medical school?\"","\"Have you ever removed a liver from a human being?\"","\"No,\" rooms answered. \"Have you ever killed a living creature?\"","Like his voice, rooms's face was absolutely neutral, empty of all emotion.","\"Have you ever killed a human being?\"","\"No,\" he replied.","\"Have you ever been in George Usher's office?\"","\"No,\" rooms answered.","\"Did you kill George Usher?\" \"No,\" he replied again.","\"Are you over one hundred years old?\"","Tooms hesitated, looking {astonished} by the question. Then he answered, \"No.\"","\"Have you ever been to Powhatan Mill?\" asked the examiner .","\"Yes,\" answered Tooms.","Again the suspect hesitated before saying, \"No.\"","Some time later the examiner reached Scully and Mulder and said: \"As far as I'm concerned, the subject did not kill those people. \"","\"Tooms lied on questions twelve and {fourteen},\" said Mulder pointing to the graph paper. \"He's our guy.\"","Colt on stood up and went to the door. Scully could see that he didn't believe Mlilder. \"Well, even if he is, I'm letting him go!\u201d The door slammed behind him.","The next day Scully sat with Mulder at a computer puter in the Baltimore police station. Mulder had called up Eugene rooms's arrest report.","\"Here,\" Mulder said, \"are Tooms's fingerprints. And here is an elongated print taken from Usher's office. It matches the old ones from the X-files. This print is from the 1933 murder at Powhatan Mill\"","Scully looked at Mulder and {shrugged}, \"There's no match.\"","\"No,\" admitted Mulder, \"but what if...\"","He {punched} in a command and the computer {stretched} Tooms's fingerprint until it was as long and narrow as the one taken from Usher's office. \"Just look,\" Mulder said while running the mouse across its pad. The two images moved towards the centre of the screen until they {overlapped} and the computer beeped.","\"Match 100%,\" it read.","Scully asked: \"How could Tooms's print be exactly the same as a print taken from a murder committed over {sixty} years ago?\"","\"The only thing I know for sure,\" said Mulder, \"is that they let him go.\""],"quiz":[{"q":"What is the suspect's full name?","cn":"\u5acc\u7591\u4eba\u7684\u5168\u540d\u662f\u4ec0\u4e48\uff1f","options":["Eugene Victor Tooms","Frank Victor Briggs","Thomas Victor Werner"],"answer":0},{"type":"tf","q":"The lie-detector examiner believed Tooms did not kill those people.","cn":"\u6d4b\u8c0e\u4eea\u68c0\u6d4b\u5458\u8ba4\u4e3a\u56fe\u59c6\u65af\u6ca1\u6709\u6740\u90a3\u4e9b\u4eba\u3002","answer":true},{"q":"What did Mulder do on the computer to compare the two fingerprints?","cn":"Mulder\u5728\u7535\u8111\u4e0a\u505a\u4e86\u4ec0\u4e48\u6765\u6bd4\u5bf9\u4e24\u679a\u6307\u7eb9\uff1f","options":["He printed both prints on paper","He stretched Tooms's print until it matched the old one","He asked a lab technician to redraw it"],"answer":1},{"type":"fill","q":"The elongated fingerprint from the crime scene was taken from ___'s office.","cn":"\u72af\u7f6a\u73b0\u573a\u90a3\u679a\u62c9\u957f\u7684\u6307\u7eb9\u662f\u4ece___\u7684\u529e\u516c\u5ba4\u91c7\u96c6\u7684\u3002","options":["Usher","Werner","Briggs"],"answer":0},{"q":"What does the 100% fingerprint match suggest about Tooms?","cn":"\u6307\u7eb9100%\u543b\u5408\u8bf4\u660e\u4e86\u4ec0\u4e48\uff1f","options":["That Tooms has a twin brother","That the old print was a fake","That Tooms is somehow connected to the 1933 murder"],"answer":2}]},{"id":"u04","section":"\u7b2c\u4e8c\u5e55 \u00b7 \u602a\u7269\u73b0\u5f62","tag":"CHAPTER 4","title_en":"Another Victim","title_cn":"\u53c8\u4e00\u540d\u53d7\u5bb3\u8005","teaser_cn":"\u51f6\u624b\u7684\u79d8\u5bc6\u8eab\u4e16\u6e10\u6e10\u6d6e\u73b0","icon":"\ud83e\ude78","itemName":"\u6848\u53d1\u8840\u8ff9","words":1284,"paras":["It was dark when Thomas Werner drove into his {driveway}. He opened the car door. He stopped. Something was different tonight. It was so quiet that Werner could hear the wind in the trees and the sound of his own {heartbeat}. He stepped out of his car and the sensor security light at the side of the house {flashed} on as he approached. Werner looked around trying","to get rid of the strange idea that something was wrong.","Evelything's fine, Werner told himself. You're {imagining} things.","Tooms {crouched} in the {hedges} on the other side of the street - watching, waiting. When Werner had gone inside the house, Tooms stood up and moved {swiftly} across the street like an animal following a {scent}.He stepped in front of the sensor light but it didn't turn on.","Werner hadn't been imagining things. Something was wrong- {terribly} wrong.","Tooms began to search for his point of entry. Before him, going up the side of the house was a brick {chimney}. He'd found his way in. He started to pull himself up like a {lizard} scaling a wall, and with incredible strength lifted himself up onto the roof.","Werner was reading his mail in the kitchen when he heard a noise - like a man {grunting} with effort. No, he told himself, It's impossible. He began to make himself a drink.","Tooms stuck one arm deep into the chimney and stretched and stretched. He stretched until his hand reached down three floors, until his hand reached the {bricks} at the bottom of the {flue}. Carefully Tooms {lowered} his head into the chimney. With a {sickening} {dull} pop, he {dislocated} first his left shoulder from the {socket} and then the right. He could smell Thomas Werner's sweat and feel the heat of the blood in his {veins}.","Slowly he began to {squeeze} himself down the narrow chimney.","In the living room Werner decided to light a fire. He took a log and lit the {kindling}. A bright fire began to {flicker}. But suddenly the fire died. Werner wondered if something was blocking the flue and stood up to go and get more matches from the kitchen. Werner never even had a chance In scream. His {attacker} threw him to the floor with unbelievable force and he","was unconscious when Eugene Tooms took what he'd come for.","The next day Werner's house was filled with people. Mulder stood watching the police take measurements. His eyes widened as he saw something the police had missed - a smudge of ash above the hearth. And there was something disturbingly familiar in its long narrow shape. Mulder knelt and examined the mark more carefully. It wasn't very clear but the resemblance to the other prints was strong. He noticed another smudge of ash leading up to the mantel. The mantel was bare, covered with a fine layer of dust, but in the middle there was a perfectly clean ring.","Mulder turned to Scully, \"It was Tooms, and he took something from the mantel.\"","Mulder was sitting in front of a microfiche machine. The screen displayed a taped form. The first line read, \"1903 Census\". The census, Mulder knew, would tell him precisely who had been living in Baltimore at that time.","Mulder advanced the screen through a few more pages. He bent forward as he found what he was looking for. This copy of the census form had been filled out by hand. The old-fashioned writing read, \"Eugene Victor Tooms.\" Mulder smiled. Finally the pieces of the puzzle were starting to fit together.","\"I found him,\" he said.","Scully gave her partner a questioning look.","\"How do we learn about the present?\" Mulder asked. \"We look to the past. That's where it all started - in 1903 on Exeter Street.\"","He pointed to the screen.","Scully began to read the census form aloud. \"Residence: apartment 103, Sixty-six Exeter Street, Baltimore, Maryland. Occupation: Dogcatcher.\" A profession similar to that of the current Tooms, she thought.","The following day Scully and Mulder decided to pay a visit to Frank Briggs, the man who had investigated the murders in 1933. So they drove to Baltimore's Lynne Acres Retirement Home where man was living.","Briggs was sitting in a wheelchair' in his room and seemed to be waiting for them. He told them that he had left the police in 1968, after 45 years as a cop.","\"Could you tell us about the 1933 murders?\" Mulder asked.","Briggs nodded. \"I was a sheriff then ... \" he began. His voice trailed a way as if I he subject was difficult for him to talk about.","\"They were like nothing else. I\u2019d seen my share of murders. But I could i1ways go home, play with my kid and forget about them. You've got to be able to do that when you're a cop, otherwise you'd go crazy. But those murders in Powha tan Mill ... \" Briggs continued. \"When I walked into that room, my heart went cold. I could feel it. \"","He took a deep breath and went on. \"That's why I've been waiting for you,\" he said. \"Because I knew it was never going to go away. And I've been waiting for it to come back.\" His eyes searched Mulder's face. \"It's killed again, hasn't it?\"","\"Four times so far,\" Mulder told him.","Briggs pointed to a trunk in the corner near his bed. \"There's a box in the trunk there,\" he said. \"Would you please get it for me?\" Mulder dragged the trunk towards the man and opened it. He took out an old cardboard box and put it down on the bed. The retired police officer removed the lid, and Scully saw that the box was filled with thick folders.","\"I knew the five murders in 1963 were committed by the same person,\" Briggs said, \"The same one who'd killed in thirty-three. But by then the sheriff said I was too old. Wouldn't let me near the case. But I kept my own kind of tabs on things anyway. I knew that some day there'd be someone who could use what I found.\" Scully pulled a glass jar out of the box. Inside it was a clear liquid that was probably formaldehyde. A chunk of red tissue noated in the liquid.","\"A piece of a removed liver?\" she guessed.","Briggs nodded, \"Yes! And livers weren't the only trophies he took.\"","\"What do you mean?\" Mulder asked. \"In each case, family members reported small personal effects missing,\" Briggs answered. \"A hairbrush from the WaIters murder. coffee mug from the Taylor murder.\"","Mulder's eyes met Scully's. They were both thinking of the object missing from Werner's mantel.","\"Have you ever heard the name Eugene Victor Tooms?\" asked Mulder.","The old man looked through a pile of black and white glossy photographs. He handed a grainy one to Mulder. \"That's Tooms. Thirty years ago.\"","A chill went through Scully as she realised that in 1963 Tooms had looked exactly the way he did thirty years later. He hadn't grown old.","\"Where did Tooms live?\" Mulder asked. \"Sixty-six Exeter Street?\"","\"That's it,\" Briggs said, looking satisfied. \"Right there.\"","Mulder held out the photograph to Scully and she inspected it more closely. The photograph showed a tall brick building, like a warehouse, on a narrow street. A sign on it read PIERRE PARIS & SONS.","Mulder held his hand out to Frank Briggs. \"Thank you,\" he said. \"You've been a tremendous help.\" He turned to Scully and said, \"I think it's time you and I checked out Sixty-six Exeter Street.\"","Scully nodded and felt something tightening in the pit of her stomach. They were getting closer to Tooms and she couldn't help feeling afraid of what they would find."],"quiz":[{"q":"How did Tooms get into Werner's house?","cn":"Tooms\u662f\u600e\u4e48\u8fdb\u5165Werner\u5bb6\u7684\uff1f","options":["Through the chimney","Through the front door","Through a garage window"],"answer":0},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["Tooms climbed up the chimney onto the roof","Tooms killed Thomas Werner in the living room","Mulder found a smudge of ash above the fireplace"]},{"q":"What did Briggs show Mulder and Scully from his old box?","cn":"Briggs\u4ece\u65e7\u7bb1\u5b50\u91cc\u62ff\u51fa\u4e86\u4ec0\u4e48\u7ed9\u4ed6\u4eec\u770b\uff1f","options":["A photo of himself as a young officer","A jar with a piece of liver and stolen personal items","A map of the city sewers"],"answer":1},{"type":"who","q":"It was Tooms, and he took something from the mantel.","cn":"\u662f\u56fe\u59c6\u65af\u5e72\u7684\uff0c\u4ed6\u4ece\u58c1\u7089\u67b6\u4e0a\u62ff\u8d70\u4e86\u4e1c\u897f\u3002","options":["Mulder","Scully","Colton"],"answer":0},{"q":"What did Scully realize from the 1963 photo of Tooms?","cn":"Scully\u770b\u52301963\u5e74\u7684\u7167\u7247\u540e\u610f\u8bc6\u5230\u4e86\u4ec0\u4e48\uff1f","options":["That the photo was actually of Tooms's father","That Tooms used to work as a police officer","That Tooms hadn't aged at all in thirty years"],"answer":2}]},{"id":"u05","section":"\u7b2c\u4e8c\u5e55 \u00b7 \u602a\u7269\u73b0\u5f62","tag":"CHAPTER 5","title_en":"The Nest","title_cn":"\u602a\u7269\u7684\u5de2\u7a74","teaser_cn":"\u5730\u4e0b\u5ba4\u91cc\u85cf\u7740\u60ca\u4eba\u7684\u79d8\u5bc6","icon":"\ud83d\udd73","itemName":"\u901a\u98ce\u7ba1\u9053","words":950,"paras":["Sixty-six Exeter Street was an old, red-brick building, whose windows were {boarded} up. Scully {stared} up at the building. If Mulder and Briggs were right, this was where Eugene Victor Tooms had lived in 1903. And in 1963. Was he here now?","They stepped inside the building, drew their weapons and switched on their flashlights. Scully led the way down the hallway to the apartment where Eugene Tooms had lived, and pushed open the door. The room was empty except for some garbage on the floor.","A thin {trickle} of light {filtered} through the {rotting} wood.","Nothing in Scully's scientific training had prepared her for this. This was not the sort of phenomenon she normally believed in: that you could go inside an empty room and {reel} something awful, like a memory trapped in the walls, in the air. Something horrible had happened there. And the feel of it was still present.","Scully played the beam or her light along the walls. She wanted to focus Oil the physical. She wanted evidence she could touch, proof that would hold up in court.","She realised that the brick outer wall showed through the torn plasterboard. The paint {peeled} from the walls. A {stained} {mattress} {leaned} against a wall. But there was no sign of Tooms. Clearly it had been ages since anyone had lived in the apartment.","\"There's nothing here,\" Scully said to Mulder.","But the old mattress caught Mulder's attention. He shone his flashlight behind it. \"Check this out,\" he said.","Scully saw what had drawn his attention: a hole about four feet high, cut straight through the plasterboard. Big enough, Scully thought, for a man to fit through.","She sent the beam of her flashlight straight down and saw a ladder dropping into the darkness.","\"What's down there?\" Mulder asked.","\"I don't know,\" Scully answered. \"Let's find out.\"","Without hesitating, Scully lowered herself onto the metal ladder. The {pendant} on her {necklace} {swung} out as she started to climb down.","Mulder was right behind her.","When they reached the bottom, they were in a very dark area. Scully shone her light {overhead}. Heavy {pipes} crossed low ceiling {joists}. They were definitely in the basement of the building.","It was {chilly} and {damp}. And it felt even worse than it had in the apartment. Scully fought back a {shiver}.","The two agents began to check out the dark basement. Finally Scully shook her head. \"Nothing,\" she said, disappointed. \"It's just an old coal {cellar}.\"","\"What's that?\" Mulder asked. He aimed his flashlight straight ahead. Something reflected the light to him.","He walked towards the {shiny} object. \"Somebody having a garage sale?\" he said.","On a wooden {crate} sat a collection of objects: a pipe, a coffee mug, a glass cigarette lighter and other things.","Scully {nodded}, thinking of what Briggs had told them about Tooms. \"Briggs said he kept {trophies}.\" Mulder picked up the cigarette lighter. \"This is the shape that was on Werner's mantel\"","\"Does Tooms live in here?\" Mulder asked himself aloud.","He sent the beam of his light across the coal cellar. The far wall was damp.","\"It looks like the wall's deteriorating, \"Scully said.","\"No,\" Mulder said. \"Somebody made it that way.\"","Before Scully could ask him what he meant, Mulder went over to examine the wall. Seconds later she was at his side. He was right, she saw. Someone had plastered a strange assortment of things against the wall. Greasy rags, torn strips of newspaper, and trash were all stuck together to form a large mound. It extended from ceiling to floor and wall to wall.","\"It's a nest,\" Mulder said in wonder.","Scully saw that the nest had been stuck together with a greenish-yellow substance. In the very centre of the mound was a hole. \"Look,\" she said, \"this must be the opening. Do you think there's anything inside?\"","Mulder reached inside the hole and touched it.","Scully was about to do the same and then she realized what the substance was.","\"Oh, my God, Mulder.\" She tried not to gag, but she felt sick to her stomach. \"It smells like ... I think it's bile. Tooms must have taken it from his victims' livers.\"","\"I think this is where Tooms ... hibernates.\" \"Hibernates?\" echoed Scully.","\"What if some genetic mutation could allow a man to awaken every thirty years?\" said Mulder, excited by his idea. \"What if the five livers could provide sustenance for that period; allowing him to regenerate the cells in his body so that he never aged?\"","Scully didn't find this wild theory possible. She and Mulder had something more serious to worry about.","\"Tooms isn't here now. But he's going to come back.\" Mulder nodded, \"We're going to need a surveillance team.\"","The two agents started out of the coal cellar. This time Mulder was in the lead. Scully suddenly stopped, with a sharp intake of breath. \"Wait,\" she called. \"I-\"","Mulder spun around. \"What is it?\"","\"I-I think I'm entangled in something,\" Scully said. She twisted a bit. Whatever had been caught was abruptly set free. ''It's okay,\" she called. ''I'm fine.\"","She followed Mulder up the ladder and out of the coal cellar.","The coal cellar's ceiling was topped with pipes. If Scully had shone her flashlight right above her, she might have seen a hand tightened the pipes. A hand that now held her necklace.","If she'd shone her light even higher, she would have seen the fire-red eyes of Eugene Tooms. He'd been there all the time. Now his eyes followed the agents as they left the cellar. His hand tightened on Scully's necklace. A trophy for each victim. He'd just found number five."],"quiz":[{"q":"What did Mulder and Scully find stuck together in the coal cellar?","cn":"Mulder\u548cScully\u5728\u7164\u7a96\u91cc\u53d1\u73b0\u4e86\u4ec0\u4e48\uff1f","options":["A nest made of rags, paper and trash","A pile of old newspapers only","A collection of animal bones"],"answer":0},{"type":"tf","q":"Mulder and Scully found Tooms's nest in the basement of Sixty-six Exeter Street.","cn":"\u9a6c\u5c14\u5fb7\u548c\u53f2\u5361\u5229\u5728\u827e\u514b\u8d5b\u7279\u885766\u53f7\u7684\u5730\u4e0b\u5ba4\u53d1\u73b0\u4e86\u56fe\u59c6\u65af\u7684\u5de2\u7a74\u3002","answer":true},{"q":"Which trophy matched the mark left on Werner's mantel?","cn":"\u54ea\u4ef6\u6218\u5229\u54c1\u4e0eWerner\u58c1\u7089\u67b6\u4e0a\u7684\u75d5\u8ff9\u543b\u5408\uff1f","options":["The coffee mug","The glass cigarette lighter","The wooden crate"],"answer":1},{"type":"fill","q":"Scully realized the greenish-yellow substance in the nest was probably ___.","cn":"\u53f2\u5361\u5229\u610f\u8bc6\u5230\u5de2\u7a74\u91cc\u7684\u9ec4\u7eff\u8272\u7269\u8d28\u53ef\u80fd\u662f___\u3002","options":["bile","oil","paint"],"answer":0},{"q":"What does the ending, where a hand tightens on Scully's necklace, suggest?","cn":"\u7ed3\u5c3e\u6709\u53ea\u624b\u6293\u4f4f\u4e86Scully\u7684\u9879\u94fe\uff0c\u8fd9\u8bf4\u660e\u4e86\u4ec0\u4e48\uff1f","options":["That Scully dropped her necklace by accident","That Mulder secretly took the necklace as evidence","That Tooms had been hiding nearby the whole time"],"answer":2}]},{"id":"u06","section":"\u7b2c\u4e8c\u5e55 \u00b7 \u602a\u7269\u73b0\u5f62","tag":"CHAPTER 6","title_en":"Scully in Danger","title_cn":"\u53f2\u5361\u5229\u8eab\u9677\u9669\u5883","teaser_cn":"\u5371\u9669\u6b63\u4e00\u6b65\u6b65\u903c\u8fd1\u5979\u7684\u516c\u5bd3","icon":"\ud83e\udeba","itemName":"\u602a\u7269\u5de2\u7a74","words":763,"paras":["Scully was {distracted} as she drove home. Her thoughts went back to Briggs. She remembered his talking about how he could usually forget a case when he went home. How that was essential if you were going to do police work and not go mad. Tonight, though, that was impossible. This case stayed with her every second of the day.","Scully parked in front of her building and walked towards the lit {entryway}. What she couldn't know was that this case had come home with her.","Eugene Tooms hid behind the car that was parked in front of {hers}, watching her every movement.","Darkness covered the city. Rush hour was almost over. The downtown {sidewalks} were empty. Mulder found himself returning to 66 Exeter Street. He'd been nervous all day. He hadn't been able to eat or sleep.","Scully went into her apartment and resolved to take a hot bath. She went into the bathroom and turned on the hot and cold {taps}, {adjusting} them until the water was the right temperature. She {wished} Mulder would call back. She couldn't really relax until she talked to him.","She was about to pin up her hair when she realized that her hairbrush was in her {purse}. And her purse was in her bedroom. She went into the bedroom to get the brush. That was why she didn't see the {outline} of a man's body pressed against her bathroom window.","At Sixty-six Exeter Street Mulder pushed through the broken door of apartment 103. As soon as he entered the apartment his heart began to race. He had never been so sure that Evil was a living, breathing presence. There was no doubt in his mind. Tooms had been back.","The old mattress was precisely where he and Scully had left it. He went through the hole in the wall. He then {climbed} down the ladder into the coal cellar.","He cast the beam of his flashlight onto the wooden crate. Tooms's trophies shone back at him. Mulder recognized the pipe and cigarette lighter.","But this time there was a new trophy too. One that sent ice through Mulder's veins. Hanging from the trophy crate was Scully's necklace.","Scully stood in her bedroom, facing her mirror. She was {pinning} up her hair for her bath. Her mind was still on the case. She knew they'd got closer to finding Tooms. And what they'd found made her {agitated}. Could Mulder possibly be right? she wondered. Is Tooms some kind of {mutant} who hibernates for thirty years and then keeps himself alive by {murdering} people and eating their livers? Has he really been alive since the beginning of the century?","Scully shook her head. Until she saw medical tests that proved otherwise, she'd deal with Tooms as a human. A very dangerous human.","She went back into the bathroom just in time to shut off the water. The tub was nearly full. She reached over to one of the {shelves} and chose a bottle of blue bath oil, and then she {poured} it into the {steaming} tub. The smell of {rosemary} filled the room.","She started to {undress}, but she stopped as she realised she'd forgotten to bring in her {robe} from the bedroom. The case definitely had her distracted, she told herself. She returned to the bedroom.","That was when she felt it. Something damp on her wrist. She held it up to the light and saw two drops of clear {greenish}-yellow liquid.","It doesn't make sense, she thought. The bath oil was blue. And furthermore, she hadn't {spilled} any. She thought for a second. The building was an old one. Maybe there was a leak in the ceiling from the apartment above her.","She looked up at the ceiling and felt the muscles in her chest {tighten} with fear. Right above her was a heating {grate}. A thick greenish-yellow liquid was pooling in the corner of the grate.","No, Scully thought. She fought down a surge of panic. She lifted her hand and smelt the fluid on her wrist. Her body froze with terror as she recognised the smell.","She was suddenly horribly aware of how alone she was. and of how many hiding places there were in her apartment.","Especially for someone who could squeeze himself inside a pipe. Or under a counter. Or into the air vent above her.","She touched the greenish-yellow substance. She had to be sure. And she was. There was no mistaking it. It could only be bile from a human liver. \u201cOh, my god ,\u201dshe said quietly."],"quiz":[{"q":"What liquid did Scully find dripping onto her wrist?","cn":"Scully\u7684\u624b\u8155\u4e0a\u6ef4\u5230\u4e86\u4ec0\u4e48\u6db2\u4f53\uff1f","options":["Greenish-yellow bile","Blue bath oil","Rainwater from a leak"],"answer":0},{"type":"tf","q":"Scully found blue bath oil dripping from the ceiling grate.","cn":"\u53f2\u5361\u5229\u53d1\u73b0\u5929\u82b1\u677f\u901a\u98ce\u683c\u6805\u4e0a\u6ef4\u4e0b\u84dd\u8272\u6c90\u6d74\u6cb9\u3002","answer":false},{"q":"What did Mulder discover hanging from the trophy crate?","cn":"Mulder\u53d1\u73b0\u6218\u5229\u54c1\u7bb1\u4e0a\u6302\u7740\u4ec0\u4e48\uff1f","options":["Werner's coffee mug","Scully's necklace","A police badge"],"answer":1},{"type":"fill","q":"Scully touched the greenish-yellow liquid and recognized the smell of ___.","cn":"\u53f2\u5361\u5229\u6478\u4e86\u6478\u90a3\u9ec4\u7eff\u8272\u6db2\u4f53\uff0c\u8ba4\u51fa\u4e86\u90a3\u80a1___\u7684\u6c14\u5473\u3002","options":["bile","blood","perfume"],"answer":0},{"q":"Why couldn't Scully call Mulder for help?","cn":"Scully\u4e3a\u4ec0\u4e48\u6ca1\u6cd5\u6253\u7535\u8bdd\u5411Mulder\u6c42\u52a9\uff1f","options":["She had left her phone at work","Her phone battery had died","Someone had cut the wires to her phone"],"answer":2}]},{"id":"u07","section":"\u7b2c\u4e09\u5e55 \u00b7 \u6b8a\u6b7b\u8ffd\u6355","tag":"CHAPTER 7","title_en":"The Hunt","title_cn":"\u730e\u6740\u884c\u52a8","teaser_cn":"\u5979\u72ec\u81ea\u4e00\u4eba\uff0c\u730e\u624b\u5df2\u7ecf\u51fa\u73b0","icon":"\ud83d\udd12","itemName":"\u4e00\u526f\u624b\u94d0","words":571,"paras":["Mulder was already sitting in his car, driving {speedily} to Scully's apartment.","All he could think about was what he'd found in the basement of Sixty-six Exeter Street. Tooms has Scully's necklace. That could mean only one thing: Scully was going to be the fifth victim.","Mulder reached for his {cellular} phone and {dialed} Scully's number. Scully's phone rang and rang and rang. \"Come on, Scully,\" he {muttered}. \"Answer!\"","But all he heard was the sound of her phone {ringing} {endlessly}. Somehow this {alarmed} him even more than seeing Scully's necklace in Tooms's apartment.","Mulder tried Scully's number again, and then he threw down the phone and hit the gas {pedal} hard. He hoped he wasn't too late.","There was, in fact, a reason why Scully wasn't answering. She didn't answer because her phone never rang: someone had cut the wires to her phone.","For a second, panic {froze} every muscle in Scully's body. I'm alone in the apartment with Tooms. Her heart {hammered} a rhythm of terror through her veins. Tooms is hunting me.","She ordered herself to take a deep breath. The panic broke and {instinct} took over. She {raced} for the bedroom. She had to get her gun.","She'd left only one light on in the room. The rest of the bedroom was dark. Tooms could be anywhere. In her closet. Under the bed. Crouching in the shadows. Please, she thought, don't let him be in here.","Frantically she looked for the gun. She forced herself to think {calmly}. Where had she left it? She knew she'd brought the gun home from work. In her bag. The gun was still in her bag. And the bag was on the bed.","She ran across the room. She reached for her bag and opened it. Her heart {slowed} as her fingers closed on the familiar metal barrel.","Now she was the hunter.","She {braced} the gun with both hands straight in front of her. Slowly she began to move through the apartment, searching for Tooms.","She looked under the bed, in the closet, under the desk, anywhere he might be. But she was the only one in the bedroom. Tooms was still in the apartment, she was sure of it. And he was hiding.","She went back to the bathroom, moving slowly, {silently}. She looked up at an air vent in the hall ceiling. Nothing. She whirled as she thought she heard a noise behind her. She trained her weapon on a heating grille just above the floor. Nothing again.","She didn't see the cover of the heating grille opening. She only heard a crack as it flew off the wall and hit the {hardwood} floor.","Instantly Tooms's hand shot out of the vent and locked around her leg, pulling it out from under her.","Scully hit the floor hard. The gun fell from her hand. Terror {paralysed} her as she stared at Tooms. The {rectangular} air vent {framed} his face. He no longer looked {fearful} and innocent. He looked like a {vicious} {predator} about to {devour} its prey.","For a long moment Scully and Tooms locked stares. Then a low, animal growl filled the apartment. And Tooms, using unbelievable strength, began to pull her towards him.","Scully knew that she'd never been up against anything like Tooms. That this would be the hardest fight of her life. And that if she didn't win, it would be the last."],"quiz":[{"q":"Why couldn't Mulder reach Scully by phone?","cn":"\u4e3a\u4ec0\u4e48Mulder\u6253\u4e0d\u901aScully\u7684\u7535\u8bdd\uff1f","options":["Because the wires to her phone had been cut","Because she had turned her phone off","Because she was driving and couldn't answer"],"answer":0},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["Someone cut the wires to Scully's telephone","Scully took her gun out of her bag","Tooms's hand shot out of the air vent and grabbed Scully's leg"]},{"q":"Where did Scully find her gun?","cn":"Scully\u5728\u54ea\u91cc\u627e\u5230\u4e86\u5979\u7684\u67aa\uff1f","options":["In the kitchen drawer","In her bag on the bed","In the bathroom cabinet"],"answer":1},{"type":"fill","q":"Tooms's hand shot out of the vent and locked around her ___.","cn":"\u56fe\u59c6\u65af\u7684\u624b\u4ece\u901a\u98ce\u53e3\u4f38\u51fa\uff0c\u6b7b\u6b7b\u6293\u4f4f\u4e86\u5979\u7684___\u3002","options":["leg","arm","neck"],"answer":0},{"q":"What does Tooms's hand shooting out of the vent to grab Scully's leg suggest?","cn":"Tooms\u7684\u624b\u7a81\u7136\u4ece\u901a\u98ce\u53e3\u4f38\u51fa\u6293\u4f4fScully\u7684\u817f\uff0c\u8bf4\u660e\u4e86\u4ec0\u4e48\uff1f","options":["That Tooms had just arrived at the apartment","That Mulder had accidentally set off a trap","That Tooms had been hiding in the vent waiting for her"],"answer":2}]},{"id":"u08","section":"\u7b2c\u4e09\u5e55 \u00b7 \u6b8a\u6b7b\u8ffd\u6355","tag":"CHAPTER 8","title_en":"The Fight","title_cn":"\u6b8a\u6b7b\u640f\u6597","teaser_cn":"\u751f\u6b7b\u4e00\u7ebf\u7684\u6b8a\u6b7b\u8f83\u91cf","icon":"\ud83e\udd4a","itemName":"\u6b8a\u6b7b\u640f\u6597","words":900,"paras":["Mulder's car screeched to a {halt} outside Scully's apartment building. He got out of the car and stood for a moment. His eyes scrutinised the fourth-floor windows. There was a light on in Scully's apartment. She was there, all right. And he was sure that Tooms was there with her.","Mulder {rushed} into the entrance of the building and ran {upstairs}. In a short time he was at Scully's door.","\"Scully!\" He banged on the door. There was no answer.","\"Scully!\"","Still no answer. He tried the knob. Scully had been careful, as usual. The door was {tightly} locked.","Mulder put his ear to the door. There were sounds coming from inside the apartment, as though some sort of fight was going on.","At least she's still alive, Mulder told himself. But he knew that unless he got in there fast, Scully had only a few minutes left to live.","Scully knew she had to get out of Tooms's hold. And she had to get her gun back. Frantically she got hold of the bathroom door frame. Using all her strength, she pulled herself towards it. At the same time she kicked {violently} at the arm that held her {ankle}. She kicked again. This time she managed to {wrestle} free of Tooms's grip.","Still on her back, she slid away from the duct and into the bathroom. She {paused} for a second, {terrified} and {breathless}. Then she watched in {disbelief} as Tooms's body stretched {impossibly} long and narrow and shot out of the air duct.","Scully never even had time to shout. One second he was in the air. The next he'd landed on top of her, pinning her to the ground.","Scully struggled to escape, but Tooms was too powerful for her. He held her down with the strength of ten. He {stank} of sweat and {bile}.","Scully wrenched her body to the side, trying to throw him off her. Tooms grabbed her {chin} with one hand. Then he lifted his other hand. She knew what he was planning. He was going to hit her and knock her out so that he could take what he wanted without a fight.","Scully didn't know if she had enough strength to escape him. But she certainly had enough to make things difficult. Before he could hit her, she landed a hard {uppercut} on his jaw. Tooms's head {snapped} back, and Scully felt a flash of hope. At least he could be hurt.","Tooms drew back his arm again. This time Scully reached up with both hands. Like a cat, she went for his eyes with her nails, {scratching}. If she could blind him, she'd have a chance.","With a cry of rage, Tooms seized her {wrists}. She {gasped} as he slammed them to the floor above her head. With one hand he pinned them there.","And with the other he reached for her right side. His eyes burned fire red with hunger.","Scully's heart was beating so fast she thought it would {explode}. Terror flashed through her. This was it. She knew exactly what was going to happen. The same thing that had happened to the other victims. Tooms was going to kill her so that he could live and kill again.","And she was {helpless} to stop him.","Mulder kicked open Scully's door and rushed to the bathroom. He entered. For a second he didn't even notice Tooms. All he saw was that Scully was still alive.","Then Mulder's brain quickly made sense of the scene. Tooms had released her. He stood with his face to the bathroom window. A {shattering} sound filled the room as Tooms's bare {fist} smashed through the frosted glass. With inhuman strength, Tooms stretched his hand up and began to lift himself towards the opening in the glass.","But Scully was up. And she wasn't about to let Tooms escape. She grabbed his legs.","\"Freeze!\" Mulder shouted. But he couldn't shoot. Scully was in the way.","Mulder's heart sank as Tooms turned on Scully.","He grabbed her throat and pushed her backwards. Mulder had a good idea how strong Tooms was. Scully was about two seconds away from having her neck snapped.","Quickly Mulder opened his handcuffs and went after Tooms.","He seized Tooms's arm, but he wasn't fast enough to cuff him.","Tooms let go of Scully and whirled to face Mulder. Like an angered bull, Tooms charged, knocking Mulder to the floor.","Mulder rolled, then kicked at Tooms. It didn't stop Tooms, but it bought Mulder a little time and distance. He knew that if Tooms actually got hold of him, he wouldn't have a chance.","Tooms stood over him now, roaring like a hurt animal.","Scully caught Tooms's other arm. She snapped Mulder's open handcuff around Tooms's wrist and fastened the other cuff to the bathtub faucet.","Instantly Mulder was up, his automatic trained on Tooms. Tooms jerked at the metal cuff. He twisted and pulled. But the old fixtures were strong. And gradually Tooms settled down. This time he couldn't escape.","With his gun on Tooms, Mulder glanced at Scully. She was leaning against the wall, still breathing hard. \"Are you all right?\" Mulder asked her.","Scully nodded. She was trembling and she looked exhausted.","Mulder glanced back at their prisoner. \"Well, at least he's not going to get this year's quota.\"","Scully smiled, for the first time all day."],"quiz":[{"q":"How did Mulder and Scully finally stop Tooms?","cn":"Mulder\u548cScully\u6700\u7ec8\u662f\u600e\u4e48\u5236\u670dTooms\u7684\uff1f","options":["They handcuffed him to the bathtub faucet","They locked him inside a closet","They knocked him unconscious with a chair"],"answer":0},{"type":"who","q":"Are you all right?","cn":"\u4f60\u8fd8\u597d\u5417\uff1f","options":["Mulder","Scully","Colton"],"answer":0},{"q":"How did Tooms try to escape during the fight?","cn":"\u6253\u6597\u4e2dTooms\u8bd5\u56fe\u600e\u6837\u9003\u8dd1\uff1f","options":["By running out the front door","By breaking the bathroom window and climbing out","By hiding inside the closet"],"answer":1},{"type":"fill","q":"Scully fastened the handcuff to the bathtub ___.","cn":"\u53f2\u5361\u5229\u628a\u624b\u94d0\u6263\u5728\u4e86\u6d74\u7f38\u7684___\u4e0a\u3002","options":["faucet","door","pipe"],"answer":0},{"q":"What does Mulder mean by saying Tooms 'is not going to get this year's quota'?","cn":"Mulder\u8bf4Tooms\u201c\u4eca\u5e74\u62ff\u4e0d\u5230\u6307\u6807\u4e86\u201d\u662f\u4ec0\u4e48\u610f\u601d\uff1f","options":["That Tooms will be released soon anyway","That Tooms had already killed enough victims","That Tooms failed to get his fifth victim this cycle"],"answer":2}]},{"id":"u09","section":"\u7b2c\u4e09\u5e55 \u00b7 \u6b8a\u6b7b\u8ffd\u6355","tag":"CHAPTER 9","title_en":"Squeeze","title_cn":"\u65e0\u5904\u53ef\u9003\uff1f","teaser_cn":"\u7262\u7b3c\u771f\u7684\u80fd\u56f0\u4f4f\u4ed6\u5417","icon":"\ud83d\udcc1","itemName":"\u7ed3\u6848\u6863\u6848","words":357,"paras":["In a tiny cell in the Maryland State {psychiatric} ward, Eugene Tooms sat on the narrow prison bed. He was holding a newspaper. He began to rip the paper into long, narrow strips.","Tooms lifted one of the strips and ran his tongue across it. He {crumpled} the {slimy} paper in his hand. Then he {tossed} it at the wall in the corner of his cell. It slid to the floor at the base of a growing {mound} of {shredded} papers. Tooms picked up another strip of paper and ran it along his tongue. He {gazed} at the corner with {contentment}. It looked a lot like the wall in the basement of Sixty-six Exeter Street.","Mulder stood outside the door to Tooms's cell and stared through the small {circular} observation window. He knew that the door was made of steel. And that the {barred} cell was {fortified} by a strong chain link. Tooms was safely {imprisoned}. So why did he still seem so scary?","Mulder watched as Tooms {methodically} shredded the newspaper and added the pieces to the pile on the wall. Mulder didn't look away even when he heard Scully's {footsteps} coming towards him from the other end of the {corridor}.","\"Look at him,\" Mulder said in a {troubled} voice. \"He's building another nest.\"","Just the sight of Tooms made Scully's skin crawl. His building a new nest was not a good sign. Still, he was finally in custody. Scully put a hand on Mulder's shoulder. \"Come on. It's time to go,\" she said gently.","Eugene Tooms {tore} another strip of paper, wet it with {saliva}, and added it to his nest.","A narrow slot II in the door opened. A guard slid a food {tray} into the slot, leaving it open so that Tooms could put the tray back when he had finished.","Tooms's eyes {glowed} red as he gazed at the light pouring through the narrow opening on the cell's door. A smile crossed his face. It was a very narrow slot. Maybe only six inches high and nine inches wide. But that actually wasn't a problem if you knew how to squeeze..."],"quiz":[{"q":"What is Tooms doing in his cell?","cn":"Tooms\u5728\u7262\u623f\u91cc\u505a\u4ec0\u4e48\uff1f","options":["Tearing newspaper into strips and building a nest","Writing letters to his family","Reading books from the prison library"],"answer":0},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["Tooms tore newspaper into strips and began building a nest","Mulder and Scully watched Tooms through the cell window","A guard slid a food tray through the narrow slot"]},{"q":"What did the guard do that caught Tooms's attention?","cn":"\u770b\u5b88\u505a\u4e86\u4ec0\u4e48\u5f15\u8d77\u4e86Tooms\u7684\u6ce8\u610f\uff1f","options":["He turned on the cell's light","He opened a narrow food slot in the door","He unlocked the cell door completely"],"answer":1},{"type":"fill","q":"The narrow slot in the cell door was six inches high and ___ inches wide.","cn":"\u7262\u623f\u95e8\u4e0a\u7684\u7a84\u7f1d\u6709\u516d\u82f1\u5bf8\u9ad8\uff0c___\u82f1\u5bf8\u5bbd\u3002","options":["nine","twelve","six"],"answer":0},{"q":"What does Tooms's smile at the narrow slot suggest?","cn":"Tooms\u770b\u7740\u7a84\u7f1d\u5fae\u7b11\uff0c\u6697\u793a\u4e86\u4ec0\u4e48\uff1f","options":["That he is happy about his lunch","That he has given up trying to escape","That he might be able to squeeze through the narrow opening"],"answer":2}]}];
+const GLOSSARY = {"adjusting":{"cn":"\u8c03\u8282\u6c34\u6e29","emoji":"\ud83d\udebf"},"agitated":{"cn":"\u7126\u8e81\u4e0d\u5b89","emoji":"\ud83d\ude1f"},"alarmed":{"cn":"\u60ca\u614c\u7684","emoji":"\ud83d\ude28"},"ankle":{"cn":"\u811a\u8e1d","emoji":"\ud83e\uddb6"},"astonished":{"cn":"\u975e\u5e38\u9707\u60ca","emoji":"\ud83d\ude32"},"attacker":{"cn":"\u653b\u51fb\u8005","emoji":"\ud83d\udc4a"},"banging":{"cn":"\u7830\u7830\u649e\u51fb\u58f0","emoji":"\ud83d\udd28"},"barred":{"cn":"\u88c5\u6709\u680f\u6746\u7684","emoji":"\ud83d\udd12"},"beep":{"cn":"\u54d4\u54d4\u58f0","emoji":"\ud83d\udcdf"},"bile":{"cn":"\u80c6\u6c41","emoji":"\ud83d\udfe2"},"boarded":{"cn":"\u7528\u6728\u677f\u5c01\u4f4f","emoji":"\ud83e\udeb5"},"boyish":{"cn":"\u5b69\u5b50\u6c14\u7684","emoji":"\ud83e\uddd2","gold":true},"braced":{"cn":"\u7a33\u7a33\u6491\u4f4f","emoji":"\ud83d\udcaa","gold":true},"breathless":{"cn":"\u5598\u4e0d\u8fc7\u6c14","emoji":"\ud83d\ude24"},"bricks":{"cn":"\u7816\u5757","emoji":"\ud83e\uddf1"},"businessman":{"cn":"\u5546\u4eba","emoji":"\ud83d\udcbc"},"calibrated":{"cn":"\u6821\u51c6\u597d\u7684","emoji":"\u2699\ufe0f"},"callers":{"cn":"\u6253\u7535\u8bdd\u7684\u4eba","emoji":"\u260e\ufe0f"},"calmly":{"cn":"\u51b7\u9759\u5730","emoji":"\ud83d\ude0c"},"cellar":{"cn":"\u5730\u7a96","emoji":"\ud83d\udd73\ufe0f"},"cellular":{"cn":"\u79fb\u52a8\u7535\u8bdd\u7684","emoji":"\ud83d\udcf1"},"chained":{"cn":"\u7528\u94fe\u6761\u9501\u4f4f","emoji":"\u26d3\ufe0f"},"chilly":{"cn":"\u5bd2\u51b7\u7684","emoji":"\ud83e\udd76"},"chimney":{"cn":"\u70df\u56f1","emoji":"\ud83c\udfed"},"chin":{"cn":"\u4e0b\u5df4","emoji":"\u2b50"},"circular":{"cn":"\u5706\u5f62\u7684","emoji":"\u2b55"},"clicked":{"cn":"\u5494\u55d2\u4e00\u58f0","emoji":"\ud83d\uddb1\ufe0f"},"climbed":{"cn":"\u722c","emoji":"\ud83e\uddd7"},"compulsive":{"cn":"\u5f3a\u8feb\u6027\u7684","emoji":"\ud83d\udd01"},"concentrating":{"cn":"\u4e13\u5fc3\u601d\u8003","emoji":"\ud83e\udd14"},"contentment":{"cn":"\u6ee1\u8db3\u611f","emoji":"\ud83d\ude0a"},"corridor":{"cn":"\u8d70\u5eca","emoji":"\ud83d\udeaa"},"crate":{"cn":"\u6728\u7bb1","emoji":"\ud83d\udce6"},"crawled":{"cn":"\u722c\u884c","emoji":"\ud83d\udc1b"},"crouched":{"cn":"\u8e72\u4f0f","emoji":"\ud83e\uddce","gold":true},"crowded":{"cn":"\u62e5\u6324\u7684","emoji":"\ud83d\udc65"},"crumpled":{"cn":"\u63c9\u76b1\u7684","emoji":"\ud83d\udcf0","gold":true},"cuff":{"cn":"\u8840\u538b\u8896\u5e26","emoji":"\ud83e\ude7a"},"damp":{"cn":"\u6f6e\u6e7f\u7684","emoji":"\ud83d\udca7"},"deceptive":{"cn":"\u6709\u8ff7\u60d1\u6027\u7684","emoji":"\ud83c\udfad"},"detector":{"cn":"\u6d4b\u8c0e\u63a2\u6d4b\u5668","emoji":"\ud83d\udd0d"},"devour":{"cn":"\u541e\u566c","emoji":"\ud83c\udf7d\ufe0f"},"dialed":{"cn":"\u62e8\u53f7","emoji":"\ud83d\udcde","gold":true},"disbelief":{"cn":"\u96be\u4ee5\u7f6e\u4fe1","emoji":"\ud83d\ude31"},"dislocated":{"cn":"\u8131\u81fc\u7684","emoji":"\ud83e\uddb4","gold":true},"distinguish":{"cn":"\u5206\u8fa8\u51fa","emoji":"\ud83d\udc40"},"distracted":{"cn":"\u5fc3\u4e0d\u5728\u7109","emoji":"\ud83d\ude35\u200d\ud83d\udcab"},"drenched":{"cn":"\u6e7f\u900f\u7684","emoji":"\ud83e\ude78"},"driveway":{"cn":"\u79c1\u5bb6\u8f66\u9053","emoji":"\ud83d\ude97"},"ducts":{"cn":"\u901a\u98ce\u7ba1\u9053","emoji":"\ud83c\udf2c\ufe0f"},"dull":{"cn":"\u6c89\u95f7\u7684","emoji":"\ud83d\udd07"},"elevator":{"cn":"\u7535\u68af","emoji":"\ud83d\uded7"},"elongated":{"cn":"\u62c9\u957f\u7684","emoji":"\u2194\ufe0f"},"endlessly":{"cn":"\u6ca1\u5b8c\u6ca1\u4e86","emoji":"\u267e\ufe0f"},"enrolled":{"cn":"\u6ce8\u518c\u5165\u5b66","emoji":"\ud83c\udf93"},"entryway":{"cn":"\u5165\u53e3","emoji":"\ud83d\udeaa","gold":true},"examiner":{"cn":"\u4e3b\u8003\u5b98","emoji":"\ud83d\udd75\ufe0f"},"examining":{"cn":"\u4ed4\u7ec6\u68c0\u67e5","emoji":"\ud83d\udd0d"},"explode":{"cn":"\u7206\u70b8","emoji":"\ud83d\udca5"},"fearful":{"cn":"\u5bb3\u6015\u7684","emoji":"\ud83d\ude28"},"fifteenth":{"cn":"\u7b2c\u5341\u4e94","emoji":"\ud83d\udd22"},"filings":{"cn":"\u91d1\u5c5e\u5c51","emoji":"\u2699\ufe0f"},"filtered":{"cn":"\u900f\u8fc7\u7f1d\u9699\u7167\u8fdb","emoji":"\ud83c\udf2b\ufe0f"},"fingerprint":{"cn":"\u6307\u7eb9","emoji":"\ud83d\udc46"},"fingertips":{"cn":"\u6307\u5c16","emoji":"\ud83e\udd0f"},"fist":{"cn":"\u62f3\u5934","emoji":"\ud83d\udc4a"},"flashed":{"cn":"\u7a81\u7136\u4eae\u8d77","emoji":"\u2728"},"flashlights":{"cn":"\u624b\u7535\u7b52","emoji":"\ud83d\udd26","gold":true},"flexed":{"cn":"\u5f2f\u66f2\u6536\u7f29","emoji":"\ud83d\udcaa","gold":true},"flicker":{"cn":"\u95ea\u70c1","emoji":"\ud83d\udd6f\ufe0f"},"flue":{"cn":"\u70df\u9053","emoji":"\ud83c\udfed","gold":true},"fluorescent":{"cn":"\u8367\u5149\u8272\u7684","emoji":"\ud83d\udfe0"},"footsteps":{"cn":"\u811a\u6b65\u58f0","emoji":"\ud83d\udc63"},"forensic":{"cn":"\u6cd5\u533b\u7684","emoji":"\ud83d\udd2c"},"fortified":{"cn":"\u52a0\u56fa\u7684","emoji":"\ud83d\udee1\ufe0f"},"fourteen":{"cn":"\u5341\u56db","emoji":"\ud83d\udd22"},"framed":{"cn":"\u6846\u4f4f","emoji":"\ud83d\uddbc\ufe0f"},"froze":{"cn":"\u50f5\u4f4f\u4e0d\u52a8","emoji":"\ud83e\uddca"},"gasped":{"cn":"\u5012\u62bd\u4e00\u53e3\u6c14","emoji":"\ud83d\ude2e","gold":true},"gazed":{"cn":"\u51dd\u89c6","emoji":"\ud83d\udc41\ufe0f","gold":true},"glare":{"cn":"\u523a\u773c\u7684\u5149","emoji":"\ud83d\udd06"},"glazed":{"cn":"\u5446\u6ede\u65e0\u795e","emoji":"\ud83d\ude36"},"glowed":{"cn":"\u53d1\u5149","emoji":"\ud83c\udf1f","gold":true},"grasp":{"cn":"\u7d27\u7d27\u6293\u4f4f","emoji":"\u270a"},"grate":{"cn":"\u6696\u6c14\u683c\u6805","emoji":"\ud83d\udd32"},"greenish":{"cn":"\u6de1\u7eff\u8272\u7684","emoji":"\ud83d\udfe2","gold":true},"grille":{"cn":"\u901a\u98ce\u683c\u6805","emoji":"\ud83d\udd33"},"grunting":{"cn":"\u5495\u54dd\u58f0","emoji":"\ud83d\udc17","gold":true},"hallways":{"cn":"\u8d70\u5eca","emoji":"\ud83c\udfe2"},"halt":{"cn":"\u7a81\u7136\u505c\u4e0b","emoji":"\u270b"},"hammered":{"cn":"\u5267\u70c8\u8df3\u52a8","emoji":"\ud83d\udc93"},"happenings":{"cn":"\u602a\u4e8b","emoji":"\ud83d\udc7b"},"hardwood":{"cn":"\u786c\u6728\u5730\u677f","emoji":"\ud83e\udeb5"},"hazel":{"cn":"\u6de1\u8910\u8272\u7684","emoji":"\ud83d\udfe4"},"heartbeat":{"cn":"\u5fc3\u8df3","emoji":"\u2764\ufe0f"},"hedges":{"cn":"\u6811\u7bf1","emoji":"\ud83c\udf33"},"helpless":{"cn":"\u65e0\u52a9\u7684","emoji":"\ud83d\ude14"},"hers":{"cn":"\u5979\u7684\u4e1c\u897f","emoji":"\ud83d\udc69"},"hesitated":{"cn":"\u72b9\u8c6b","emoji":"\ud83e\udd14"},"histories":{"cn":"\u6848\u5377\u8bb0\u5f55","emoji":"\ud83d\udcdc"},"hurrying":{"cn":"\u5306\u5fd9\u8d76\u8def","emoji":"\ud83c\udfc3","gold":true},"imagining":{"cn":"\u60f3\u8c61","emoji":"\ud83d\udcad"},"impossibly":{"cn":"\u4e0d\u53ef\u601d\u8bae\u5730","emoji":"\u2757","gold":true},"imprisoned":{"cn":"\u88ab\u5173\u62bc\u7684","emoji":"\ud83d\udd12"},"impurities":{"cn":"\u6742\u8d28","emoji":"\ud83e\uddea"},"inhuman":{"cn":"\u975e\u4eba\u7684","emoji":"\ud83d\udc79"},"instinct":{"cn":"\u672c\u80fd","emoji":"\ud83e\udde0"},"joists":{"cn":"\u5929\u82b1\u677f\u6a2a\u6881","emoji":"\ud83e\udeb5","gold":true},"killers":{"cn":"\u6740\u624b","emoji":"\ud83d\udd2a"},"kindling":{"cn":"\u5f15\u706b\u67f4","emoji":"\ud83d\udd25","gold":true},"knob":{"cn":"\u95e8\u628a\u624b","emoji":"\ud83d\udeaa"},"leaned":{"cn":"\u501a\u9760\u7740","emoji":"\ud83d\udcd0"},"livers":{"cn":"\u809d\u810f","emoji":"\ud83e\udec0","gold":true},"lizard":{"cn":"\u8725\u8734","emoji":"\ud83e\udd8e"},"lowered":{"cn":"\u653e\u4f4e","emoji":"\u2b07\ufe0f"},"mattress":{"cn":"\u5e8a\u57ab","emoji":"\ud83d\udecf\ufe0f"},"methodically":{"cn":"\u6709\u6761\u4e0d\u7d0a","emoji":"\ud83d\udccb","gold":true},"monotone":{"cn":"\u5355\u8c03\u8bed\u6c14","emoji":"\ud83d\ude10","gold":true},"mound":{"cn":"\u4e00\u5806","emoji":"\u26f0\ufe0f"},"murdering":{"cn":"\u8c0b\u6740","emoji":"\ud83d\udd2a"},"mutant":{"cn":"\u53d8\u79cd\u4eba","emoji":"\ud83d\udc7d"},"muttered":{"cn":"\u5495\u54dd\u7740\u8bf4","emoji":"\ud83d\uddef\ufe0f","gold":true},"necklace":{"cn":"\u9879\u94fe","emoji":"\ud83d\udcff"},"nodded":{"cn":"\u70b9\u5934","emoji":"\u2705"},"obsessive":{"cn":"\u75f4\u8ff7\u7684","emoji":"\ud83d\udd01"},"outline":{"cn":"\u8f6e\u5ed3","emoji":"\ud83d\udc64"},"overalls":{"cn":"\u5de5\u4f5c\u670d","emoji":"\ud83d\udc56","gold":true},"overhead":{"cn":"\u5934\u9876\u4e0a\u65b9","emoji":"\u2b06\ufe0f"},"overlapped":{"cn":"\u91cd\u53e0","emoji":"\ud83d\udd04","gold":true},"paced":{"cn":"\u8e31\u6b65","emoji":"\ud83d\udeb6"},"paralysed":{"cn":"\u5413\u5f97\u52a8\u5f39\u4e0d\u5f97","emoji":"\ud83e\udd76","gold":true},"parked":{"cn":"\u505c\u8f66","emoji":"\ud83c\udd7f\ufe0f"},"paused":{"cn":"\u505c\u987f","emoji":"\u23f8\ufe0f"},"pedal":{"cn":"\u6cb9\u95e8\u8e0f\u677f","emoji":"\ud83e\uddb5"},"peeled":{"cn":"\u5265\u843d","emoji":"\ud83c\udfa8"},"pendant":{"cn":"\u540a\u5760","emoji":"\ud83d\udcff"},"phenomena":{"cn":"\u5947\u5f02\u73b0\u8c61","emoji":"\ud83d\udc7b"},"pinning":{"cn":"\u538b\u5236\u4f4f","emoji":"\ud83d\udccc"},"pipes":{"cn":"\u7ba1\u9053","emoji":"\ud83d\udeb0"},"possesses":{"cn":"\u5177\u6709","emoji":"\ud83e\udd32"},"poured":{"cn":"\u5012\u5165","emoji":"\ud83e\uded7"},"predator":{"cn":"\u6355\u98df\u8005","emoji":"\ud83d\udc06"},"psychiatric":{"cn":"\u7cbe\u795e\u75c5\u7684","emoji":"\ud83c\udfe5"},"punched":{"cn":"\u6572\u51fb\u8f93\u5165","emoji":"\u2328\ufe0f"},"purse":{"cn":"\u624b\u63d0\u5305","emoji":"\ud83d\udc5b"},"puzzled":{"cn":"\u56f0\u60d1\u7684","emoji":"\ud83d\ude15"},"raced":{"cn":"\u98de\u5954","emoji":"\ud83c\udfc3\u200d\u2640\ufe0f"},"rang":{"cn":"\u54cd\u8d77","emoji":"\ud83d\udd14"},"recapture":{"cn":"\u91cd\u6e29\u611f\u89c9","emoji":"\ud83d\udd01"},"rectangular":{"cn":"\u957f\u65b9\u5f62\u7684","emoji":"\u25ad"},"reel":{"cn":"\u611f\u5230\u7729\u6655\u9707\u60ca","emoji":"\ud83d\ude35"},"restorative":{"cn":"\u6062\u590d\u5143\u6c14\u7684","emoji":"\ud83d\udc8a","gold":true},"ringing":{"cn":"\u54cd\u94c3","emoji":"\ud83d\udd14"},"robe":{"cn":"\u7761\u888d","emoji":"\ud83d\udc58"},"rosemary":{"cn":"\u8ff7\u8fed\u9999","emoji":"\ud83c\udf3f"},"rotting":{"cn":"\u8150\u70c2\u7684","emoji":"\ud83c\udf42"},"rushed":{"cn":"\u6025\u5954","emoji":"\ud83d\udca8"},"saliva":{"cn":"\u553e\u6db2","emoji":"\ud83e\udd24"},"scaling":{"cn":"\u6500\u722c","emoji":"\ud83e\uddd7"},"scent":{"cn":"\u6c14\u5473","emoji":"\ud83d\udc43"},"scratching":{"cn":"\u6293\u6320","emoji":"\ud83d\udc85"},"screws":{"cn":"\u87ba\u4e1d","emoji":"\ud83d\udd29"},"sensors":{"cn":"\u4f20\u611f\u5668","emoji":"\ud83d\udce1"},"shattering":{"cn":"\u7c89\u788e\u7684","emoji":"\ud83e\ude9f"},"shelves":{"cn":"\u67b6\u5b50","emoji":"\ud83d\uddc4\ufe0f"},"shining":{"cn":"\u95ea\u95ea\u53d1\u5149","emoji":"\u2728"},"shiny":{"cn":"\u53d1\u4eae\u7684","emoji":"\u2728"},"shiver":{"cn":"\u98a4\u6296","emoji":"\ud83e\udd76"},"shone":{"cn":"\u7167\u4eae\u53d1\u5149","emoji":"\u2728"},"shouted":{"cn":"\u5927\u558a","emoji":"\ud83d\udce2"},"shredded":{"cn":"\u6495\u788e\u7684","emoji":"\u2702\ufe0f"},"shrugged":{"cn":"\u8038\u80a9","emoji":"\ud83e\udd37"},"sickening":{"cn":"\u4ee4\u4eba\u4f5c\u5455","emoji":"\ud83e\udd22"},"sidewalks":{"cn":"\u4eba\u884c\u9053","emoji":"\ud83d\udeb6"},"silently":{"cn":"\u6084\u6084\u5730","emoji":"\ud83e\udd2b"},"sixty":{"cn":"\u516d\u5341","emoji":"\ud83d\udd22"},"skinny":{"cn":"\u7626\u524a\u7684","emoji":"\ud83e\uddb4"},"slammed":{"cn":"\u731b\u5730\u5173\u4e0a","emoji":"\ud83d\udca5"},"slides":{"cn":"\u5e7b\u706f\u7247","emoji":"\ud83d\uddbc\ufe0f"},"slimy":{"cn":"\u9ecf\u7cca\u7cca\u7684","emoji":"\ud83d\udc0c"},"slipped":{"cn":"\u6323\u8131\u6ed1\u5f00","emoji":"\ud83d\udedd"},"slowed":{"cn":"\u653e\u6162","emoji":"\ud83d\udc22"},"snapped":{"cn":"\u731b\u5730\u8f6c\u8eab","emoji":"\ud83d\udca2"},"socket":{"cn":"\u5173\u8282\u7a9d","emoji":"\ud83e\uddb4"},"speedily":{"cn":"\u8fc5\u901f\u5730","emoji":"\ud83d\udca8","gold":true},"spilled":{"cn":"\u6d12\u51fa","emoji":"\ud83d\udca6"},"splattered":{"cn":"\u6e85\u5f97\u5230\u5904\u90fd\u662f","emoji":"\ud83e\ude78","gold":true},"splinter":{"cn":"\u649e\u88c2","emoji":"\ud83e\udeb5"},"squeeze":{"cn":"\u6324\u538b\u6324\u8fdb","emoji":"\ud83e\udd0f"},"stained":{"cn":"\u6709\u6c61\u6e0d\u7684","emoji":"\ud83d\udfe4"},"stank":{"cn":"\u53d1\u51fa\u81ed\u5473","emoji":"\ud83e\udd2e","gold":true},"stared":{"cn":"\u76ef\u7740\u770b","emoji":"\ud83d\ude33"},"steaming":{"cn":"\u5192\u70ed\u6c14\u7684","emoji":"\u2668\ufe0f"},"stretched":{"cn":"\u4f38\u5c55\u62c9\u957f","emoji":"\ud83d\ude46"},"striped":{"cn":"\u6709\u6761\u7eb9\u7684","emoji":"\ud83d\udfe5"},"stylus":{"cn":"\u8bb0\u5f55\u7b14","emoji":"\u270f\ufe0f","gold":true},"sufficiently":{"cn":"\u8db3\u591f\u5730","emoji":"\u2705"},"suicides":{"cn":"\u81ea\u6740\u6848","emoji":"\ud83d\ude14"},"swiftly":{"cn":"\u8fc5\u901f\u5730","emoji":"\ud83d\udca8"},"swung":{"cn":"\u6446\u52a8","emoji":"\ud83d\udd04"},"taps":{"cn":"\u6c34\u9f99\u5934","emoji":"\ud83d\udeb0"},"terribly":{"cn":"\u975e\u5e38\u7cdf\u7cd5\u5730","emoji":"\ud83d\ude16"},"terrified":{"cn":"\u6781\u5ea6\u5bb3\u6015","emoji":"\ud83d\ude31"},"testify":{"cn":"\u8868\u660e\u4f5c\u8bc1","emoji":"\u2696\ufe0f"},"tighten":{"cn":"\u6536\u7d27","emoji":"\ud83d\udd27"},"tightly":{"cn":"\u7d27\u7d27\u5730","emoji":"\ud83d\udd12"},"tore":{"cn":"\u6495\u5f00","emoji":"\ud83d\udcc3"},"tossed":{"cn":"\u6254\u6389","emoji":"\ud83d\uddd1\ufe0f"},"trance":{"cn":"\u604d\u60da\u72b6\u6001","emoji":"\ud83c\udf00"},"tray":{"cn":"\u6258\u76d8","emoji":"\ud83c\udf7d\ufe0f"},"tremor":{"cn":"\u98a4\u6296","emoji":"\ud83d\udcf3"},"trickle":{"cn":"\u7ec6\u6d41","emoji":"\ud83d\udca7"},"trophies":{"cn":"\u6218\u5229\u54c1","emoji":"\ud83c\udfc6"},"troubled":{"cn":"\u5fe7\u8651\u7684","emoji":"\ud83d\ude1f"},"tweezers":{"cn":"\u954a\u5b50","emoji":"\ud83d\udd27","gold":true},"undetermined":{"cn":"\u672a\u786e\u5b9a\u7684","emoji":"\ud83e\udd37","gold":true},"undress":{"cn":"\u8131\u8863\u670d","emoji":"\ud83d\udc57","gold":true},"unexplained":{"cn":"\u65e0\u6cd5\u89e3\u91ca","emoji":"\u2753"},"unrelated":{"cn":"\u4e0d\u76f8\u5173\u7684","emoji":"\ud83d\udd00"},"unusually":{"cn":"\u5f02\u5e38\u5730","emoji":"\u2757"},"uppercut":{"cn":"\u4e0a\u52fe\u62f3","emoji":"\ud83d\udc4a","gold":true},"upstairs":{"cn":"\u697c\u4e0a","emoji":"\ud83e\ude9c"},"varying":{"cn":"\u5404\u4e0d\u76f8\u540c","emoji":"\ud83c\udfb2"},"veins":{"cn":"\u8840\u7ba1","emoji":"\ud83e\ude78"},"vent":{"cn":"\u901a\u98ce\u53e3","emoji":"\ud83c\udf00"},"ventilation":{"cn":"\u901a\u98ce\u7cfb\u7edf","emoji":"\ud83c\udf2c\ufe0f"},"vicious":{"cn":"\u51f6\u6b8b\u7684","emoji":"\ud83d\ude08"},"violently":{"cn":"\u731b\u70c8\u5730","emoji":"\ud83d\udca2"},"widened":{"cn":"\u7741\u5927\u773c\u775b","emoji":"\ud83d\udc40"},"wires":{"cn":"\u7535\u7ebf","emoji":"\ud83d\udd0c"},"wished":{"cn":"\u5e0c\u671b","emoji":"\ud83d\ude4f"},"wrestle":{"cn":"\u6323\u8131\u640f\u6597","emoji":"\ud83e\udd3c"},"wrists":{"cn":"\u624b\u8155","emoji":"\u270b"}};
+const SECTIONS = {"\u7b2c\u4e00\u5e55 \u00b7 \u79bb\u5947\u547d\u6848":{"cn":"\u7b2c\u4e00\u5e55 \u00b7 \u79bb\u5947\u547d\u6848","icon":"\ud83d\udd75"},"\u7b2c\u4e8c\u5e55 \u00b7 \u602a\u7269\u73b0\u5f62":{"cn":"\u7b2c\u4e8c\u5e55 \u00b7 \u602a\u7269\u73b0\u5f62","icon":"\ud83e\uddec"},"\u7b2c\u4e09\u5e55 \u00b7 \u6b8a\u6b7b\u8ffd\u6355":{"cn":"\u7b2c\u4e09\u5e55 \u00b7 \u6b8a\u6b7b\u8ffd\u6355","icon":"\ud83d\udd26"}};
+const META = {"title":"X-FILES: SQUEEZE","subtitle":"\u9605\u8bfb\u5927\u5192\u9669 \u00b7 FBI\u63a2\u5458\u8ffd\u6355\u53d8\u5f02\u51f6\u624b","bolt":"\ud83d\udd26\ud83d\udc41\ud83e\uddec","pageTitle":"The X-Files: Squeeze \u00b7 X\u6863\u6848\u4e4b\u7a81\u53d8\u5f02\u79cd","saveKey":"xfiles_game_v1","bookId":"xfiles"};   // { title, subtitle, bolt, saveKey }
+const PREDICTIONS = [];   // 先猜后揭晓
+
+/* =====================================================
+   存档
+   ===================================================== */
+const SAVE_KEY = (META && META.saveKey) || "reading_game_v1";
+const BOOK_ID = (META && META.bookId) || SAVE_KEY;
+let save = { done:{}, stars:{}, words:{}, slow:false };
+try { const s = localStorage.getItem(SAVE_KEY); if (s) save = Object.assign(save, JSON.parse(s)); } catch(e){}
+function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){} }
+
+/* ===== 跨书成长数据(全站共享, 书架中枢也读它) ===== */
+const HUB_KEY = "reading_hub_v1";
+function hubLoad(){ try{ return JSON.parse(localStorage.getItem(HUB_KEY)) || {}; }catch(e){ return {}; } }
+function hubSave(h){ try{ localStorage.setItem(HUB_KEY, JSON.stringify(h)); }catch(e){} }
+function ymd(d){ return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+function todayStr(){ return ymd(new Date()); }
+function markStreak(){                       // 每天首次阅读活动记一次连读
+  const h = hubLoad(); const t = todayStr();
+  h.streak = h.streak || { last:null, count:0, best:0 };
+  if (h.streak.last !== t){
+    const y = new Date(); y.setDate(y.getDate()-1);
+    h.streak.count = (h.streak.last === ymd(y)) ? (h.streak.count+1) : 1;
+    h.streak.last = t; h.streak.best = Math.max(h.streak.best||0, h.streak.count);
+    hubSave(h);
+  }
+  return h.streak.count;
+}
+function recordWords(chId, words){           // 通关某章 → 累计跨书阅读词数(每章只计一次)
+  const h = hubLoad();
+  h.words = h.words || {}; h.words[BOOK_ID] = h.words[BOOK_ID] || {};
+  if (!h.words[BOOK_ID][chId]){ h.words[BOOK_ID][chId] = words; hubSave(h); }
+}
+function totalWordsRead(){
+  const h = hubLoad(); let n = 0;
+  for (const b in (h.words||{})) for (const c in h.words[b]) n += h.words[b][c] || 0;
+  return n;
+}
+function kidName(){ return (hubLoad().kidName) || ""; }
+
+let cur = 0, qIdx = 0, wrongCount = 0, quizLock = false;
+
+function $(id){ return document.getElementById(id); }
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._tm); t._tm = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+function stripMarks(s){ return s.replace(/\{([^}]*)\}/g, "$1"); }
+
+/* =====================================================
+   朗读引擎 TTS —— 三层保障:
+   1) 本地 speechSynthesis(优选英文音色, 分句排队, 防长文本被浏览器掐断)
+   2) 本地不出声 → 自动切换在线发音(有道 dictvoice, 需联网)
+   3) 都不行 → 提示换浏览器
+   ===================================================== */
+const TTS = {
+  voices: [], mode: "auto",    // auto | local | online | dead
+  player: null, queue: [], playing: false, keepAlive: null, curPara: -1, unlocked: false
+};
+const IN_WECHAT = /MicroMessenger/i.test(navigator.userAgent || "");
+function ttsInit(){
+  if (!("speechSynthesis" in window) || IN_WECHAT) { TTS.mode = "online"; }
+  if (!("speechSynthesis" in window)) return;
+  const load = ()=>{ try{ TTS.voices = speechSynthesis.getVoices() || []; }catch(e){} };
+  load();
+  try{ speechSynthesis.onvoiceschanged = load; }catch(e){}
+  setTimeout(load, 500); setTimeout(load, 2000);
+}
+/* 移动端/微信自动播放限制: 用户第一次触屏时"解锁"音频通道,
+   之后延迟触发的在线发音才允许出声 */
+const SILENT_WAV = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+function ensurePlayer(){
+  if (!TTS.player) TTS.player = new Audio();
+  return TTS.player;
+}
+function unlockAudio(){
+  if (TTS.unlocked) return;
+  TTS.unlocked = true;
+  try{ const p = ensurePlayer(); p.src = SILENT_WAV; p.play().catch(()=>{ TTS.unlocked = false; }); }catch(e){}
+  try{
+    if ("speechSynthesis" in window){
+      const u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u);
+    }
+  }catch(e){}
+}
+document.addEventListener("touchend", unlockAudio, true);
+document.addEventListener("click", unlockAudio, true);
+function pickVoice(){
+  const vs = TTS.voices;
+  return vs.find(v=>/en[-_]US/i.test(v.lang) && /google|natural|online/i.test(v.name))
+      || vs.find(v=>/en[-_]US/i.test(v.lang))
+      || vs.find(v=>/^en/i.test(v.lang)) || null;
+}
+function splitSentences(text){
+  const parts = (text.match(/[^.!?]+[.!?”"']*\s*/g) || [text]).map(s=>s.trim()).filter(Boolean);
+  // 合并过短的句子, 控制每段 ≤ 190 字符(在线接口和本地引擎都友好)
+  const out = [];
+  let buf = "";
+  for (const p of parts){
+    if ((buf + " " + p).length > 190 && buf) { out.push(buf.trim()); buf = p; }
+    else buf = buf ? buf + " " + p : p;
+  }
+  if (buf.trim()) out.push(buf.trim());
+  return out;
+}
+function rate(){ return save.slow ? 0.7 : 0.88; }
+/* 预录音频的播放倍速: 原速播放(语速不变); 句间停顿靠剪静音+预加载解决 */
+function playSpeed(){ return save.slow ? 0.8 : 1.0; }
+
+/* 把一段文本切成"自然句子"(与 gen_audio.py 完全一致的切法),不做合并 */
+function splitSents(text){
+  const raw = text.match(/[^.!?]+[.!?]*["'”’]*/g) || [text];
+  const out = [];
+  for (let s of raw){
+    s = s.trim(); if (!s) continue;
+    if (!/[A-Za-z0-9]/.test(s) && out.length) out[out.length - 1] += " " + s;
+    else out.push(s);
+  }
+  return out;
+}
+function stopAll(){
+  if (RS){ clearTimeout(RS._gap); }
+  RS = null;
+  TTS.playing = false; TTS.queue = [];
+  clearInterval(TTS.keepAlive);
+  try{ speechSynthesis.cancel(); }catch(e){}
+  if (TTS.player){ try{ TTS.player.pause(); TTS.player.onended = null; }catch(e){} }
+  highlightSent(null);
+  setPauseUI();
+}
+/* 高亮"正在读的那一句" */
+function highlightSent(it){
+  document.querySelectorAll(".story-card .sent.speaking").forEach(e=>e.classList.remove("speaking"));
+  if (!it) return;
+  const el = document.querySelector('.sent[data-pi="' + it.pi + '"][data-si="' + it.si + '"]');
+  if (el){ el.classList.add("speaking"); try{ el.scrollIntoView({behavior:"smooth", block:"center"}); }catch(e){} }
+}
+/* 记录某段"已听完",全部段落听完才解锁答题 */
+function markHeard(i){
+  if (i < 0 || cur == null) return;
+  const ch = BOOK[cur];
+  heardSet.add(i);
+  save.heard = save.heard || {};
+  save.heard[ch.id] = Array.from(heardSet);
+  bumpRead(i + 1);                 // 听完某段也算读过
+  persist();
+  updateQuizGate();
+}
+let heardSet = new Set();
+
+/* ===== 阅读进度: 记住读到第几段 + 标记已读段落 ===== */
+let readPos = 0;                   // 本章已读到的段落数(0..N), 段 i 已读 <=> i < readPos
+function saveReadPos(){
+  if (cur == null) return;
+  save.read = save.read || {};
+  save.read[BOOK[cur].id] = readPos;
+  persist();
+}
+function paintRead(){
+  document.querySelectorAll("#story-body p[data-pi]").forEach(p=>{
+    p.classList.toggle("read", (+p.dataset.pi) < readPos);
+  });
+}
+function bumpRead(n){
+  if (n > readPos){ readPos = n; saveReadPos(); paintRead(); updateQuizGate(); }
+}
+let _scrollT = 0;
+function onReadScroll(){
+  if (!$("scr-read").classList.contains("active")) return;
+  const now = Date.now();
+  if (now - _scrollT < 180) return; _scrollT = now;
+  const line = window.innerHeight * 0.5;    // 段落底部越过屏幕中线 = 读完这段
+  let fp = readPos;
+  document.querySelectorAll("#story-body p[data-pi]").forEach(p=>{
+    if (p.getBoundingClientRect().bottom < line){ const pi = (+p.dataset.pi) + 1; if (pi > fp) fp = pi; }
+  });
+  bumpRead(fp);
+}
+window.addEventListener("scroll", onReadScroll, { passive:true });
+/* 读过或听过都算"走过这一章": readPos 由滚动阅读和逐句朗读共同推进 */
+function goneThrough(){
+  if (!BOOK[cur]) return 0;
+  return Math.max(readPos, heardSet.size);   // 两者取大, 稳妥
+}
+function allHeard(){
+  return BOOK[cur] && goneThrough() >= BOOK[cur].paras.length;
+}
+function updateQuizGate(){
+  const btn = $("btn-quiz");
+  if (!btn || cur == null) return;
+  const ch = BOOK[cur];
+  const done = !!save.done[ch.id];       // 已通关章节不再限制
+  if (done || allHeard()){
+    btn.textContent = "✅ 我读完了，去答题";
+    btn.style.opacity = "1";
+  } else {
+    const left = Math.max(0, ch.paras.length - goneThrough());
+    btn.textContent = "🔒 读完/听完故事就能答题（还剩 " + left + " 段）";
+    btn.style.opacity = ".6";
+  }
+}
+
+/* 本地引擎播放; onFail 在完全没出声时触发 */
+function speakLocal(sentences, onFail, onDone){
+  try{ speechSynthesis.cancel(); }catch(e){ onFail && onFail(); return; }
+  let started = false, finished = 0;
+  const total = sentences.length;
+  sentences.forEach(s=>{
+    const u = new SpeechSynthesisUtterance(s);
+    u.lang = "en-US"; u.rate = rate();
+    const v = pickVoice(); if (v) u.voice = v;
+    u.onstart = ()=>{ started = true; TTS.mode = "local"; };
+    u.onend = ()=>{ finished++; if (finished >= total && onDone) onDone(); };
+    try{ speechSynthesis.speak(u); }catch(e){}
+  });
+  /* Chrome 桌面版 15 秒掐断长朗读的经典 bug: 周期性 resume 保活 */
+  clearInterval(TTS.keepAlive);
+  TTS.keepAlive = setInterval(()=>{
+    try{
+      if (!speechSynthesis.speaking){ clearInterval(TTS.keepAlive); }
+      else { speechSynthesis.resume(); }
+    }catch(e){}
+  }, 10000);
+  /* 3 秒还没出声 → 判定本地引擎不可用 */
+  setTimeout(()=>{
+    if (!started){
+      try{ speechSynthesis.cancel(); }catch(e){}
+      clearInterval(TTS.keepAlive);
+      onFail && onFail();
+    }
+  }, 3000);
+}
+
+/* 预录音频(与游戏同源托管的 mp3, 最稳的通道) */
+const AUDIO_BASE = "audio/";
+function slug(w){
+  const s = w.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  return s || "x";
+}
+function detectAudio(){
+  try{
+    fetch(AUDIO_BASE + "test.mp3", {method:"HEAD"})
+      .then(r=>{ TTS.hasAudio = !!r.ok; })
+      .catch(()=>{});
+  }catch(e){}
+}
+function playFile(url, onDone, onFail){
+  const p = ensurePlayer();
+  TTS.playing = true;
+  p.src = url;
+  p.playbackRate = playSpeed();
+  p.onended = ()=>{ TTS.playing = false; onDone && onDone(); };
+  p.onerror = ()=>{ TTS.playing = false; onFail && onFail(); };
+  p.play().then(()=>{ TTS.lastErr = ""; TTS.hasAudio = true; }).catch(err=>{
+    TTS.playing = false; TTS.lastErr = "play:" + (err && err.name || "blocked");
+    toast("请再点一次 🔊,并确认媒体音量已调大");
+  });
+}
+
+/* 在线发音(有道词典接口, 需联网; 复用同一个已解锁的 Audio 元素) */
+function speakOnline(sentences, onDone, onFail){
+  TTS.queue = sentences.slice(); TTS.playing = true;
+  const p = ensurePlayer();
+  p.playbackRate = playSpeed();
+  const next = ()=>{
+    if (!TTS.playing) return;
+    if (!TTS.queue.length){ TTS.playing = false; onDone && onDone(); return; }
+    const s = TTS.queue.shift();
+    p.src = "https://dict.youdao.com/dictvoice?type=2&audio=" + encodeURIComponent(s);
+    p.onended = next;
+    p.onerror = ()=>{ TTS.playing = false; TTS.lastErr = "online:loaderror";
+      if (onFail) onFail(); else toast("在线朗读失败:请检查网络;首页有[声音检测]可排查"); };
+    p.play().catch(err=>{ TTS.playing = false; TTS.lastErr = "play:" + (err && err.name || "blocked");
+      toast("请再点一次 🔊,并把媒体音量调大"); });
+  };
+  next();
+}
+
+/* 统一入口: 依次尝试 预录音频 → 本地引擎 → 在线发音;
+   用户在[声音检测]里手动固定过模式则只走该通道(音频模式保留在线兜底) */
+function speak(text, onDone, hint){
+  stopAll();
+  const forced = (save.ttsMode && save.ttsMode !== "auto") ? save.ttsMode : null;
+  const sentences = splitSentences(text || "");
+  /* 有预录音频就直接先试播,加载失败会自动落到下一通道,
+     不再依赖启动时的 hasAudio 探测(某些环境探测请求会被拦而播放正常) */
+  const url = hint
+    ? AUDIO_BASE + (hint.file ? hint.file : "w/" + slug(hint.word) + ".mp3")
+    : null;
+  const chain = [];
+  if (url && (!forced || forced === "recorded"))
+    chain.push(fail=>playFile(url, onDone, fail));
+  if (sentences.length && (!forced || forced === "local"))
+    chain.push(fail=>speakLocal(sentences, fail, onDone));
+  if (sentences.length && (!forced || forced === "online" || forced === "recorded"))
+    chain.push(fail=>speakOnline(sentences, onDone, fail));
+  if (!chain.length) return;
+  const step = i=>{
+    if (i >= chain.length){ toast("朗读失败:请到首页[声音检测]排查"); return; }
+    chain[i](()=>step(i + 1));
+  };
+  step(0);
+}
+
+/* ============ 逐句朗读引擎(支持暂停/继续) ============ */
+let RS = null;   // { items:[{pi,si,file,text}], pos, paused }
+function sentFile(ch, pi, si){ return "s/" + ch.id + "_" + pi + "_" + si + ".mp3"; }
+function buildItems(paraIdxs){
+  const ch = BOOK[cur]; const items = [];
+  paraIdxs.forEach(pi=>{
+    const sents = splitSents(ch.paras[pi]);
+    sents.forEach((s, si)=>items.push({ pi, si, file: sentFile(ch, pi, si), text: stripMarks(s) }));
+  });
+  return items;
+}
+function paraSentCount(pi){ return splitSents(BOOK[cur].paras[pi]).length; }
+function setPauseUI(){
+  const b = $("btn-pause"); if (!b) return;
+  b.textContent = (RS && RS.paused) ? "▶️ 继续" : "⏸ 暂停";
+}
+function readItems(items, startPos){
+  stopAll();
+  if (!items.length) return;
+  RS = { items: items, pos: startPos || 0, paused: false };
+  setPauseUI();
+  rsStep();
+}
+function rsStep(){
+  if (!RS || RS.paused) return;
+  if (RS.pos >= RS.items.length){ RS = null; highlightSent(null); setPauseUI(); return; }
+  const it = RS.items[RS.pos];
+  highlightSent(it);
+  prefetchNext();                        // 预加载下一句, 缩短句间加载停顿
+  speakSentence(it, ()=>{
+    if (it.si === paraSentCount(it.pi) - 1) markHeard(it.pi);   // 该段最后一句读完 → 记已听
+    if (!RS || RS.paused) return;
+    RS.pos++;
+    // 句间留一点换气停顿(慢速时更长), 高亮先跳到下一句让孩子准备
+    const gap = save.slow ? 620 : 380;
+    if (RS.pos < RS.items.length) highlightSent(RS.items[RS.pos]);
+    RS._gap = setTimeout(()=>{ if (RS && !RS.paused) rsStep(); }, gap);
+  });
+}
+function prefetchNext(){
+  const nx = RS && RS.items[RS.pos + 1];
+  if (!nx || !nx.file) return;
+  try{ const a = new Audio(); a.preload = "auto"; a.src = AUDIO_BASE + nx.file; TTS._pre = a; }catch(e){}
+}
+/* 播放单句:预录音频 → 本地引擎 → 在线,任一成功即止 */
+function speakSentence(it, onDone){
+  const forced = (save.ttsMode && save.ttsMode !== "auto") ? save.ttsMode : null;
+  const chain = [];
+  if (!forced || forced === "recorded") chain.push(fail=>playFile(AUDIO_BASE + it.file, onDone, fail));
+  if (!forced || forced === "local")    chain.push(fail=>speakLocal([it.text], fail, onDone));
+  if (!forced || forced === "online" || forced === "recorded") chain.push(fail=>speakOnline([it.text], onDone, fail));
+  const step = i=>{ if (i >= chain.length){ toast("朗读失败:请到首页[声音检测]排查"); return; } chain[i](()=>step(i + 1)); };
+  step(0);
+}
+function pauseToggle(){
+  if (!RS){ readAloud(); return; }        // 没在读 → 直接开始读
+  if (RS.paused) readResume(); else readPause();
+}
+function readPause(){
+  if (!RS) return;
+  RS.paused = true;
+  clearTimeout(RS._gap);
+  try{ if (TTS.player) TTS.player.pause(); }catch(e){}
+  try{ if ("speechSynthesis" in window) speechSynthesis.pause(); }catch(e){}
+  setPauseUI();
+}
+function readResume(){
+  if (!RS) return;
+  RS.paused = false;
+  clearTimeout(RS._gap);
+  setPauseUI();
+  let resumed = false;
+  try{ if (TTS.player && TTS.player.src && TTS.player.paused){ TTS.player.play(); resumed = true; } }catch(e){}
+  try{ if ("speechSynthesis" in window && speechSynthesis.paused){ speechSynthesis.resume(); resumed = true; } }catch(e){}
+  if (!resumed) rsStep();                  // 暂停恰好卡在两句之间 → 直接接着下一句
+}
+function readAloud(){
+  const items = buildItems(BOOK[cur].paras.map((_, i)=>i));
+  // 从上次读到的段落之后开始读(已读过的不再重复); 整章读完过则从头再读
+  let start = 0;
+  if (readPos > 0 && readPos < BOOK[cur].paras.length){
+    const idx = items.findIndex(it => it.pi >= readPos);
+    if (idx > 0){ start = idx; toast("▶️ 从上次读到的地方接着读"); }
+  }
+  readItems(items, start);
+}
+function readPara(i){ readItems(buildItems([i]), 0); }
+function stopAloud(){ stopAll(); }
+function toggleRate(){
+  save.slow = !save.slow; persist();
+  $("btn-rate").textContent = save.slow ? "🐇 正常速" : "🐢 慢速";
+  toast(save.slow ? "已切换为慢速朗读 🐢" : "已切换为正常语速 🐇");
+}
+
+/* =====================================================
+   首页
+   ===================================================== */
+function isUnlocked(i){ return i === 0 || !!save.done[BOOK[i-1].id]; }
+function firstUndone(){
+  for (let i = 0; i < BOOK.length; i++) if (!save.done[BOOK[i].id]) return i;
+  return BOOK.length - 1;
+}
+function renderHome(){
+  const doneN = BOOK.filter(c=>save.done[c.id]).length;
+  const starN = Object.values(save.stars).reduce((a,b)=>a+b, 0);
+  const wordN = Object.keys(save.words).length;
+  $("st-ch").textContent = doneN + "/" + BOOK.length;
+  $("st-star").textContent = starN;
+  $("st-word").textContent = wordN;
+  $("prog-bar").style.width = Math.round(doneN / BOOK.length * 100) + "%";
+  $("prog-label").textContent = doneN === BOOK.length
+    ? "🎉 全书通关!你读完了一整本英文小说!"
+    : "整本书进度 " + Math.round(doneN / BOOK.length * 100) + "%";
+  $("btn-continue").textContent = doneN === 0 ? "▶️ 开始冒险" :
+    (doneN === BOOK.length ? "🎉 再玩一遍喜欢的章节" : "▶️ 继续冒险:" + BOOK[firstUndone()].title_cn);
+  $("wb-count").textContent = wordN ? "(" + wordN + ")" : "";
+
+  // 跨书成长横幅: 已读词数 + 连读天数; 全书通关时给证书入口
+  const h = hubLoad();
+  const streak = (h.streak && h.streak.last === todayStr()) ? h.streak.count : (h.streak ? 0 : 0);
+  const twr = totalWordsRead();
+  let banner = `📚 累计已读 <b>${twr}</b> 词`;
+  if (h.streak && h.streak.count > 0) banner += ` · 🔥 连读 <b>${h.streak.count}</b> 天`;
+  banner += `<div class="g-sub">读得越多，数字越大——这是你自己读出来的成绩单！</div>`;
+  if (doneN === BOOK.length){
+    banner += `<div style="margin-top:8px"><a class="shelf-link" style="background:#ffb300;color:#2b1a00;border:none" href="javascript:showCert()">🏅 领取本书通关证书</a></div>`;
+  }
+  $("growth-banner").innerHTML = banner;
+
+  const map = $("map"); map.innerHTML = "";
+  let lastSection = null;
+  const nextIdx = firstUndone();
+  BOOK.forEach((ch, i)=>{
+    if (ch.section !== lastSection){
+      lastSection = ch.section;
+      const s = SECTIONS[ch.section] || {cn: ch.section, icon: "📖"};
+      const h = document.createElement("div");
+      h.className = "section-head";
+      h.innerHTML = `<span class="s-icon">${s.icon}</span><span class="s-name">${s.cn}</span><span class="s-en">${ch.section}</span>`;
+      map.appendChild(h);
+    }
+    const unlocked = isUnlocked(i);
+    const done = !!save.done[ch.id];
+    const node = document.createElement("div");
+    node.className = "map-node" + (unlocked ? "" : " locked") + (i === nextIdx && unlocked && !done ? " next" : "");
+    const stars = done ? "★".repeat(save.stars[ch.id] || 1) : "";
+    node.innerHTML = `
+      <div class="icon">${ch.icon}</div>
+      <div class="info">
+        <div class="name">${ch.title_en}</div>
+        <div class="place">${ch.title_cn} · ${ch.words}词 ${done ? "" : "· " + ch.teaser_cn}</div>
+      </div>
+      <div class="state">${ done ? `<span class="badge-done">${stars}</span>` : (unlocked ? "▶️" : "🔒") }</div>`;
+    node.onclick = unlocked ? (()=>openChapter(i)) : (()=>toast("先完成上一章才能解锁哦 🔒"));
+    map.appendChild(node);
+  });
+}
+function continueGame(){ openChapter(firstUndone()); }
+function goHome(){ stopAll(); renderHome(); show("scr-home"); }
+function resetProgress(){
+  if (!confirm("确定要清空所有进度和单词册,重新开始吗?")) return;
+  save = { done:{}, stars:{}, words:{}, heard:{}, read:{}, guesses:{}, review:{}, slow: save.slow, ttsMode: save.ttsMode, fontIdx: save.fontIdx }; persist(); renderHome(); toast("已重新开始 ✨");
+}
+
+/* =====================================================
+   阅读页
+   ===================================================== */
+function openChapter(i){
+  stopAll();
+  cur = i;
+  markStreak();                    // 打开章节 = 今天有阅读活动
+  const ch = BOOK[i];
+  $("read-tag").textContent = ch.tag;
+  $("read-title").textContent = ch.title_en;
+  $("read-title-cn").textContent = ch.title_cn + " · " + ch.words + " 词";
+  $("btn-rate").textContent = save.slow ? "🐇 正常速" : "🐢 慢速";
+  const gwHtml = (frag)=>frag.replace(/\{([^}]+)\}/g, (m, w)=>{
+    const key = w.trim().toLowerCase();
+    const cls = save.words[key] ? " learned" : ((GLOSSARY[key]||{}).gold ? " gold" : "");
+    return `<span class="gw${cls}" data-w="${w.replace(/"/g,'&quot;')}">${w}</span>`;
+  });
+  const body = $("story-body");
+  body.innerHTML = ch.paras.map((par, pi)=>{
+    // 把段落切成句子, 每句包一个 .sent(供逐句高亮), 生词 gw 仍在句内
+    const sents = splitSents(par).map((s, si)=>
+      `<span class="sent" data-pi="${pi}" data-si="${si}">${gwHtml(s)}</span>`).join(" ");
+    return `<p data-pi="${pi}">${sents} <span class="pspk" data-p="${pi}">🔊</span></p>`;
+  }).join("");
+  body.querySelectorAll(".gw").forEach(el=>{ el.onclick = (ev)=>{ ev.stopPropagation(); showWordCard(el.dataset.w, el); }; });
+  body.querySelectorAll(".pspk").forEach(el=>{ el.onclick = (ev)=>{ ev.stopPropagation(); readPara(+el.dataset.p); }; });
+  // 恢复本章已听进度(持久化,重进不用重听)
+  save.heard = save.heard || {};
+  heardSet = new Set(save.heard[ch.id] || []);
+  // 恢复本章"读到哪"进度
+  save.read = save.read || {};
+  readPos = save.read[ch.id] || 0;
+  paintRead();
+  updateQuizGate();
+  applyFont();
+  show("scr-read");
+  // 上次没读完 → 自动滚回上次位置继续
+  if (readPos > 0 && readPos < ch.paras.length){
+    setTimeout(()=>{
+      const t = $("story-body").querySelector('p[data-pi="' + readPos + '"]');
+      if (t){ t.scrollIntoView({block:"center"}); toast("⏱ 已回到上次读到的地方，接着读吧"); }
+    }, 220);
+  } else {
+    window.scrollTo(0, 0);
+  }
+}
+function backToRead(){ openChapter(cur); }
+
+/* ---------- 单词卡 ---------- */
+function sentenceOf(word){
+  const ch = BOOK[cur];
+  const low = word.toLowerCase();
+  for (const par of ch.paras){
+    if (par.toLowerCase().indexOf("{" + low) === -1 &&
+        par.toLowerCase().indexOf(low) === -1) continue;
+    const plain = stripMarks(par);
+    const ss = plain.match(/[^.!?]+[.!?”"']*/g) || [plain];
+    for (const s of ss) if (s.toLowerCase().includes(low)) return s.trim();
+  }
+  return "";
+}
+function showWordCard(word, el){
+  const key = word.trim().toLowerCase();
+  const g = GLOSSARY[key] || { cn: "(点🔊听发音)", emoji: "⭐" };
+  const firstTime = !save.words[key];
+  if (firstTime){
+    save.words[key] = { ch: BOOK[cur].id };
+    persist();
+    if (el) el.classList.add("learned");
+  }
+  const eg = sentenceOf(word);
+  const card = $("word-card");
+  card.className = "word-card" + (g.gold ? " goldcard" : "");
+  card.innerHTML = `
+    <div class="w-emoji">${g.emoji}</div>
+    <div class="w-word">${word}</div>
+    <div class="w-cn">${g.cn}</div>
+    ${g.gold ? `<div class="w-goldtag">✨ 金色稀有生词</div>` : ""}
+    ${eg ? `<div class="w-eg">“${eg}”</div>` : ""}
+    <div class="w-collect">${firstTime ? (g.gold ? "🏆 收集到一个金色生词!" : "🎉 新单词已收进单词册!") : "✅ 已在单词册里"}</div>
+    <button class="btn btn-primary btn-block" id="w-speak">🔊 听发音</button>`;
+  $("w-speak").onclick = ()=>speak(word + (eg ? ". " + eg : ""), null, {word: key});
+  $("word-overlay").classList.add("show");
+  speak(word, null, {word: key});
+}
+function closeWordCard(ev){
+  if (ev.target.id === "word-overlay"){ $("word-overlay").classList.remove("show"); stopAll(); }
+}
+
+/* =====================================================
+   答题
+   ===================================================== */
+function tryStartQuiz(){
+  const ch = BOOK[cur];
+  if (!save.done[ch.id] && !allHeard()){
+    const left = Math.max(0, ch.paras.length - goneThrough());
+    toast("把故事读完或听完就能答题啦(还剩 " + left + " 段)~");
+    return;
+  }
+  startQuiz();
+}
+function startQuiz(){
+  stopAll();
+  qIdx = 0; wrongCount = 0; quizLock = false;
+  $("quiz-tag").textContent = BOOK[cur].tag + " · QUIZ";
+  renderQuestion();
+  show("scr-quiz");
+}
+const KIND_LABEL = { choice:"🔤 选一选", tf:"⚖️ 判断对错", fill:"✏️ 选词填空", who:"💬 谁说的？", order:"🔢 按顺序排一排" };
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function renderQuestion(){
+  const q = BOOK[cur].quiz[qIdx];
+  const type = q.type || "choice";
+  $("quiz-progress").textContent = "第 " + (qIdx+1) + " / " + BOOK[cur].quiz.length + " 题";
+  $("quiz-feedback").textContent = "";
+  $("q-kind").textContent = KIND_LABEL[type] || KIND_LABEL.choice;
+  $("q-text").innerHTML = ""; $("q-cn").textContent = ""; $("q-options").innerHTML = "";
+  quizLock = false;
+  if (type === "tf") renderTF(q);
+  else if (type === "fill") renderFill(q);
+  else if (type === "who") renderWho(q);
+  else if (type === "order") renderOrder(q);
+  else renderChoice(q);
+}
+const PRAISE = ["Great job! 🎉","Excellent! ⭐","You got it! 💪","Amazing! 🌟","Perfect! 🏆"];
+function qPass(){
+  quizLock = true;
+  $("quiz-feedback").textContent = PRAISE[qIdx % PRAISE.length];
+  setTimeout(()=>{
+    qIdx++;
+    if (qIdx < BOOK[cur].quiz.length) renderQuestion();
+    else finishChapter();
+  }, 900);
+}
+function qFail(el, msg){
+  wrongCount++;
+  if (el){ el.classList.add("wrong"); setTimeout(()=>el.classList.remove("wrong"), 600); }
+  $("quiz-feedback").textContent = msg || "再想想～答案就藏在故事里 🔍(左上角可以回去再读)";
+}
+/* 兼容旧调用 */
+function answer(el, right){ if (!quizLock){ if (right){ el.classList.add("right"); qPass(); } else qFail(el); } }
+
+function renderChoice(q){
+  $("q-text").textContent = q.q;
+  $("q-cn").textContent = q.cn || "";
+  const box = $("q-options");
+  q.options.forEach((opt, i)=>{
+    const d = document.createElement("div");
+    d.className = "option"; d.textContent = String.fromCharCode(65+i) + ".  " + opt;
+    d.onclick = ()=>{ if (quizLock) return; if (i === q.answer){ d.classList.add("right"); qPass(); } else qFail(d); };
+    box.appendChild(d);
+  });
+}
+function renderTF(q){
+  $("q-text").textContent = q.q;
+  $("q-cn").textContent = q.cn || "这句话对不对？";
+  const box = $("q-options"); box.className = "options tf-row";
+  [{t:"✓ 对", v:true},{t:"✗ 错", v:false}].forEach(o=>{
+    const d = document.createElement("div");
+    d.className = "option tf-opt"; d.textContent = o.t;
+    d.onclick = ()=>{ if (quizLock) return; if (o.v === q.answer){ d.classList.add("right"); qPass(); } else qFail(d); };
+    box.appendChild(d);
+  });
+}
+function renderFill(q){
+  // q.q 里用 ___ 表示空格
+  $("q-text").innerHTML = (q.q || "").replace("___", '<span class="blank" id="the-blank">?</span>');
+  $("q-cn").textContent = q.cn || "把正确的词填进空格里";
+  const box = $("q-options"); box.className = "options chip-box";
+  q.options.forEach((opt, i)=>{
+    const d = document.createElement("div");
+    d.className = "chip"; d.textContent = opt;
+    d.onclick = ()=>{
+      if (quizLock) return;
+      if (i === q.answer){
+        d.classList.add("right");
+        const bl = $("the-blank"); if (bl){ bl.textContent = opt; bl.classList.add("filled"); }
+        qPass();
+      } else qFail(d);
+    };
+    box.appendChild(d);
+  });
+}
+function renderWho(q){
+  $("q-text").innerHTML = '<div class="quote-bubble">“' + q.q + '”</div><div style="margin-top:14px">这句话是谁说的？</div>';
+  $("q-cn").textContent = q.cn || "";
+  const box = $("q-options"); box.className = "options";
+  q.options.forEach((opt, i)=>{
+    const d = document.createElement("div");
+    d.className = "option"; d.textContent = String.fromCharCode(65+i) + ".  " + opt;
+    d.onclick = ()=>{ if (quizLock) return; if (i === q.answer){ d.classList.add("right"); qPass(); } else qFail(d); };
+    box.appendChild(d);
+  });
+}
+function renderOrder(q){
+  $("q-text").textContent = q.q || "按事情发生的先后，依次点一点：";
+  $("q-cn").textContent = q.cn || "";
+  const box = $("q-options"); box.className = "options";
+  // q.items 已按正确顺序; 打乱显示, 每项记住其正确序号
+  const shuffled = shuffle(q.items.map((t, idx)=>({ t, idx })));
+  let expect = 0;                       // 下一个应点的正确序号
+  shuffled.forEach(it=>{
+    const d = document.createElement("div");
+    d.className = "order-item";
+    d.innerHTML = '<span class="order-badge">•</span><span>' + it.t + '</span>';
+    d.onclick = ()=>{
+      if (quizLock || d.classList.contains("placed")) return;
+      if (it.idx === expect){
+        d.classList.add("placed");
+        d.querySelector(".order-badge").textContent = (expect + 1);
+        expect++;
+        if (expect === q.items.length) qPass();
+      } else {
+        qFail(d, "顺序不对哦，想想哪件事先发生 🤔");
+      }
+    };
+    box.appendChild(d);
+  });
+}
+function finishChapter(){
+  const ch = BOOK[cur];
+  const stars = wrongCount === 0 ? 3 : (wrongCount <= 2 ? 2 : 1);
+  const firstClear = !save.done[ch.id];
+  save.done[ch.id] = true;
+  save.stars[ch.id] = Math.max(save.stars[ch.id] || 0, stars);
+  save.read = save.read || {};
+  save.read[ch.id] = ch.paras.length;      // 通关 = 整章已读
+  persist();
+  recordWords(ch.id, ch.words);            // 累计跨书阅读词数
+  markStreak();
+  $("reward-part").textContent = ch.icon;
+  $("reward-title").textContent = (firstClear ? "获得纪念品:" : "纪念品已擦亮:") + ch.itemName + "!";
+  $("reward-stars").textContent = "⭐".repeat(stars);
+  const nx = cur + 1;
+  if (nx < BOOK.length){
+    const left = BOOK.length - 1 - cur;    // 章末悬念
+    const cliff = left <= 1 ? "🔥 就差最后一章，真相马上揭晓！"
+                : "🔎 距离结局还有 <b>" + left + "</b> 章，往下读揭开谜底！";
+    $("reward-sub").innerHTML = `已解锁下一章 <b>${BOOK[nx].title_en}</b><br>${BOOK[nx].teaser_cn}<br><span style="color:#ffd54f">${cliff}</span>`;
+  } else {
+    $("reward-sub").innerHTML = `🎉🎉🎉<br>你独立读完了一整本 ${BOOK.reduce((a,c)=>a+c.words,0)} 词的英文小说!<br>` +
+      `<a class="shelf-link" style="background:#ffb300;color:#2b1a00;border:none;margin-top:10px" href="javascript:showCert()">🏅 领取通关证书</a>`;
+  }
+  show("scr-reward");
+  maybePrediction(ch.id);
+}
+
+/* ===== 先猜后揭晓 ===== */
+function maybePrediction(chId){
+  save.guesses = save.guesses || {};
+  for (const p of PREDICTIONS){                 // 先看有没有要揭晓的
+    if (p.revealAt === chId && save.guesses[p.id] != null && !save.guesses[p.id + "_done"]){
+      setTimeout(()=>showReveal(p), 1100); return;
+    }
+  }
+  for (const p of PREDICTIONS){                 // 再看有没有要提问的
+    if (p.askAt === chId && save.guesses[p.id] == null){
+      setTimeout(()=>showPrediction(p), 1100); return;
+    }
+  }
+}
+function showPrediction(p){
+  const card = $("pred-card");
+  card.innerHTML = `<div class="p-icon">🔮</div><div class="p-q">${p.q}</div>` +
+    p.options.map((o,i)=>`<div class="p-opt" data-i="${i}">${o}</div>`).join("") +
+    `<div class="chapter-title-cn" style="margin-top:8px">先猜一个，读到后面揭晓——猜错也没关系！</div>`;
+  card.querySelectorAll(".p-opt").forEach(el=>{
+    el.onclick = ()=>{
+      save.guesses[p.id] = +el.dataset.i; persist();
+      $("pred-overlay").classList.remove("show");
+      toast("🔮 你的预测已记下，读到后面揭晓！");
+    };
+  });
+  $("pred-overlay").classList.add("show");
+}
+function showReveal(p){
+  const guess = save.guesses[p.id];
+  const right = guess === p.answer;
+  save.guesses[p.id + "_done"] = true; persist();
+  $("pred-card").innerHTML =
+    `<div class="p-icon">${right ? "🎯" : "💡"}</div>` +
+    `<div class="p-verdict ${right ? "right" : "wrong"}">${right ? "猜对啦！" : "没猜到吧~"}</div>` +
+    `<div class="chapter-title-cn">你当时猜的是：<b>${p.options[guess]}</b></div>` +
+    `<div class="p-reveal">${p.reveal}</div>` +
+    `<button class="btn btn-primary btn-block" onclick="document.getElementById('pred-overlay').classList.remove('show')">明白啦</button>`;
+  $("pred-overlay").classList.add("show");
+}
+
+/* ===== 生词复习小游戏(简易遗忘曲线) ===== */
+const RV_INTERVAL = [0, 1, 2, 4, 7, 15];       // box 越高, 隔越久(天)
+let rvQueue = [], rvIdx = 0, rvRight = 0;
+function dayNum(){ return Math.floor(Date.now() / 86400000); }
+function startReview(){
+  const words = Object.keys(save.words);
+  if (!words.length){ toast("先去故事里收集一些生词，再来复习哦 📖"); return; }
+  save.review = save.review || {};
+  const today = dayNum();
+  let due = words.filter(w=>{ const r = save.review[w]; return !r || r.due <= today; });
+  if (!due.length) due = words.slice();          // 没有到期的就全部提前复习
+  rvQueue = shuffle(due).slice(0, 12); rvIdx = 0; rvRight = 0;
+  renderReview();
+  show("scr-review");
+}
+function renderReview(){
+  if (rvIdx >= rvQueue.length){ return finishReview(); }
+  const w = rvQueue[rvIdx];
+  const g = GLOSSARY[w] || { cn:"", emoji:"⭐" };
+  $("rv-progress").textContent = "第 " + (rvIdx+1) + " / " + rvQueue.length + " 个";
+  $("rv-bar").style.width = Math.round(rvIdx / rvQueue.length * 100) + "%";
+  $("rv-feedback").textContent = "";
+  // 干扰项: 其他生词的中文
+  const others = Object.keys(GLOSSARY).filter(x=>x!==w && GLOSSARY[x].cn && GLOSSARY[x].cn !== g.cn);
+  const opts = shuffle([g.cn].concat(shuffle(others).slice(0,3).map(x=>GLOSSARY[x].cn)));
+  $("rv-body").innerHTML =
+    `<div class="rv-card">
+       <div class="rv-word${g.gold?" gold":""}">${w}</div>
+       <div class="rv-listen" id="rv-listen">🔊 听发音</div>
+       <div class="rv-opts">` +
+       opts.map(o=>`<div class="rv-opt">${o}</div>`).join("") +
+    `  </div>
+     </div>`;
+  $("rv-listen").onclick = ()=>speak(w, null, {word:w});
+  $("rv-body").querySelectorAll(".rv-opt").forEach(el=>{
+    el.onclick = ()=>{
+      if (el.classList.contains("right") || el.classList.contains("wrong")) return;
+      const ok = el.textContent === g.cn;
+      const today = dayNum();
+      const r = save.review[w] || { box:0 };
+      if (ok){
+        el.classList.add("right"); rvRight++;
+        r.box = Math.min(RV_INTERVAL.length-1, (r.box||0)+1);
+        $("rv-feedback").textContent = ["答对啦 🎉","太棒了 ⭐","记住咯 💪"][rvIdx%3];
+      } else {
+        el.classList.add("wrong");
+        r.box = 0;
+        $("rv-body").querySelectorAll(".rv-opt").forEach(o=>{ if(o.textContent===g.cn) o.classList.add("right"); });
+        $("rv-feedback").textContent = "正确意思是:" + g.cn;
+      }
+      r.due = today + RV_INTERVAL[r.box]; save.review[w] = r; persist();
+      setTimeout(()=>{ rvIdx++; renderReview(); }, ok ? 750 : 1500);
+    };
+  });
+  speak(w, null, {word:w});
+}
+function finishReview(){
+  $("rv-progress").textContent = "复习完成";
+  $("rv-bar").style.width = "100%";
+  $("rv-feedback").textContent = "";
+  $("rv-body").innerHTML =
+    `<div class="rv-done"><div class="big">${rvRight===rvQueue.length?"🏆":"👍"}</div>
+       <div class="reward-title" style="color:#ffd54f">复习完成！答对 ${rvRight}/${rvQueue.length}</div>
+       <div class="reward-sub">记住的词会隔几天再考你，忘了的明天再来~</div>
+       <button class="btn btn-primary btn-block" style="margin-top:22px" onclick="startReview()">再来一组</button>
+       <button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="showWordbook()">回单词册</button>
+     </div>`;
+}
+
+/* ===== 通关证书 ===== */
+function editKidName(){
+  const cur = kidName();
+  const n = prompt("写上你的名字，印在证书上：", cur || "");
+  if (n != null){ const h = hubLoad(); h.kidName = n.trim().slice(0, 16); hubSave(h); if ($("scr-cert").classList.contains("active")) showCert(); renderHome(); }
+}
+function showCert(){
+  let name = kidName();
+  if (!name){ editKidName(); name = kidName(); if (!name) name = "小读者"; }
+  $("cert-name").textContent = name || "小读者";
+  $("cert-book").textContent = "《" + META.title + "》 " + (META.pageTitle && META.pageTitle.indexOf("·")>=0 ? META.pageTitle.split("·").pop().trim() : "");
+  $("cert-words").textContent = BOOK.reduce((a,c)=>a+c.words,0);
+  $("cert-vocab").textContent = Object.keys(save.words).length;
+  $("cert-stars").textContent = Object.values(save.stars).reduce((a,b)=>a+b,0);
+  const d = new Date();
+  $("cert-date").textContent = "颁发于 " + d.getFullYear() + " 年 " + (d.getMonth()+1) + " 月 " + d.getDate() + " 日";
+  show("scr-cert");
+}
+
+/* =====================================================
+   单词册 & 收藏馆
+   ===================================================== */
+function showWordbook(){
+  const list = $("wordbook-list");
+  const byCh = {};
+  Object.entries(save.words).forEach(([w, info])=>{
+    (byCh[info.ch] = byCh[info.ch] || []).push(w);
+  });
+  const total = Object.keys(GLOSSARY).length;
+  const goldTotal = Object.values(GLOSSARY).filter(g=>g.gold).length;
+  const got = Object.keys(save.words).length;
+  const goldGot = Object.keys(save.words).filter(w=>(GLOSSARY[w]||{}).gold).length;
+  if (!got){
+    list.innerHTML = `<div class="wb-empty">单词册还是空的 📭<br>去故事里点一点紫色的单词吧!<br><span style="color:#ffd766">✨ 金色的是稀有生词，集齐更棒</span></div>`;
+  } else {
+    let html = `<div class="chapter-title-cn">已收集 ${got} / ${total} 个生词 · <span style="color:#ffd766">✨ 金色 ${goldGot}/${goldTotal}</span></div>`;
+    const wbItem = (w)=>{
+      const g = GLOSSARY[w] || {cn:"", emoji:"⭐"};
+      return `<div class="wb-item${g.gold?" gold":""}">
+        <div class="wb-emoji">${g.gold?"✨":g.emoji}</div>
+        <div class="wb-main"><div class="wb-word">${w}</div><div class="wb-cn">${g.cn}</div></div>
+        <div class="wb-sound" data-w="${w.replace(/"/g,'&quot;')}">🔊</div>
+      </div>`;
+    };
+    // 金色生词单独置顶一组
+    const goldWs = Object.keys(save.words).filter(w=>(GLOSSARY[w]||{}).gold).sort();
+    if (goldWs.length){
+      html += `<div class="wb-chapter gold-hd">✨ 金色稀有生词（${goldWs.length}）</div>` + goldWs.map(wbItem).join("");
+    }
+    BOOK.forEach(ch=>{
+      const ws = (byCh[ch.id]||[]).filter(w=>!(GLOSSARY[w]||{}).gold);
+      if (!ws.length) return;
+      html += `<div class="wb-chapter">${ch.icon} ${ch.title_cn}(${ws.length})</div>`;
+      html += ws.sort().map(wbItem).join("");
+    });
+    list.innerHTML = html;
+    list.querySelectorAll(".wb-sound").forEach(el=>{ el.onclick = ()=>speak(el.dataset.w, null, {word: el.dataset.w}); });
+  }
+  show("scr-wordbook");
+}
+function showShelf(){
+  const grid = $("shelf-grid");
+  grid.innerHTML = BOOK.map(ch=>{
+    const owned = !!save.done[ch.id];
+    return `<div class="shelf-cell${owned ? "" : " miss"}">
+      <div class="c-emoji">${owned ? ch.icon : "❓"}</div>
+      <div class="c-name">${owned ? ch.itemName : "???"}</div>
+    </div>`;
+  }).join("");
+  show("scr-shelf");
+}
+
+/* =====================================================
+   声音检测
+   ===================================================== */
+const TEST_TEXT = "Hello! Welcome to Frankenstein. Can you hear me?";
+function testFile(){
+  stopAll();
+  playFile(AUDIO_BASE + "test.mp3", ()=>toast("测试⓪播放完毕,听到了吗?"),
+    ()=>toast("音频文件加载失败 ❌(离线打开的单文件版没有音频包)"));
+}
+function testLocal(){
+  stopAll();
+  speakLocal(splitSentences(TEST_TEXT), ()=>toast("本地引擎没出声 ❌ 试试别的测试"));
+}
+function testOnline(){
+  stopAll();
+  speakOnline(splitSentences(TEST_TEXT));
+}
+const MODE_NAMES = {auto: "已设为自动选择 🤖", recorded: "已固定用音频文件 ⓪",
+  local: "已固定用本地发音 ①", online: "已固定用在线发音 ②"};
+function setMode(m){
+  save.ttsMode = m; persist();
+  paintMode();
+  toast(MODE_NAMES[m]);
+}
+function paintMode(){
+  const cur = save.ttsMode || "auto";
+  ["auto","recorded","local","online"].forEach(m=>{
+    const b = $("m-" + m);
+    b.style.borderColor = (m === cur) ? "#ffd54f" : "#4c4380";
+    b.style.color = (m === cur) ? "#ffd54f" : "#e8e2ff";
+  });
+}
+function showSound(){
+  paintMode();
+  let vn = 0;
+  try{ vn = ("speechSynthesis" in window) ? speechSynthesis.getVoices().length : -1; }catch(e){}
+  $("snd-diag").innerHTML = "诊断: 音频包" + (TTS.hasAudio ? "✓" : "✗")
+    + " | 本地引擎音色数 " + vn
+    + " | 微信环境 " + (IN_WECHAT ? "是" : "否")
+    + (TTS.lastErr ? " | 上次错误 " + TTS.lastErr : "")
+    + "<br>浏览器: " + (navigator.userAgent || "").slice(0, 90);
+  show("scr-sound");
+}
+
+/* 首页标题等文案由 META 注入 */
+document.title = (META && META.pageTitle) || "阅读大冒险";
+$("home-title").textContent = (META && META.title) || "READING ADVENTURE";
+$("home-subtitle").textContent = (META && META.subtitle) || "读完这本书，点亮所有成就";
+$("home-bolt").textContent = (META && META.bolt) || "📖";
+
+/* ===== 阅读字号(可调, 记忆) ===== */
+const FONT_STEPS = [17, 20, 23, 27, 31];
+const FONT_NAMES = ["小", "中", "大", "特大", "超大"];
+function applyFont(){
+  let i = (save.fontIdx == null) ? 1 : save.fontIdx;
+  i = Math.max(0, Math.min(FONT_STEPS.length - 1, i));
+  document.documentElement.style.setProperty("--story-fs", FONT_STEPS[i] + "px");
+  const lbl = document.getElementById("fs-label");
+  if (lbl) lbl.textContent = FONT_NAMES[i];
+}
+function changeFont(d){
+  let i = (save.fontIdx == null) ? 1 : save.fontIdx;
+  i = Math.max(0, Math.min(FONT_STEPS.length - 1, i + d));
+  save.fontIdx = i; persist(); applyFont();
+  toast("字号:" + FONT_NAMES[i]);
+}
+applyFont();
+ttsInit();
+detectAudio();
+renderHome();
+</script>
+</body>
+</html>
