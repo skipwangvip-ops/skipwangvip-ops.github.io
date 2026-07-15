@@ -100,6 +100,8 @@ const BOOKS = [
     desc:"欢乐 · 金奖券开启的巧克力工厂奇遇（放心给娃）", saveKey:"charlie_game_v1", chapters:29, words:32000 },
   { id:"sherlock", path:"./sherlock/", cover:"🔍", title:"Sherlock Holmes 福尔摩斯探案记",
     desc:"侦探 · 福尔摩斯的三个推理故事（放心给娃）", saveKey:"sherlock_game_v1", chapters:6, words:9715 },
+  { id:"jekyll", path:"./jekyll/", cover:"🎭", title:"Dr Jekyll & Mr Hyde 化身博士",
+    desc:"哥特惊悚 · 善良医生的邪恶另一面（你把关·扫描版或有个别错字）", saveKey:"jekyll_game_v1", chapters:8, words:12059 },
 ];
 const HUB_KEY="reading_hub_v1";
 function hub(){ try{return JSON.parse(localStorage.getItem(HUB_KEY))||{}}catch(e){return{}} }

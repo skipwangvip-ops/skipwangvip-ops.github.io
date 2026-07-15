@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dr Jekyll and Mr Hyde · 化身博士</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  #site-gate{position:fixed;inset:0;z-index:99999;background:linear-gradient(180deg,#1a1f3c,#2b2350);
+    display:flex;align-items:center;justify-content:center;font-family:-apple-system,"PingFang SC",sans-serif}
+  #site-gate .sg-box{text-align:center;color:#f3efe4;padding:24px}
+  #site-gate .sg-t{font-size:22px;font-weight:800;margin-top:10px;
+    background:linear-gradient(90deg,#ffe082,#a5ffb0,#8ecfff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  #site-gate .sg-s{color:#bfb8d9;font-size:14px;margin:8px 0 18px}
+  #site-gate input{display:block;margin:0 auto;width:220px;max-width:70vw;padding:13px 16px;border-radius:14px;
+    border:1px solid #4c4380;background:#262148;color:#f3efe4;font-size:17px;text-align:center;outline:none}
+  #site-gate button{margin-top:14px;padding:13px 30px;border:none;border-radius:14px;font-size:16px;font-weight:800;
+    background:linear-gradient(90deg,#ffb300,#ff8f00);color:#2b1a00;cursor:pointer;font-family:inherit}
+  #site-gate .sg-m{color:#ff8a80;min-height:20px;margin-top:10px;font-size:14px}
+</style>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: linear-gradient(180deg,#1a1f3c 0%,#2b2350 60%,#3a2c5e 100%);
+    color:#f3efe4; min-height:100%; overflow-x:hidden;
+  }
+  .screen { display:none; max-width:760px; margin:0 auto; padding:24px 20px 48px; min-height:100vh; }
+  .screen.active { display:block; animation:fadein .35s ease; }
+  @keyframes fadein { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+
+  /* ---------- 首页 ---------- */
+  .title-zone { text-align:center; margin:20px 0 8px; }
+  .title-zone .bolt { font-size:44px; }
+  h1.game-title { font-size:28px; letter-spacing:1px; margin-top:6px;
+    background:linear-gradient(90deg,#ffe082,#a5ffb0,#8ecfff);
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .subtitle { color:#bfb8d9; font-size:14px; margin-top:6px; }
+
+  .shelf-link { display:inline-block; margin:12px auto 0; padding:7px 16px; border-radius:20px;
+    background:#2e2856; border:1px solid #4c4380; color:#e8e2ff; font-size:14px; text-decoration:none; }
+  .growth-banner { margin:12px 0 0; padding:12px 14px; border-radius:14px;
+    background:linear-gradient(90deg,#33295c,#3a2c5e); border:1px solid #4c4380;
+    text-align:center; font-size:15px; color:#ffe082; font-weight:700; line-height:1.7; }
+  .growth-banner .g-sub { color:#a79fce; font-weight:400; font-size:12px; }
+  /* 通关证书 */
+  .cert-wrap { padding:18px 6px; }
+  .cert { background:linear-gradient(160deg,#fffdf5,#fff2cf); color:#3a2a10; border-radius:20px;
+    padding:30px 24px; text-align:center; border:3px solid #e0b84a;
+    box-shadow:0 10px 30px rgba(0,0,0,.4); position:relative; }
+  .cert .seal { font-size:52px; }
+  .cert h2 { font-size:22px; margin:8px 0 4px; color:#8a6d1a; letter-spacing:1px; }
+  .cert .cert-sub { font-size:13px; color:#9a7d2a; }
+  .cert .cert-name { font-size:30px; font-weight:900; margin:16px 0 6px; color:#5a4410;
+    border-bottom:2px dashed #e0b84a; display:inline-block; padding:0 18px 6px; }
+  .cert .cert-book { font-size:18px; font-weight:800; margin:14px 0 4px; }
+  .cert .cert-stats { display:flex; justify-content:center; gap:18px; margin:16px 0 6px; flex-wrap:wrap; }
+  .cert .cert-stat { text-align:center; }
+  .cert .cert-stat b { display:block; font-size:22px; color:#b8860b; }
+  .cert .cert-stat span { font-size:12px; color:#9a7d2a; }
+  .cert .cert-date { font-size:12px; color:#9a7d2a; margin-top:12px; }
+
+  .stat-row { display:flex; gap:10px; margin:18px 0 6px; }
+  .stat-box { flex:1; background:#262148; border:1px solid #443b74; border-radius:16px;
+    padding:12px 8px; text-align:center; }
+  .stat-box .num { font-size:22px; font-weight:800; color:#ffd54f; }
+  .stat-box .lbl { font-size:12px; color:#a79fce; margin-top:3px; }
+
+  .progress-wrap { background:#241f42; border-radius:10px; height:14px; margin:12px 0 4px; overflow:hidden; }
+  .progress-bar { height:100%; background:linear-gradient(90deg,#66bb6a,#ffd54f); border-radius:10px;
+    transition:width .5s; }
+  .progress-label { text-align:center; font-size:12px; color:#a79fce; margin-bottom:10px; }
+
+  .section-head { display:flex; align-items:center; gap:10px; margin:26px 0 4px; }
+  .section-head .s-icon { font-size:22px; }
+  .section-head .s-name { font-size:16px; font-weight:800; color:#ffd54f; }
+  .section-head .s-en { font-size:12px; color:#8d84b8; }
+
+  .map-node { display:flex; align-items:center; gap:14px; background:#262148;
+    border:1px solid #443b74; border-radius:18px; padding:14px 16px; margin:10px 0;
+    cursor:pointer; transition:transform .12s; }
+  .map-node:active { transform:scale(.98); }
+  .map-node.locked { opacity:.42; cursor:default; }
+  .map-node.next { border-color:#ffd54f; box-shadow:0 0 12px rgba(255,213,79,.25); }
+  .map-node .icon { font-size:30px; width:44px; text-align:center; }
+  .map-node .info { flex:1; min-width:0; }
+  .map-node .name { font-size:16px; font-weight:700; }
+  .map-node .place { font-size:12px; color:#a79fce; margin-top:3px; }
+  .map-node .state { font-size:18px; min-width:60px; text-align:right; }
+  .badge-done { color:#ffd54f; letter-spacing:1px; }
+
+  .toolbar { display:flex; gap:12px; margin-top:24px; }
+  .btn { border:none; border-radius:16px; padding:15px 20px; font-size:16px; font-weight:700;
+    cursor:pointer; font-family:inherit; color:#2b1a00; }
+  .btn:active { transform:scale(.97); }
+  .btn-primary { background:linear-gradient(90deg,#ffb300,#ff8f00); }
+  .btn-ghost { background:#2e2856; color:#e8e2ff; border:1px solid #4c4380; }
+  .btn-block { display:block; width:100%; }
+  .toolbar .btn { flex:1; }
+  .btn-continue { margin-top:16px; font-size:17px; }
+
+  /* ---------- 阅读页 ---------- */
+  .chapter-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap; }
+  .back-btn { background:#2e2856; border:1px solid #4c4380; color:#e8e2ff; border-radius:12px;
+    padding:8px 14px; font-size:15px; cursor:pointer; font-family:inherit; }
+  .chapter-tag { font-size:13px; color:#ffd54f; letter-spacing:2px; }
+  h2.chapter-title { font-size:23px; margin:10px 0 2px; }
+  .chapter-title-cn { color:#bfb8d9; font-size:14px; margin-bottom:14px; }
+
+  .story-card { background:#f7f1e1; color:#2d2a24; border-radius:20px; padding:22px 20px;
+    font-size:var(--story-fs, 20px); line-height:1.85; box-shadow:0 6px 24px rgba(0,0,0,.35); }
+  .story-card p { margin-bottom:14px; position:relative; padding-left:12px; border-left:4px solid transparent;
+    transition:border-color .3s, background .3s; }
+  .story-card p:last-child { margin-bottom:0; }
+  /* 已读过的段落: 绿色左条 + 淡绿底, 一眼看出读到哪 */
+  .story-card p.read { border-left-color:#66bb6a; background:rgba(102,187,106,.10); border-radius:0 8px 8px 0; }
+  .story-card p.read::after { content:"✓"; position:absolute; left:-2px; top:-2px; font-size:11px; color:#2e7d32; }
+  /* 句子级高亮:正在朗读的那一句变亮黄 */
+  .story-card .sent { border-radius:6px; transition:background .12s, box-shadow .12s; }
+  .story-card .sent.speaking { background:#ffe36b; box-shadow:0 0 0 4px #ffe36b; }
+  .gw { color:#8e24aa; font-weight:700; border-bottom:2px dotted #8e24aa; cursor:pointer; }
+  .gw.learned { color:#2e7d32; border-bottom-color:#2e7d32; }
+  .pspk { font-size:14px; opacity:.45; cursor:pointer; margin-left:6px; user-select:none; }
+
+  .read-tools { display:flex; gap:10px; margin:6px 0 10px; }
+  .read-tools .btn { flex:1; font-size:15px; padding:13px 8px; }
+  .fs-row { display:flex; align-items:center; justify-content:center; gap:8px; margin:0 0 14px;
+    color:#a79fce; font-size:14px; }
+  .fs-btn { background:#2e2856; border:1px solid #4c4380; color:#e8e2ff; border-radius:10px;
+    width:44px; height:38px; font-weight:800; cursor:pointer; font-family:inherit; }
+  .fs-btn:active { transform:scale(.95); }
+  .fs-btn.small { font-size:14px; }
+  .fs-btn.big { font-size:20px; }
+  .hint-line { text-align:center; font-size:13px; color:#a79fce; margin-top:10px; line-height:1.8; }
+
+  /* ---------- 单词卡弹窗 ---------- */
+  .overlay { position:fixed; inset:0; background:rgba(10,8,26,.72); display:none;
+    align-items:center; justify-content:center; z-index:50; padding:24px; }
+  .overlay.show { display:flex; }
+  .word-card { background:#fffef8; color:#2d2a24; border-radius:22px; padding:24px 22px;
+    width:100%; max-width:420px; text-align:center; animation:pop .22s ease; }
+  @keyframes pop { from{transform:scale(.85); opacity:0;} to{transform:none; opacity:1;} }
+  .word-card .w-emoji { font-size:38px; }
+  .word-card .w-word { font-size:29px; font-weight:800; color:#6a1b9a; margin-top:6px; word-break:break-word; }
+  .word-card .w-cn { font-size:20px; margin-top:8px; }
+  .word-card .w-eg { font-size:15px; color:#6d675c; margin-top:12px; line-height:1.6; font-style:italic; }
+  .word-card .w-collect { margin-top:10px; font-size:13px; color:#2e7d32; }
+  .word-card .btn { margin-top:14px; }
+
+  /* ---------- 答题页 ---------- */
+  .quiz-progress { font-size:14px; color:#ffd54f; margin:8px 0 14px; letter-spacing:1px; }
+  .question-card { background:#262148; border:1px solid #443b74; border-radius:20px; padding:20px; }
+  .question-text { font-size:19px; line-height:1.6; font-weight:700; }
+  .question-cn { font-size:13px; color:#a79fce; margin-top:6px; }
+  .options { margin-top:18px; }
+  .option { background:#312a5e; border:2px solid #4c4380; border-radius:16px; padding:15px;
+    font-size:16px; margin:10px 0; cursor:pointer; transition:all .15s; line-height:1.5; }
+  .option:active { transform:scale(.98); }
+  .option.right { background:#1b5e20; border-color:#66bb6a; }
+  .option.wrong { background:#7f1d1d; border-color:#ef5350; animation:shake .3s; }
+  @keyframes shake { 0%,100%{transform:none;} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+  .quiz-feedback { min-height:30px; text-align:center; font-size:16px; margin-top:12px; }
+  /* 题型小标签 */
+  .q-kind { display:inline-block; font-size:12px; font-weight:800; color:#2b1a00;
+    background:#ffd54f; border-radius:20px; padding:4px 12px; margin-bottom:12px; }
+  /* 判断对错 */
+  .tf-row { display:flex; gap:12px; margin-top:18px; }
+  .tf-row .option { flex:1; text-align:center; font-size:20px; font-weight:800; margin:0; }
+  /* 选词填空 */
+  .blank { display:inline-block; min-width:64px; border-bottom:3px solid #ffd54f; color:#ffd54f;
+    font-weight:800; text-align:center; margin:0 4px; }
+  .blank.filled { border-bottom-color:#66bb6a; color:#a5ffb0; }
+  .chip-box { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+  .chip { background:#312a5e; border:2px solid #4c4380; border-radius:14px; padding:12px 18px;
+    font-size:17px; cursor:pointer; transition:all .15s; }
+  .chip:active { transform:scale(.96); }
+  .chip.right { background:#1b5e20; border-color:#66bb6a; }
+  .chip.wrong { background:#7f1d1d; border-color:#ef5350; animation:shake .3s; }
+  /* 谁说的 */
+  .quote-bubble { background:#f7f1e1; color:#2d2a24; border-radius:16px; padding:16px 18px;
+    font-size:19px; font-style:italic; line-height:1.5; position:relative; margin:4px 0 4px; }
+  .quote-bubble::after { content:""; position:absolute; left:28px; bottom:-12px; border:8px solid transparent;
+    border-top-color:#f7f1e1; border-bottom:0; }
+  /* 排序 */
+  .order-item { display:flex; align-items:center; gap:12px; background:#312a5e; border:2px solid #4c4380;
+    border-radius:16px; padding:14px; margin:10px 0; font-size:16px; cursor:pointer; line-height:1.45; }
+  .order-item:active { transform:scale(.98); }
+  .order-item.placed { background:#1b5e20; border-color:#66bb6a; cursor:default; }
+  .order-item.wrong { animation:shake .3s; border-color:#ef5350; }
+  .order-badge { width:28px; height:28px; border-radius:50%; background:#4c4380; color:#e8e2ff;
+    font-weight:800; display:flex; align-items:center; justify-content:center; flex:0 0 auto; font-size:15px; }
+  .order-item.placed .order-badge { background:#ffd54f; color:#2b1a00; }
+
+  /* ---------- 奖励页 ---------- */
+  .reward-zone { text-align:center; padding-top:56px; }
+  .reward-part { font-size:92px; animation:drop .6s cubic-bezier(.2,1.4,.4,1); display:inline-block; }
+  @keyframes drop { from{transform:translateY(-80px) scale(.4); opacity:0;} to{transform:none; opacity:1;} }
+  .reward-title { font-size:24px; font-weight:800; margin-top:14px; color:#ffd54f; }
+  .reward-sub { color:#bfb8d9; margin-top:10px; font-size:16px; line-height:1.8; }
+  .reward-stars { font-size:30px; margin-top:12px; letter-spacing:6px; }
+  .reward-zone .btn { margin-top:26px; }
+
+  /* ---------- 单词册 & 收藏馆 ---------- */
+  .wb-chapter { font-size:14px; font-weight:800; color:#ffd54f; margin:18px 0 4px; }
+  .wb-item { background:#262148; border:1px solid #443b74; border-radius:16px; padding:12px 16px;
+    margin:8px 0; display:flex; align-items:center; gap:12px; }
+  .wb-item .wb-emoji { font-size:24px; }
+  .wb-item .wb-main { flex:1; min-width:0; }
+  .wb-item .wb-word { font-weight:800; font-size:17px; color:#ce93d8; word-break:break-word; }
+  .wb-item .wb-cn { font-size:14px; color:#cfc8ea; margin-top:2px; }
+  .wb-item .wb-sound { font-size:22px; cursor:pointer; padding:4px; }
+  .wb-empty { text-align:center; color:#a79fce; margin-top:60px; line-height:2; }
+  .shelf-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:10px; margin-top:16px; }
+  .shelf-cell { background:#262148; border:1px solid #443b74; border-radius:16px; padding:12px 6px;
+    text-align:center; }
+  .shelf-cell .c-emoji { font-size:30px; }
+  .shelf-cell .c-name { font-size:12px; color:#cfc8ea; margin-top:6px; }
+  .shelf-cell.miss { opacity:.32; filter:grayscale(1); }
+
+  /* 金色生词 */
+  .gw.gold { color:#c58a00; border-bottom-color:#e0a800; }
+  .word-card.goldcard { background:linear-gradient(160deg,#fffdf2,#fff0c4); border:2px solid #e0b84a; }
+  .w-goldtag { display:inline-block; margin-top:8px; font-size:12px; font-weight:800; color:#8a6d1a;
+    background:#ffe9a8; border-radius:20px; padding:3px 12px; }
+  .wb-item.gold { border-color:#e0b84a; background:linear-gradient(90deg,#2c2545,#3a3018); }
+  .wb-item.gold .wb-word { color:#ffd766; }
+  .wb-chapter.gold-hd { color:#ffd766; }
+
+  /* 预测/揭晓弹窗 */
+  .pred-card { background:#fffef8; color:#2d2a24; border-radius:22px; padding:24px 22px;
+    width:100%; max-width:440px; text-align:center; animation:pop .22s ease; }
+  .pred-card .p-icon { font-size:40px; }
+  .pred-card .p-q { font-size:18px; font-weight:800; margin:10px 0 4px; line-height:1.5; }
+  .pred-card .p-opt { background:#f0ebff; border:2px solid #d5c9f2; color:#3a2d5e; border-radius:14px;
+    padding:13px; margin:9px 0; font-size:16px; cursor:pointer; font-weight:700; }
+  .pred-card .p-opt:active { transform:scale(.98); }
+  .pred-card .p-reveal { font-size:16px; line-height:1.7; color:#3a2d1a; margin:10px 0; }
+  .pred-card .p-verdict { font-size:22px; font-weight:900; margin:6px 0; }
+  .pred-card .p-verdict.right { color:#2e7d32; }
+  .pred-card .p-verdict.wrong { color:#c56000; }
+
+  /* 生词复习小游戏 */
+  .rv-top { text-align:center; margin:8px 0 14px; }
+  .rv-progress { font-size:14px; color:#ffd54f; letter-spacing:1px; }
+  .rv-scorebar { background:#241f42; border-radius:8px; height:10px; margin:10px 0 0; overflow:hidden; }
+  .rv-scorebar .b { height:100%; background:linear-gradient(90deg,#66bb6a,#ffd54f); width:0; transition:width .3s; }
+  .rv-card { background:#262148; border:1px solid #443b74; border-radius:20px; padding:26px 20px; text-align:center; }
+  .rv-word { font-size:34px; font-weight:900; color:#ce93d8; word-break:break-word; }
+  .rv-word.gold { color:#ffd766; }
+  .rv-listen { margin-top:10px; font-size:24px; cursor:pointer; }
+  .rv-opts { margin-top:20px; }
+  .rv-opt { background:#312a5e; border:2px solid #4c4380; border-radius:16px; padding:15px; font-size:18px;
+    margin:10px 0; cursor:pointer; }
+  .rv-opt:active { transform:scale(.98); }
+  .rv-opt.right { background:#1b5e20; border-color:#66bb6a; }
+  .rv-opt.wrong { background:#7f1d1d; border-color:#ef5350; animation:shake .3s; }
+  .rv-feedback { text-align:center; min-height:26px; font-size:16px; margin-top:12px; }
+  .rv-done { text-align:center; padding-top:40px; }
+  .rv-done .big { font-size:70px; }
+
+  .toast { position:fixed; left:50%; bottom:34px; transform:translateX(-50%);
+    background:#ffd54f; color:#3a2a00; font-weight:700; padding:12px 22px; border-radius:30px;
+    font-size:15px; display:none; z-index:60; box-shadow:0 4px 18px rgba(0,0,0,.4);
+    max-width:86vw; text-align:center; }
+  .toast.show { display:block; animation:fadein .25s ease; }
+</style>
+</head>
+<body>
+<!-- 全站共享密码门(同源, 一次解锁全部书) -->
+<div id="site-gate">
+  <div class="sg-box">
+    <div style="font-size:44px">🔒📖</div>
+    <div class="sg-t">阅读大冒险</div>
+    <div class="sg-s">请输入密码开始阅读</div>
+    <input id="sg-pw" type="password" autocomplete="off" placeholder="密码" />
+    <button id="sg-btn">进入 ▶</button>
+    <div class="sg-m" id="sg-m"></div>
+  </div>
+</div>
+<script>
+(function(){
+  function H(s){var x=5381;for(var i=0;i<s.length;i++)x=((x*33)^s.charCodeAt(i))>>>0;return x;}
+  var TARGET=2088000572, g=document.getElementById("site-gate");
+  if(localStorage.getItem("rg_gate")==="ok"){ g.style.display="none"; return; }
+  function tryPw(){
+    var v=(document.getElementById("sg-pw").value||"").trim().toLowerCase();
+    if(H(v)===TARGET){ localStorage.setItem("rg_gate","ok"); g.style.display="none"; }
+    else { document.getElementById("sg-m").textContent="密码不对，再试一次~"; }
+  }
+  document.getElementById("sg-btn").onclick=tryPw;
+  document.getElementById("sg-pw").addEventListener("keydown",function(e){ if(e.key==="Enter")tryPw(); });
+  setTimeout(function(){ try{document.getElementById("sg-pw").focus();}catch(e){} },100);
+})();
+</script>
+
+<!-- ============ 首页 ============ -->
+<div class="screen active" id="scr-home">
+  <div class="title-zone">
+    <div class="bolt" id="home-bolt">📖</div>
+    <h1 class="game-title" id="home-title"></h1>
+    <div class="subtitle" id="home-subtitle"></div>
+  </div>
+
+  <a class="shelf-link" href="../">📚 我的书架</a>
+  <div class="growth-banner" id="growth-banner"></div>
+
+  <div class="stat-row">
+    <div class="stat-box"><div class="num" id="st-ch">0</div><div class="lbl">已通关章节</div></div>
+    <div class="stat-box"><div class="num" id="st-star">0</div><div class="lbl">获得星星</div></div>
+    <div class="stat-box"><div class="num" id="st-word">0</div><div class="lbl">收集单词</div></div>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="prog-bar" style="width:0%"></div></div>
+  <div class="progress-label" id="prog-label"></div>
+
+  <button class="btn btn-primary btn-block btn-continue" id="btn-continue" onclick="continueGame()">▶️ 继续冒险</button>
+
+  <div id="map"></div>
+
+  <div class="toolbar">
+    <button class="btn btn-ghost" onclick="showWordbook()">📖 单词册 <span id="wb-count"></span></button>
+    <button class="btn btn-ghost" onclick="showShelf()">🏆 收藏馆</button>
+    <button class="btn btn-ghost" onclick="resetProgress()">🔄 重置</button>
+  </div>
+  <div class="toolbar">
+    <button class="btn btn-ghost" onclick="showSound()">🔧 朗读没声音?点这里检测</button>
+  </div>
+</div>
+
+<!-- ============ 通关证书 ============ -->
+<div class="screen" id="scr-cert">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 返回</button>
+    <span class="chapter-tag">CERTIFICATE</span>
+  </div>
+  <div class="cert-wrap">
+    <div class="cert" id="cert-card">
+      <div class="seal">🏅</div>
+      <h2>阅读大冒险 · 通关证书</h2>
+      <div class="cert-sub">READING ADVENTURE · CERTIFICATE</div>
+      <div class="cert-name" id="cert-name">小读者</div>
+      <div class="cert-sub">独立读完了英文原著</div>
+      <div class="cert-book" id="cert-book"></div>
+      <div class="cert-stats">
+        <div class="cert-stat"><b id="cert-words">0</b><span>阅读词数</span></div>
+        <div class="cert-stat"><b id="cert-vocab">0</b><span>收集生词</span></div>
+        <div class="cert-stat"><b id="cert-stars">0</b><span>获得星星</span></div>
+      </div>
+      <div class="cert-date" id="cert-date"></div>
+    </div>
+  </div>
+  <button class="btn btn-ghost btn-block" style="margin-top:14px" onclick="editKidName()">✏️ 改名字</button>
+  <div class="hint-line">📸 截图保存，发给爸爸妈妈、爷爷奶奶看看吧！</div>
+</div>
+
+<!-- ============ 声音检测 ============ -->
+<div class="screen" id="scr-sound">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag">SOUND CHECK</span>
+  </div>
+  <h2 class="chapter-title">🔧 声音检测</h2>
+  <div class="chapter-title-cn">先把平板的<b>媒体音量</b>调大,再依次点下面的按钮</div>
+  <button class="btn btn-ghost btn-block" style="margin:10px 0" onclick="testFile()">▶️ 测试⓪ 音频文件(推荐)</button>
+  <button class="btn btn-ghost btn-block" style="margin:10px 0" onclick="testLocal()">▶️ 测试① 本地发音引擎</button>
+  <button class="btn btn-ghost btn-block" style="margin:10px 0" onclick="testOnline()">▶️ 测试② 在线发音(需联网)</button>
+  <div class="chapter-title-cn" style="margin-top:18px">哪个有声音,就选用哪个:</div>
+  <div class="toolbar" style="margin-top:8px">
+    <button class="btn btn-ghost" id="m-auto" onclick="setMode('auto')">🤖 自动</button>
+    <button class="btn btn-ghost" id="m-recorded" onclick="setMode('recorded')">⓪ 音频</button>
+    <button class="btn btn-ghost" id="m-local" onclick="setMode('local')">① 本地</button>
+    <button class="btn btn-ghost" id="m-online" onclick="setMode('online')">② 在线</button>
+  </div>
+  <div class="hint-line" style="margin-top:22px; text-align:left">
+    都没声音时请检查:<br>
+    · 平板<b>媒体音量</b>是否调大(和铃声音量是两回事)<br>
+    · 是否连着<b>蓝牙耳机/音箱</b>——声音可能被送去了别的设备<br>
+    · 微信里打开的话,点右上角 ⋯ 选择<b>"在浏览器打开"</b>再试<br>
+    · 先在浏览器里放一个视频:视频也没声就是平板设置问题
+  </div>
+  <div class="hint-line" style="margin-top:12px; text-align:left; opacity:.7" id="snd-diag"></div>
+</div>
+
+<!-- ============ 阅读页 ============ -->
+<div class="screen" id="scr-read">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag" id="read-tag"></span>
+  </div>
+  <h2 class="chapter-title" id="read-title"></h2>
+  <div class="chapter-title-cn" id="read-title-cn"></div>
+  <div class="read-tools">
+    <button class="btn btn-ghost" id="btn-readaloud" onclick="readAloud()">🔊 读给我听</button>
+    <button class="btn btn-ghost" id="btn-pause" onclick="pauseToggle()">⏸ 暂停</button>
+    <button class="btn btn-ghost" id="btn-rate" onclick="toggleRate()">🐢 慢速</button>
+  </div>
+  <div class="fs-row">
+    <span>字号</span>
+    <button class="fs-btn small" onclick="changeFont(-1)">A－</button>
+    <span id="fs-label" style="min-width:44px;text-align:center">中</span>
+    <button class="fs-btn big" onclick="changeFont(1)">A＋</button>
+  </div>
+  <div class="story-card" id="story-body"></div>
+  <button class="btn btn-primary btn-block" id="btn-quiz" onclick="tryStartQuiz()">✅ 我读完了，去答题</button>
+  <div class="hint-line">💡 点"🔊 读给我听"把整章听完就能解锁答题 · 每段末尾的 🔊 可单独听一段 · 紫色单词点一下有惊喜</div>
+</div>
+
+<!-- ============ 答题页 ============ -->
+<div class="screen" id="scr-quiz">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="backToRead()">← 回去再读读</button>
+    <span class="chapter-tag" id="quiz-tag"></span>
+  </div>
+  <div class="quiz-progress" id="quiz-progress"></div>
+  <div class="question-card">
+    <div class="q-kind" id="q-kind"></div>
+    <div class="question-text" id="q-text"></div>
+    <div class="question-cn" id="q-cn"></div>
+    <div class="options" id="q-options"></div>
+  </div>
+  <div class="quiz-feedback" id="quiz-feedback"></div>
+</div>
+
+<!-- ============ 奖励页 ============ -->
+<div class="screen" id="scr-reward">
+  <div class="reward-zone">
+    <div class="reward-part" id="reward-part"></div>
+    <div class="reward-title" id="reward-title"></div>
+    <div class="reward-stars" id="reward-stars"></div>
+    <div class="reward-sub" id="reward-sub"></div>
+    <button class="btn btn-primary btn-block" onclick="goHome()">🗺 回到地图，继续冒险</button>
+  </div>
+</div>
+
+<!-- ============ 单词册 ============ -->
+<div class="screen" id="scr-wordbook">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag">MY WORD BOOK</span>
+  </div>
+  <h2 class="chapter-title">📖 我的单词册</h2>
+  <button class="btn btn-primary btn-block" style="margin:6px 0 4px" onclick="startReview()">🎮 复习生词小游戏</button>
+  <div id="wordbook-list"></div>
+</div>
+
+<!-- ============ 生词复习小游戏 ============ -->
+<div class="screen" id="scr-review">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="showWordbook()">← 单词册</button>
+    <span class="chapter-tag">VOCAB REVIEW</span>
+  </div>
+  <div class="rv-top">
+    <div class="rv-progress" id="rv-progress"></div>
+    <div class="rv-scorebar"><div class="b" id="rv-bar"></div></div>
+  </div>
+  <div id="rv-body"></div>
+  <div class="rv-feedback" id="rv-feedback"></div>
+</div>
+
+<!-- ============ 收藏馆 ============ -->
+<div class="screen" id="scr-shelf">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag">COLLECTION</span>
+  </div>
+  <h2 class="chapter-title">🏆 我的收藏馆</h2>
+  <div class="chapter-title-cn">每通关一章，就能获得一件故事纪念品</div>
+  <div class="shelf-grid" id="shelf-grid"></div>
+</div>
+
+<!-- 单词卡弹窗 -->
+<div class="overlay" id="word-overlay" onclick="closeWordCard(event)">
+  <div class="word-card" id="word-card"></div>
+</div>
+
+<!-- 预测/揭晓弹窗 -->
+<div class="overlay" id="pred-overlay">
+  <div class="pred-card" id="pred-card"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ======== 数据(由构建脚本注入) ======== */
+const BOOK = [{"id":"u00","section":"\u7b2c\u4e00\u5e55 \u00b7 \u795e\u79d8\u7684\u95e8","tag":"START","title_en":"The Strange Door","title_cn":"\u795e\u79d8\u7684\u95e8","teaser_cn":"\u4e00\u6247\u810f\u95e8\u540e\u85cf\u7740\u4ec0\u4e48\u79d8\u5bc6\uff1f","icon":"\ud83d\udeaa","itemName":"\u90a3\u6247\u602a\u95e8","words":1438,"paras":["Mr Utterson was a lawyer in London. He was a very serious man, and he did not often smile or laugh. He lived alone, and he had a very quiet life. His friends liked him because he was kind.","They trusted him with their secrets. One of Mr Utterson's closest friends was Mr Richard Enfield, who was a relative of his. Mr Utterson and Mr Enfield walked together every Sunday. They did not say much to each other, but they enjoyed their walks.","relative; 35 /i = FF BR IS _ One Sunday Mr Utterson was walking with Mr Enfield. They were in a quiet street of the city. All the houses in the street were clean and {cheerful}, except for one. The door of this house was dirty.","No one seemed to live there. Mr Enfield looked at the house for a moment, and then he said to Mr Utterson, 'Do you see that house? I know a strange story, and that house is part of the story.' home along this street.","It was winter, and it was very late. There was nobody in the street. I was {frightened}. Suddenly I saw two people.","One was a little girl, and the other was a man. The little girl was running towards the main? street. The man was walking down the main street.","They ran into each other at the corner, and the little girl fell down. 'Then something horrible happened, and I have never been able to forget it. The little girl was on the ground, The man began to scream and cry. It was very frightening, the way he walked over her.","'I went after the man, and I brought him back. He was a cheerful; (GAG) OGG RN EY main; Sify - +S. He = I small man, I remember, and there was something strange about him. I hated him the moment I saw him, I don't know why.","'When we came back to the little girl, there was a crowd! in the street. The girl's family was there. There was also a doctor.","Everybody was very angry. The girl was all right, but she was crying. Her family was very angry with the man. 'I hated the man, and I could see that everybody hated him.","We all wanted to kill him. We decided to {punish} him. I told him that he had done a horrible thing. when they know what you did tonight.\"","family some money. We told him to give the family one hundred pounds. It was a lot of money. hundred pounds.\"","difficult to find one hundred pounds in the middle of the night. We went with the man, and he came to this old house. He opened the door with a key. He went inside, and he came out with the money.","He had ten pounds in notes, and a {cheque} for {ninety} pounds. The cheque was not his \u2014 it was signed by another man. The other man is very well known in London. 1.","crowd; Ade 2. cheque: xe lo Story of the Door {forgery}.\" 1 1 told the man my {suspicions}. He laughed at me.","the bank opens.\" the morning we all went to the bank. The bank paid the it possible for this terrible man to be a friend of the man who wrote the cheque? Perhaps the terrible man is {blackmailing} * him.'","Mr Utterson looked at the house again. Then he asked Mr Enfield a question. that house?' that later.","He lives somewhere else.' many questions. I don't like asking questions. But I know that the strange man uses the house very often.","I have seen him come in and go out.' 1. forgery: (9379 2. trust: (JESb 9) HSE ETE \u00ab 3.","blackmailing: W# __ Mr Utterson was silent for a moment. Then he said, 'I agree with you: it is best not to ask questions sometimes. But tell me, do you know the name of the strange man?' about him.","I hated him the moment I saw him. So did everybody else that night.' Mr Utterson. a key,' Mr Utterson looked sad.","Then he said, 'I have not asked you the name of the man who wrote the cheque. That is because I already know his name.' le Go back to the text ea One of the main characters in the story is Mr Utterson. What do you know about him?","Answer the questions below.. What kind of work does he do? Where does he live?. Why do his friends like him?.","What is the name of one of his best friends? -> Ww NW \u2014_ Fe Mr Utterson and his friend go for a walk in the city. They see a house that is different to the other houses in the street. Use the chart below to show the differences.","The other houses This house Look at the statements below about Part One. Decide if each statement is correct or {incorrect}. If it is correct, write A. If it is incorrect, write B.","1. It happened in summer. iat A little girl and a man ran into each other in the street. The man fellover, \u00a32 eine yop YN The man walked overthe girl, rte.","The man was very tall. eho 7. The man had a key to the house. 8.","The man came out of the house with a cheque. The cheque was a forgery. andsome money. 2 2 2 2.","2, ineee What do you know about Mr Hyde? Complete the chart below. what you know about Mr Hyde what he looks like his character B Mr Enfield gives his opinion about Mr Hyde. Answer the questions below.","What does he feel about him? What is his reaction when Mr Hyde walks over the girl? What does he think when Mr Hyde comes out of the house with the money?. What does he think when the bank cashes!","the cheque? 5. Why doesn't he investigate the story further? investigate; Hi fit hh i] 7% \u00bb Vocabulary Ga Here are some sentences from the text.","For each question, complete the second sentence so that it means the same as the first, using no more than three words. Example: They did not say much to each other, but they enjoyed their walks. They enjoyed their walks even though they did not say much to each other. 1.","There was nobody in the street. THETA WAS TOE sacpessccisseresuees in the street. 3. It is difficult to find one hundred pounds in the middle of the night.","5. I told him that he had done a horrible thing. 2s) ee i eee a horrible thing,' I said to him. 6.","[hated him the moment I saw him. ANS SOOTL AS ceccccccccccescsuceceusevenees I hated him. al Past Simple (\u2014AaiwAnt) and Past Continuous GUAH{TH) In the text you read: The little girl was running towards the main street. The man was walking down the main street.","Bring a picture or article about your favourite place in your country to your friend(s). It can be a city, town or place in the country. Tell your friend(s) about it. Use the following questions to help you.","Why do you like this place so much? When did you first go there? How many times have you been there? How often do you go there?","If you were choosing a place to live, what things would be important to you? Listening (os o You will hear the first three {paragraphs} of Part One again. Some words are different! Circle the words you hear.","Mr Utterson was a lawyer in London. He was a very (1) sad / serious man, and he did not often (2) talk / smile or laugh. He lived alone, and he had a very (3) quiet / {tranquil} life. His friends liked him because he was (4) wise / kind.","They trusted him with their secrets. One of Mr Utterson's (5) closest / best friends was Mr Richard Enfield, who was a (6) relative / cousin of his. Mr Utterson and Mr Enfield (7) worked / walked together every Sunday. They did not say much to each other, but they enjoyed their (8) work / walks.","One Sunday Mr Utterson was walking with Mr Enfield. They were in a quiet street of the city. All the houses in the street were (9) clean / {neat} and cheerful, except for one. The (10) floor / door of this house was dirty.","No one seemed to live there. Writing Ft This is part of a letter you receive from your friend, ln youv next letter, please tell me what you have been doing vecently. Has Anything exciting happened to yous Now pretend you are the little girl in the story, and write a letter to your friend to tell him/her what has happened. Write your letter in about words."],"quiz":[{"q":"What kind of work does Mr Utterson do?","cn":"\u5384\u7279\u68ee\u5148\u751f\u662f\u505a\u4ec0\u4e48\u5de5\u4f5c\u7684\uff1f","options":["A doctor","A lawyer","A policeman"],"answer":1},{"type":"tf","q":"Mr Utterson and Mr Enfield went for a walk together every Sunday.","cn":"\u5384\u7279\u68ee\u5148\u751f\u548c\u6069\u83f2\u5c14\u5fb7\u5148\u751f\u6bcf\u4e2a\u661f\u671f\u5929\u90fd\u4f1a\u4e00\u8d77\u6563\u6b65\u3002","answer":true},{"q":"What did the strange man give the little girl's family after he walked over her?","cn":"\u90a3\u4e2a\u602a\u4eba\u649e\u5012\u5c0f\u5973\u5b69\u540e\uff0c\u7ed9\u4e86\u5979\u5bb6\u4eba\u4ec0\u4e48\uff1f","options":["An apology letter","A hundred pounds","His house key"],"answer":1},{"type":"fill","q":"The strange man opened the door of the old house with a ___.","cn":"\u90a3\u4e2a\u5947\u602a\u7684\u7537\u4eba\u7528\u4e00\u628a___\u6253\u5f00\u4e86\u90a3\u680b\u8001\u623f\u5b50\u7684\u95e8\u3002","options":["key","hammer","rope"],"answer":0},{"q":"Why does Mr Utterson look sad when he hears the name on the cheque?","cn":"\u5384\u7279\u68ee\u542c\u5230\u652f\u7968\u4e0a\u7684\u540d\u5b57\u540e\u4e3a\u4f55\u9762\u9732\u5fe7\u8272\uff1f","options":["Because he already knows the man who wrote it","Because he thinks the cheque is worthless","Because he does not believe Mr Enfield's story"],"answer":0}]},{"id":"u01","section":"\u7b2c\u4e00\u5e55 \u00b7 \u795e\u79d8\u7684\u95e8","tag":"CHAPTER 1","title_en":"Looking for Hyde","title_cn":"\u5bfb\u627e\u6d77\u5fb7\u5148\u751f","teaser_cn":"\u4e00\u4efd\u9057\u5631\u7275\u51fa\u66f4\u6df1\u7684\u8c1c\u56e2","icon":"\ud83c\udfad","itemName":"\u53cc\u9762\u4eba\u5f71","words":1640,"paras":["Mr Utterson was unhappy after his walk with Richard Enfield. He came home, and ate his dinner. Then he went to his safe. He took out a large document.","The document was Dr Jekyll's will. Mr Utterson read the will carefully. Dr Jekyll's orders were Glear. He left his money Mr Utterson did not like search for Mr Hude this part of the will.","There was another part of the will which he did not like. If Dr Jekyll disappeared or went away, Mr Hyde could have all his money. Jekyll want to give his money to this Mr Hyde? Dr Jekyll is a good man, and this Mr Hyde is a terrible man.","And what does to disappear? I will find out the truth.' He decided to visit Dr Lanyon. Dr Lanyon was also a friend Utterson.","Dr Lanyon was happy to see Mr Utterson. They talked together for a while. Then Mr Utterson said, 'We have all been friends for a long time. You and I are Dr often these days.'","interests,' ideas about science. He has some very strange ideas. We don't see each other often.' Hyde?'","Dr Lanyon thought for a moment. l. while; Prt fal - Mr Utterson returned home after his visit to Dr Lanyon. He could not sleep that night.","He was worried about his friend. He remembered Mr Enfield's story about Mr Hyde and the little girl. about his friendship with Henry Jekyll.' Mr Utterson went back to the old house very often now.","He waited in the street, and he hoped to see Mr Hyde. He went there every day, but Mr Hyde never came. One night Mr Utterson was in the street outside the old house. He heard someone in the street.","Then he saw a man. Mr Utterson followed him, and then spoke to him. The man seemed frightened for a moment. Then he looked at Mr Utterson {angrily}.","house?' you again. It may be useful.' Utterson a piece of paper with his address written on it.","we met because of the will! That's why he wants me to know where he lives.' Mr Hyde entered the house, and closed the door behind him. something very strange about him.","Poor Henry Jekyll, why have you got a friend like that?' The lawyer walked to the end of the street, and turned the corner. The houses here were large and beautiful. Mr Utterson stopped and knocked at the door of one of the houses.","A servant opened the door. is at home.' Poole came back after a few moments. out.'","laboratory.' orders to {obey} Mr Hyde when he comes to the laboratory.' 2.","obey Mr Hyde; Ari 08 76 AE AY toy ME SS ARE Search for Mr Hude comes to this part of the house. He stays in the laboratory.' Mr Utterson {thanked} the servant, and left the house. He was very sad.","was a young man. Mr Hyde must know some secret from the past. My friend is paying him to be quiet about the secret. My Two weeks later, Dr Jekyll invited some of his friends to dinner at his house.","Mr Utterson was one of the guests. After the other guests had gone, Mr Utterson stayed to talk with his friend. are old friends. If you are in trouble, tell me the truth.","Perhaps I can help you.' for your offer of help. But you cannot help me. I know you have seen Mr Hyde \u2014 he told me.","I am interested in that man. I trust you to follow the orders in my will. Promise me that you will follow them.' you help him when I am not here.'","tL. {interrupted}: fT] iy (PRT) \u00ab 2. trouble: FAME \u00ab T I Vv I T I E Go back to the text Ei Choose the correct answer, A, B, C or D, to the questions below. 1.","What are the terms of Dr Jekyll's will? Mr Utterson will receive all his property if he dies. Mr Hyde will receive all his money if he dies. Mr Hyde will receive all his money if Dr Jekyll {disappears} or goes away.","Mr Hyde can go into his laboratory if Dr Jekyll disappears or goes away. 2. Why don't Dr Lanyon and Dr Jekyll see each other anymore? Because Dr Lanyon does not like Dr Jekyll's will.","Because Dr Lanyon does not like Mr Hyde. C I I Because Dr Lanyon does not like Dr Jekyll's scientific ideas. Because Dr Lanyon does not like Dr Jekyll's {dinners}. 3.","Where does Mr Utterson go to look for Mr Hyde? fe On the street where the old, dirty house is. In Dr Jekyll's laboratory. At Dr Lanyon's.","At Dr Jekyll's house. 4. Why is Mr Hyde happy to meet Mr Utterson? A Because he is a friend of his friend.","B I I Because he knows he is a good man. C I I Because he knows that Mr Utterson is responsible for Dr Jekyll's will. D I I Because he knows that Mr Utterson has a lot of money. 5.","What does Dr Jekyll ask Mr Utterson to do for Mr Hyde? To give him the money he needs to pay the little girl's family. To let him into the laboratory if Dr Jekyll disappears. To help him if Dr Jekyll goes away.","Not to tell Mr Enfield that Mr Hyde is his friend. ol iz Look for these words from Parts One and Two. CON oo Pw Mr Hyde was to receive Dr Jekyll''s money in case of Dr JOK VIS. i.","Mr Utterson. Mr Extfiold Was \u00a3. scence: by Mr Hyde. YOur COUSIN IS.","Tih Disssavesasvivsvonscsne is to ask for money for not telling someone's secrets, The Present Perfect {Tense} (Mt#EsER NN) The Present Perfect tense {expresses} an action that started in the past, and is not finished. In the text you read: (We started being friends a long time ago, and we are still friends. ) The Present Perfect tense also expresses an action completed in the past whose results are still visible in the present. In the text you read: (You cannot see him now, because he is out.",":06. her for years. (love) 5. We had a miserable holiday!","eseseseeeeeeeeereee playing football when I was young. (hate) 7. I ssssessseeesseseeeeee for ten years and my wife is expecting our first child. (marry) B.","Lo... my Wife in 1972. (marry) 1. visible: WLBY \u00ab 2.","-epereceponeledenss ns he'll find out what is happening. why. happens next. know, too.","1. awful; Pepa \u00bb lon don and Crime Novelists in the Victorian age were {fascinated} by crime, and there are many famous works set in the capital city, London. Charles Dickens's novel of 1839, Oliver Twist, dramatised the criminal life of London with its {portrayal} of Fagin and his gang of boy {thieves}. The book contains one of the most famous murders in and excited readers.","Later in his career Dickens used to {conclude} public {readings} from his works with the terrible scene of Nancy's m look {suspiciously} at a {dubious}-looking by, from Illustrated London News (1888), by R, Tayler. death, and the pursuit and death of the {murderer}. London was also the centre of activity of the most famous detective, Sherlock Holmes. These stories, written by Arthur Conan Doyle, first appeared in the 1880's.","They provide a {vivid} picture of London as a mysterious and dangerous city, full of secrets and {intrigue}. 3 2. dramatised: (i: XR Rt \u00bb 4. intrigue: BH ik oo The discovery of one of the victims of Jack the Ripper in Whitechapel, from Le Petit Parisien (1888), by Clair Guyot.","Conan Doyle's brother-in-law, E. W, Hornung wrote the famous Raffles stories in the 1890's. The {gentlemanly} {thief}, who carried out his operations from a flat in Piccadilly, became a {hugely} popular figure. Real crime caught the attention of Londoners in with the Whitechapel area of the city.","The murderer was never caught. and the newspapers {speculated} about a *high-society' madman who was supposedly responsible for them. This idea soon found its way into fiction, with the publication of The Lodger by Marie Belloc Lowndes, published in 1913. 1.","2, speculated: SHAM + didi) Joseph Conrad contributed to the London crime novel with The Secret Agent, 1907. This novel deals with a political plot that goes badly wrong tn the city \u2014 the result is murder. Fil Look at the statements below about London and crime. Decide if each statement is correct or incorrect.","If it is correct, write A. If it is incorrect, write B. 1. Charles Dickens's novel Oliver Twist deals with agang of diamond thieves.","5. The newspapers thought that Jack the Ripper was fromthe upperclasses. sa, 6. Joseph Conrad's novel The Secret Agent is setin London, Topic \u2014 Youth culture This dossier is about criminals and detectives in London in the 1800s and beginning of the 1900s.","Bring a picture of a detective who is well known to young people in your country to your friend(s). He or she can be from a book, cartoon, or film. Tell your friend(s) about him or her. You can also bring a detective story and talk about that.","Use the following questions to help you. 1, Who is this detective? Where and when does he or she live? Does he or she have a friend or colleague to help?","2. What are this detective's special qualities or abilities? 3. What are his or her most famous detective stories?","Before you go on (a Bil Listen to the beginning of Part Three. You are a newspaper reporter taking notes about a murder. For each question, fill in the missing information in the numbered space. Muvder Notes Who witnessed?","the cvime The time of the muvdey The witness sat Description of the victim? He (MAS 4. WAM pith 5. hAIv.","The muvdever's name The witness knew the murderer because The murderer killed his victim with 1."],"quiz":[{"q":"According to Dr Jekyll's will, who gets his money if he disappears?","cn":"\u6839\u636e\u6770\u57fa\u5c14\u533b\u751f\u7684\u9057\u5631\uff0c\u5982\u679c\u4ed6\u5931\u8e2a\uff0c\u94b1\u4f1a\u7ed9\u8c01\uff1f","options":["Mr Utterson","Dr Lanyon","Mr Hyde"],"answer":2},{"type":"tf","q":"Dr Lanyon and Dr Jekyll saw each other very often because they shared the same scientific interests.","cn":"\u5170\u626c\u533b\u751f\u548c\u6770\u57fa\u5c14\u533b\u751f\u56e0\u4e3a\u6709\u5171\u540c\u7684\u79d1\u5b66\u5174\u8da3\uff0c\u5e38\u5e38\u89c1\u9762\u3002","answer":false},{"q":"What does Mr Hyde give Mr Utterson when they meet in the street?","cn":"\u5728\u8857\u4e0a\u78b0\u9762\u65f6\uff0c\u6d77\u5fb7\u5148\u751f\u7ed9\u4e86\u5384\u7279\u68ee\u4ec0\u4e48\uff1f","options":["A piece of paper with his address","A key to the laboratory","A letter from Dr Jekyll"],"answer":0},{"type":"who","q":"I trust you to follow the orders in my will. Promise me that you will follow them.","cn":"\u6211\u76f8\u4fe1\u4f60\u4f1a\u9075\u7167\u6211\u9057\u5631\u91cc\u7684\u5631\u5490\u53bb\u505a\u3002\u7b54\u5e94\u6211\uff0c\u4f60\u4f1a\u7167\u529e\u7684\u3002","options":["Dr Jekyll","Mr Utterson","Dr Lanyon"],"answer":0},{"q":"Why does Dr Jekyll ask Mr Utterson to follow the will's orders about Hyde?","cn":"\u6770\u57fa\u5c14\u533b\u751f\u4e3a\u4f55\u8bf7\u5384\u7279\u68ee\u4e00\u5b9a\u6309\u9057\u5631\u7167\u987e\u6d77\u5fb7\uff1f","options":["Because Hyde is a poor relative of his","Because he trusts Utterson to help Hyde if something happens to him","Because the will was written by Hyde himself"],"answer":1}]},{"id":"u02","section":"\u7b2c\u4e00\u5e55 \u00b7 \u795e\u79d8\u7684\u95e8","tag":"CHAPTER 2","title_en":"A Terrible Murder","title_cn":"\u51f6\u6848\u7591\u4e91","teaser_cn":"\u4e00\u573a\u66b4\u529b\u88ad\u51fb\u9707\u60ca\u4e86\u4f26\u6566","icon":"\ud83d\udd75","itemName":"\u5f8b\u5e08\u7684\u8ffd\u67e5","words":1808,"paras":["One year passed. Then a terrible murder happened in London. The murder shocked people because it was very violent, and because the victim was an important man. Soon everybody was talking about it.","A young servant girl described what had happened. She lived in a house near the river. She had gone to bed at about eleven o'clock one night. She could not sleep, and she had got out of bed.","She sat near the window for a long time. She saw an old man who was walking along the street.","The old man had white hair. She also saw another, small man, walking towards the old man. When the two men met, the old man said something to the small man. He seemed to be asking a question.","The girl could not hear the words he spoke, but she said that he spoke very {politely}.! Then the girl recognised the small man. It was Mr Hyde. She knew him because he sometimes came to the house where she worked, to speak to her employer.","2 Mr Hyde was carrying a heavy stick in his hand. He did not answer the old man's question. Suddenly he lifted his stick above his head, and began to hit the old man with it. He hit him again and again, and the old man fell to the ground.","Then Mr Hyde attacked him where he lay on the ground. The girl was {horrified} at the violence of the attack, and she {fainted}. It was two o'clock in the morning when the girl woke up from her faint. She called the police immediately.","The murderer had gone, but the old man was lying in the street. The police found a piece of the murderer's stick in the street next to the old man's body. When they {searched} the body, 2. employer; ME 5.","searched: #@3> 4, stick: F# > hy 6. wallet: 2 & and Mr {hive}: The letter was addressed to Mr Utterson, the lawyer. The police came to Mr Utterson's house the next morning. He became very serious when they told him about the murder.","said. 'I can say nothing until I have seen the body.' Mr Utterson went to the police station. The police had carried the body there.","'IT {recognise} this man. It is Sir Danvers Carew, the Member of Parliament.' The {policeman} then told Mr Utterson what the girl had seen. Mr Utterson was unhappy when he heard the name of Hyde.","He asked to look at the piece of the murderer's stick. He recognised it immediately. that he was a small man?' Mr Utterson and the policeman went to the part of the city where Mr Hyde lived.","It was a dirty, poor part of the city. The Carew Hurder Case They knocked on the door of Mr Hyde's house. An old woman with an evil! face opened the door.","She told them that Mr Hyde was out. She explained that Mr Hyde had come in very late the night before. Then he had gone out again. Inspector Newcomen of Scotland Yard.'","the police looking for him?' The old woman showed the two men Mr Hyde's rooms. They were comfortable rooms, with {elegant} furniture and pictures. The rooms were {untidy}, however.","They found clothes on the floor, and part of Mr Hyde's stick behind the door. There was also part of a cheque-book in the fire-place. Someone had tried to burn it. Mr Utterson and the inspector went to the bank.","They discovered that Mr Hyde's bank account contained thousands of pounds. cannot escape the police. We have the evidence we need. We can prove that he is the murderer.","We have his stick, and we know where his bank is. We will wait for him to go to the bank. We will put up pictures of him all over the city.' It was not easy to find pictures of Mr Hyde.","He had no family, and he had no friends. There was no photograph of him anywhere. The people who had seen him could not describe him. Everybody agreed that he was small and ugly \u2014 but no one could describe him {accurately}.","3 1. evil: FRR o 2, AS The Strange C r J It was late in the afternoon when Mr Utterson arrived at Dr Jekyll's house. The servant Poole took the lawyer through the main part of the house to the laboratory.","It was the first time that Mr Utterson had been to Dr Jekyll's laboratory. He looked at the scientific {apparatus}! with {curiosity}. 'Have you heard the terrible news?'","he asked his friend. Dr Jekyll looked very unhappy. client. You are also my client.","I want to understand exactly what has happened. Are you hiding Mr Hyde?' you, my friend, I have finished with that man. But he does not need my help.","He has gone, and no one will find him.' again. But there is something else. I need your advice.","2 I have received a letter, and I don't know what to do with it. Will you advise me?' 1. apparatus: {44% > TH \u00ab 2.","advice: #2 UL The Carew Murder Case Dr Jekyll gave the lawyer a letter. It was written by Edward Hyde. In his letter Mr Hyde thanked Dr Jekyll for his friendship. He said that he was sorry for what he had done, and that he was going away.","not posted. Someone came to the house and left it here.' thing. Was it Mr Hyde who made you write the will?'","Dr Jekyll looked at his friend. He said nothing, but he {nodded} his head. murder you. He wanted your money.'","When he was leaving the house, Mr Utterson spoke to Poole for a moment. 'Then the letter arrived at the laboratory, and not at the the person who left it.' That evening Mr Utterson sat with Mr Guest, his head-{clerk} and friend. 1.","{envelope}: fae Sw 2. nodded his head: Fic, Bp dt \u00ab 5. head-clerk: (J&E9R) {Tie RUE A 449% - of Dr J Jekyll and Mr Hyde said. killed him must be mad.'","said. 'I have a letter from Mr Hyde. Please look at it, and tell me about the writer of the letter. Do you think he is really mad?'","Mr Utterson took out Mr Hyde's letter, and passed it to Mr Guest. Mr Guest studied the letter for a few minutes. Then he said, 'Well, sir, the writer of this letter is not mad. But his writing is strange.","I know this writing, I am sure I do.' Mr Guest picked up a letter from Dr Jekyll. He put it next to the letter from Mr Hyde. Utterson said.","When he was alone again, Mr Utterson put the letter from Mr Hyde into his safe. He was very unhappy. 'What have you done, my old friend? And why are you protecting Hyde?'","1. detection; Hitt 'bb AS 4e>) FS Sr aE eas Go back to the text Ri The servant girl describes what she saw on the night of the murder. Put the events into the right order. She looks out of the window.","Mr Hyde kills Sir Danvers Carew. The police arrive. She faints. She goes to bed.","The old man asks Mr Hyde something. She gets out of bed. N 2g Pen p A Use the table below to show what the police find when they arrive at the scene of the crime. What the police find Who it belongs to Ei Why do the police go to Mr Utterson's house in the morning?","Mr Utterson and Inspector Newcomen go into Mr Hyde's rooms. Write a list of what they find. Ccbeetb een {bees} Pee ra Be eee eee eee ee ee eee ee ee ee ee is the evidence against Mr Hyde? 08 TTP SCC STEPS SS ee eee a Mr Utterson and Dr Jekyll talk about Mr Hyde.","Decide if each statement is correct or incorrect. If it is correct, write A. If it is incorrect, write B. a.","wes c. Dr Jekyll says that the police will find Mr Hyde. wuss d. Dr Jekyll shows Mr Utterson a letter from Mr Hyde.","Bring an object from your room at home to your friend(s). Tell your friend(s) about the object and your room. Use the following questions to help you. 1.","What have you brought and why did you bring it? 2. Can you tell your friend(s) something about your room? 3.","What do you like and {dislike} about your room?. If you could change something about your room, what would it be? The Future Tense (# KAY) The Future tense with will is used to indicate an action that is decided at the time of speaking. In the text you read: made at the time of speaking.",") The Future tense with will is also used to make {predictions} about the future. In the text you read: ft) Make {affirmative} (4) or negative (iE) sentences with will, using the words in the box. Io ow bf open win answer {lend} _ have pass drive work do [t's very hot in here.","Whe do you think sisdiisciicevsies the race? Now look at the sentences below, and decide if will indicates a prediction (P) or a decision (D) at the moment of speaking. P D his driving test. the take-away.","That looks heavy \u2014 I'll carry it for you. Listening os Fi You will hear a conversation between Inspector Newcomen and another policeman. Inspector Newcomen is describing what happened. Complete the other policeman's questions.","Parliament. murderer is mad. called Edward Hyde. POLICEMANE 07) lilececsesvsrvepeserenctsesnnnnnnennaneres oy wad bau babe ue MARTA Kester wus What do you think?","What do you think will happen next in the story? Before you read iQ} al Listen to the first part of Part Four and choose the correct answer, A, B or C. 1. Why did Mr Utterson think that Dr Jekyll was safe?","A Because the police were looking for Mr Hyde. B Because Mr Hyde had disappeared. C I I Because Dr Jekyll was cheerful again. 2.","When did Mr Utterson have dinner at Dr Jekyll's house? A on January 8th B I I on January 12th Cc on January 18th 3. Why was Dr Lanyon dying? A I I Because he was very old.","B Because he had had a terrible shock. C Because he had a terrible disease. 4. Why did Dr Jekyll say that he had to be alone?","A Because he had argued with Dr Lanyon B I I Because he was sad that Mr Hyde was gone. C Because that was his punishment for a terrible thing he had done. 5. What did the writing on the large envelope from Dr Lanyon and Dr Jekyll's will have in common?","A They both mention Dr Jekyll's {disappearance}. B They both mention Mr Hyde. C They both mention Dr Lanyon."],"quiz":[{"q":"Who did the servant girl see attack the old man?","cn":"\u5973\u4f63\u770b\u89c1\u8c01\u88ad\u51fb\u4e86\u90a3\u4f4d\u8001\u4eba\uff1f","options":["Mr Utterson","Mr Hyde","Poole"],"answer":1},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["She goes to bed","She gets out of bed and sits by the window","She sees Mr Hyde attack the old man"]},{"q":"What did the police find in Mr Hyde's rooms besides his stick?","cn":"\u8b66\u5bdf\u5728\u6d77\u5fb7\u7684\u623f\u95f4\u91cc\u9664\u4e86\u624b\u6756\u8fd8\u53d1\u73b0\u4e86\u4ec0\u4e48\uff1f","options":["A burnt cheque-book","A photograph of him","A letter from Dr Lanyon"],"answer":0},{"type":"tf","q":"The man that Mr Hyde murdered was Sir Danvers Carew, a Member of Parliament.","cn":"\u88ab\u6d77\u5fb7\u5148\u751f\u6740\u5bb3\u7684\u4eba\u662f\u56fd\u4f1a\u8bae\u5458\u4e39\u5f17\u65af\u00b7\u5361\u9c81\u7235\u58eb\u3002","answer":true},{"q":"Why is Mr Utterson so troubled after Dr Jekyll shows him Hyde's letter?","cn":"\u6770\u57fa\u5c14\u7ed9\u5384\u7279\u68ee\u770b\u4e86\u6d77\u5fb7\u7684\u4fe1\u540e\uff0c\u4e3a\u4f55\u4ed6\u66f4\u52a0\u4e0d\u5b89\uff1f","options":["The letter proves Hyde has already left London","The handwriting looks just like Dr Jekyll's own writing","The letter asks for more money from Dr Jekyll"],"answer":1}]},{"id":"u03","section":"\u7b2c\u4e8c\u5e55 \u00b7 \u51f6\u6848\u4e0e\u8ffd\u67e5","tag":"CHAPTER 3","title_en":"The Window Scene","title_cn":"\u7a97\u8fb9\u7684\u5f02\u6837","teaser_cn":"\u4e00\u6b21\u5fae\u7b11\u7a81\u7136\u53d8\u6210\u4e86\u6050\u60e7","icon":"\ud83d\udd2a","itemName":"\u51f6\u6848\u624b\u6756","words":1304,"paras":["Time passed, and the police continued their search for Mr Hyde. They offered a lot of money for information about him, They found out about his past. He had done many bad things, and no one liked him. But they could not discover where he was.","There I was no trace of him. Mr Utterson began to think that his friend Jekyll was now safe. He was happy that Mr Hyde had disappeared. He saw that a new life was beginning for Dr Jekyll.","The doctor saw his friends again, and he seemed cheerful and {contented}. For two months Dr Jekyll saw his friends nearly every day. 1. trace: Beek \u00bb 2, contented: TEXEAY \u00ab On the eighth of January Mr Utterson had dinner at Dr Jekyll's house.","Dr Lanyon was one of the guests. Mr Utterson called at his friend's house again on the {twelfth} of January. Poole said that his employer was not at home. The lawyer returned on the {fourteenth}.","anyone. He is ill.' Mr Utterson came back the next day, but again he could not see Jekyll. He began to worry that something had happened.","He decided to visit Dr Lanyon. Mr Utterson was very surprised when he saw Dr Lanyon. The doctor looked very ill. He was white and very thin.","know he is dying. How sad it is!' never be well again. I will be dead in a few weeks.'","house, but Poole says he is ill. Have you seen him?' he said. 'I do not want you to speak about that man to me.","Never mention! his name to me again. To me, Jekyll is a dead man!' yourself.'","lL. mention: iit JB ie ob Tucideut at the Window Dr Lanyon looked at the lawyer very seriously. truth of this matter. I cannot tell you now.","Please don't talk to me any more about Jekyll.' When Mr Utterson got home, he wrote a letter to Dr Jekyll. He asked what was wrong with his friend, and he asked him why he had quarrelled * with Dr Lanyon. The next day he received a reply from Dr Jekyll.","In his letter the doctor told him that he had decided not to see anyone in the future. He said that he could not explain the {quarrel} with Dr a terrible thing, and this is my punishment.' Mr Utterson did not understand Dr Jekyll's letter. Surely his friend was safe, now that Mr Hyde was gone?","Why did he began to think his friend was mad. Dr Lanyon died about three weeks later, and Mr Utterson went to the funeral. He was sad at the loss of his old friend. The night after the funeral Mr Utterson received a large envelope.","The writing was Dr Lanyon's. It said: The lawyer opened the envelope. It contained a second envelope. The writing on the second envelope said: 1.","matter: ST} @ 2. quarrelled: awh \u00ab on mean?' Then he remembered the words of the doctor's will. well.","Mr Utterson wanted to open the mysterious! letter, to discover the truth. But he was a lawyer, and he decided to obey Dr Lanyon's instructions. He put the letter in his safe.","Mr Utterson went to Dr Jekyll's several times, but he never succeeded in seeing Dr Jekyll. Poole always told him the same thing: It seemed that the doctor spent most of his time in the laboratory now. He slept there sometimes, according to Poole. Soon Mr Utterson stopped going to his friend's house.","It was useless. Dr Jekyll did not want to see him. The doctor did not want his help. One Sunday afternoon, Mr Utterson was walking with Mr Enfield, as usual.","When they came to the old house Mr Enfield said, that I saw Mr Hyde once? You remember that you said you hated him when you saw him? I had the same feeling myself.' i.","mysterious: PNY \u00bb 2, instructions: {fas > Wp Mt at Tucident at the Window The two men entered the garden of the house. They looked up, and they saw Dr Jekyll. He was sitting at one of the windows. Mr Utterson walked forward.","sure I will.' for a walk with us, It will do you good.' impossible. I am pleased to see you, Utterson.","I wish I could ask you into the house to sit with me, but I cannot, The house is untidy.' Just as the doctor spoke these friendly words his face changed. The smile of welcome disappeared from it, and an expression of horror came over it. Mr Utterson saw the change in his friend's face \u2014 and then Dr Jekyll closed the window with a bang.","2 Mr Utterson and Mr Enfield walked away from the house. They did not speak for a moment. Then Mr Utterson turned to his cousin and said, Go back to the text Ey Look at the statements below about Part Four. Decide if each statement is correct or incorrect.","If it is correct, write A. If it is not correct, write B. The police could not find out anything about MrHyde'spast. Dr Jekyll began seeing his friends again after Mr Hyde's disappearance.","After the dinner at Dr Jekyll's house on January 8th, Mr Utterson and Dr Jekyll began to see each other quite often. Dr Lanyon was dying because he had had a terrible shock.. Dr Lanyon explained to Mr Utterson why he was soangry with DrJekyll, ga. After Dr Lanyon's death, Dr Jekyll was always in his laboratory,.","The old house of Mr Enfield's story was really DrLanyon's laboratory, ee. Dr Jekyll thought that he was going to die.. While they were. talking, Dr Jekyll became much happier, ne At the end of the chapter, Dr Jekyll {invites} his friends into his laboratory, Fi] Read this brief {biography}!","about a famous Italian writer, Then do the word {puzzle} to discover his name. Our mystery writer was a great {admirer} of Robert Louis Stevenson. He was famous for using {philosophical} and scientific theory in literature. He {admired} how Stevenson presented his philosophical ideas on good and evil by using the basic formula of the crime and mystery stories of his day.","biography; f\u20ac id * ot A C T I Vv T iE Our mystery writer was born in Cuba of Italian parents in 1923, and when he was quite young they moved back to Italy to the Riviera. During the war he fought in the Italian Resistance, and afterwards he moved to the city of Turin. He became a successful author quite early in his writing career and became popular in translation! all over the world.","Our writer died in 1985, and many readers around the world wish they could have one more of his serious funny and philosophical stories! 1. What the young servant girl did after she saw the horrible murder. 2.","Mr Utterson wants to read Dr Lanyon's letter to discover the casiwslesendaueasawaneaes about Mr Hyde. 4, Aman keeps his {banknotes} in one of these. 5. Dr Lanyon was dying because 6, The surname of the murdered man.","7. To discuss angrily. I il 8. The person you work for.","9. Mr Hyde was the x. skemareHiNweNeTeHTAs.. part of Dr Jekyll.","8 I 10. Sick, not well. 9 11, The day when Dr Enfield and Mr Utterson usually took a walk together. JWILLULUII 1.","at the loss of his old friend. The night after the funeral Mr Utterson received a large envelope. Speaking Try to explain Dr Jekyll's strange behaviour at the end of the chapter. Compare your ideas with your friend(s).","5 I Grammatical theme \u2014 First {conditional}/possibility, uncertainty, suggestion In the next part Mr Utterson goes to Dr Jekyll's house. Answer these questions with your friend(s). What do you think will happen 1. if he meets Dr Jekyll?","3. if he meets Mr Hyde? 2. if he finds Dr Jekyll is dead?","4. ifhe finds Mr Hyde is dead?"],"quiz":[{"q":"Why is Dr Lanyon so ill and unwilling to talk about Dr Jekyll?","cn":"\u5170\u5b81\u533b\u751f\u4e3a\u4f55\u75c5\u91cd\uff0c\u8fd8\u4e0d\u613f\u8c08\u8d77\u6770\u57fa\u5c14\uff1f","options":["He had a terrible shock connected to Jekyll","He caught a serious illness from a patient","He is angry that Jekyll owes him money"],"answer":0},{"type":"tf","q":"Dr Lanyon told Mr Utterson everything about his quarrel with Dr Jekyll.","cn":"\u5170\u626c\u533b\u751f\u628a\u4ed6\u548c\u6770\u57fa\u5c14\u533b\u751f\u4e89\u5435\u7684\u539f\u56e0\u90fd\u544a\u8bc9\u4e86\u5384\u7279\u68ee\u5148\u751f\u3002","answer":false},{"q":"What does Poole tell Mr Utterson each time he calls at Dr Jekyll's house?","cn":"\u6bcf\u6b21\u5384\u7279\u68ee\u53bb\u6770\u57fa\u5c14\u5bb6\uff0c\u666e\u5c14\u600e\u4e48\u56de\u7b54\u4ed6\uff1f","options":["That Dr Jekyll is out","That Dr Jekyll cannot see anyone","That Dr Jekyll has moved away"],"answer":1},{"type":"fill","q":"When Dr Jekyll's smile disappeared, his face showed an expression of ___.","cn":"\u6770\u57fa\u5c14\u533b\u751f\u7684\u7b11\u5bb9\u6d88\u5931\u540e\uff0c\u8138\u4e0a\u9732\u51fa\u4e86___\u7684\u8868\u60c5\u3002","options":["horror","joy","surprise"],"answer":0},{"q":"Why does Dr Jekyll suddenly shut the window while talking to Mr Utterson?","cn":"\u6770\u57fa\u5c14\u548c\u5384\u7279\u68ee\u8bf4\u8bdd\u65f6\u4e3a\u4f55\u7a81\u7136\u5173\u4e0a\u7a97\u6237\uff1f","options":["He is cold and wants to keep warm","Something frightening seems to happen to him suddenly","He sees Mr Hyde coming down the street"],"answer":1}]},{"id":"u04","section":"\u7b2c\u4e8c\u5e55 \u00b7 \u51f6\u6848\u4e0e\u8ffd\u67e5","tag":"CHAPTER 4","title_en":"Breaking the Door","title_cn":"\u7834\u95e8\u4e4b\u591c","teaser_cn":"\u5b9e\u9a8c\u5ba4\u91cc\u5230\u5e95\u662f\u8c01\uff1f","icon":"\u2709\ufe0f","itemName":"\u795e\u79d8\u4fe1\u4ef6","words":1355,"paras":["Mr Utterson was at home one evening, when Dr Jekyll's servant came to the house. do for you?' He looked at the servant for a matter?' asked Mr Utterson.","Mr Utterson gave the man a glass of wine. everything. Why are you afraid?' ol demanded Mr Utterson.","can see for yourself, sir.' Mr Utterson walked to Dr Jekyll's house with the servant. It was a cold, March night. The wind was strong.","The streets were empty, and Mr Utterson was nervous.! He was sure something bad had happened. The two men reached the house. Poole knocked on the door.","Another servant opened the door, and Mr Utterson entered they looked frightened. One of the servant girls began to cry. you come with me, sir? I want you to hear something.","Please be very quiet.' The servant led Mr Utterson through the house, to the laboratory. Then he spoke again. 'If Dr Jekyll asks you to come into the laboratory, you must not go.'","Poole knocked on the door of the laboratory, and called out, A voice answered from inside the laboratory, 1. nervous: AE (hy) 2, led: (lead, led, led) 3148 > The Last Niaht back into the main part of the house. When they arrived he asked the lawyer, 'Now Mr Utterson, tell me, Did that voice sound like Dr Jekyll?' twenty years, and I tell you, sir, that was not his voice.","Dr Jekyll was murdered eight days ago. I heard him cry out eight days ago know.' anyone kill Dr Jekyll, and stay in the same room with the body? You must be wrong!'","'Every day for a week the person in the laboratory has left notes for me to go to the {chemist} to buy some kind of medicine. Every day there are more notes. I have gone to every chemist in the city. There is always something wrong with the medicine.'","Utterson ordered. Poole took a letter out of his pocket, and gave it to Mr Utterson. The note said: 1. admitted: li) 8 \u00ab 2.","chemist; iy + and ir Hyde Dr Jekyll presents his {compliments} to me is useless. Dr Jekyll needs a sample of the highest quality \u2014 like the one he bought from you in the year 18-. Please send this immediately,' At the bottom of the note some of the good stuff! laboratory door one day, and the door was open.","I saw a man outside the laboratory. The man's face was covered. When he saw me, he ran back into the laboratory and closed the door. doctor!'","he needs the medicine.' 1. sample: rte 2. desperate: #4 \u00bb 3.","stuff: (Yb) HP = The Last Niant man I saw outside the laboratory was small. It was not the doctor!' go to the laboratory. We have to find out the truth of this.","We will break down the door of the laboratory.' Poole and the lawyer picked up an axe and a metal bar. They walked towards the laboratory. Mr Utterson stopped for a moment.","other. You have not told me everything. The man did not see him well. But I think it was him.'","Hyde. I fear that Dr Jekyll is dead. But I don't understand why Hyde is staying in the laboratory. I don't understand that at all.'","When the two men reached the laboratory door, they stopped again, Then Mr Utterson called out to the person behind the door. 'The Strange (ase A voice from behind the door answered the lawyer's command.! Poole hit the door of the laboratory with the axe. They heard a frightened cry from the other side.","The door was strong, and Poole hit it five times before it opened. Mr Utterson looked into the room. A man's body lay on the floor. It was Edward Hyde.","He was dressed in the doctor's clothes. look for the body of Dr Jekyll.' The two men looked everywhere in the laboratory for the doctor, but they found nothing. the door that opened onto the street.","The door was locked, and the key was on the floor. It was impossible for someone to have left the laboratory. They returned to the laboratory, and searched carefully. 'This is the medicine which Dr Jekyll ordered from the Mr Utterson took his friend's papers, and began to read them.","One of them was a new will. The new will gave all the doctor's money to Mr Utterson. 1. command: iW (ot been here in the laboratory for a week.","Why didn't he destroy! this new will?' Then the lawyer picked up another paper. look at the date on it \u2014 he wrote it today!","He must still be alive, Poole.' The lawyer read the letter quickly. It said: My dear Utterson I will not be here when you read this letter. I Know the end is near.","I want you to read the letter which Dr Lanyon sent you. Then I want you to read my {confession}. Your unhappy friend, Henry Jekyll passed a large document to the lawyer. the servant.","'I will read them and then I will decide what to do. I will return here before midnight. Then we will call the police.' 1.","destroy: Sf} 2, Go back to the text Fal Look at the statements below about Part Five. Decide if each statement is correct or incorrect. If it is correct, write A. If it is not correct, write B.","He says that the doctor and the man in the laboratory are different. He mentions three differences between the two men. What are they? PR SPER SRP RRR RE What two things does Dr Jekyll ask Mr Utterson to do in his letter?","Sa ee ee ee eee ee ee ee eee eee er la eee REPRE PREP ee dhe Eee Vocabulary You read the sentences below in the text. Decide which definition is the best. 1. What's the matter?","I I What are you doing? What is wrong? Why are you unhappy? 2.","I fear Dr Jekyll is dead. I am afraid because Dr Jekyll is dead. Iam worried because I think Dr Jekyll is dead. I am frightened of Dr Jekyll because he is dead.","G Pretend you are Mr Utterson and write a note of 35-45 words to Mr Guest asking him to come and see you immediately. You should 1. explain why you went to Dr Jekyll's. 2.","say what happened in Dr Jekyll's house and laboratory. 3. suggest what you think happened. The {Modal} Verbs (te#&aial) have to and must The modal verb have to is used to indicate obligation when the speaker is not expressing his / her own feelings, but is reporting actions that are necessary.","In the text you read: (We have no choice, the obligation is external to the speaker. ) The modal verb must is used to indicate {obligations} when the speaker is expressing his / her own feelings about the obligation. In the text you read: (The speaker himself considers it necessary. ) Bal Complete these sentences using have fo or must.","1; MOU cSchitissnsm finish this exercise before going home. Da Lepenhemasenriaies take the dog out for a walk? I want to watch television. 3.","L vessseesseeseeeeseees WOFrK Very hard at school. 4. This is the third time this week that you have been late. You iduNeeaqudtuuecan come into the office on time in the future.","my little brother. BoD seascaseens get up very early every morning in order to be at work on time. Ve T wsasieneaeuns try to help my mother more. 8.","Listening (or fy You will hear another conversation between the two students. Listen carefully to what they say, and decide if the following sentences are true (T) or false (F).. Sally thinks that Hyde escaped.. John thinks that Dr Jekyll killed Hyde.","3. Sally thinks that Hyde killed Dr Jekyll. 4. John thinks that Hyde killed Dr Jekyll.","Writing fH What do you think happened in the laboratory before Mr Utterson and Poole arrived? Write a short report of 35-45 words. speaking Discuss with your friend(s) the following questions. What do you think 1.","Dr Lanyon's letter will say? 2. Dr Jekyll's confession will say? 3.","will happen to Mr Utterson?"],"quiz":[{"q":"Why does Poole believe the voice inside the laboratory is not Dr Jekyll's?","cn":"\u666e\u5c14\u4e3a\u4f55\u8ba4\u5b9a\u5b9e\u9a8c\u5ba4\u91cc\u7684\u58f0\u97f3\u4e0d\u662f\u6770\u57fa\u5c14\u533b\u751f\u7684\uff1f","options":["It sounds like a woman's voice","He has known Jekyll for twenty years and the voice is different","The voice speaks a foreign language"],"answer":1},{"type":"tf","q":"When Poole and Mr Utterson broke into the laboratory, they found the body of Dr Jekyll.","cn":"\u666e\u5c14\u548c\u5384\u7279\u68ee\u5148\u751f\u7834\u95e8\u800c\u5165\u540e\uff0c\u53d1\u73b0\u7684\u662f\u6770\u57fa\u5c14\u533b\u751f\u7684\u5c38\u4f53\u3002","answer":false},{"q":"Whose body do Mr Utterson and Poole find on the laboratory floor?","cn":"\u5384\u7279\u68ee\u548c\u666e\u5c14\u5728\u5b9e\u9a8c\u5ba4\u5730\u4e0a\u53d1\u73b0\u4e86\u8c01\u7684\u5c38\u4f53\uff1f","options":["Dr Jekyll's","Poole's","Mr Hyde's"],"answer":2},{"type":"fill","q":"Poole told Mr Utterson that the voice behind the laboratory door ___ Dr Jekyll's voice.","cn":"\u666e\u5c14\u544a\u8bc9\u5384\u7279\u68ee\u5148\u751f\uff0c\u5b9e\u9a8c\u5ba4\u95e8\u540e\u4f20\u51fa\u7684\u58f0\u97f3___\u6770\u57fa\u5c14\u533b\u751f\u7684\u58f0\u97f3\u3002","options":["was not","sounded exactly like","was much happier than"],"answer":0},{"q":"Why is it strange that Dr Jekyll cannot be found anywhere in the laboratory?","cn":"\u4e3a\u4ec0\u4e48\u6770\u57fa\u5c14\u54ea\u513f\u4e5f\u627e\u4e0d\u5230\uff0c\u8fd9\u4ef6\u4e8b\u5f88\u5947\u602a\uff1f","options":["The street door was locked from inside with the key on the floor","There is a secret tunnel out of the laboratory","Poole saw him leave earlier that night"],"answer":0}]},{"id":"u05","section":"\u7b2c\u4e8c\u5e55 \u00b7 \u51f6\u6848\u4e0e\u8ffd\u67e5","tag":"CHAPTER 5","title_en":"Lanyon's Shock","title_cn":"\u5170\u5b81\u7684\u89c1\u95fb","teaser_cn":"\u836f\u6c34\u559d\u4e0b\u540e\u53d1\u751f\u4e86\u60ca\u4eba\u7684\u4e8b","icon":"\ud83c\udf19","itemName":"\u6700\u540e\u4e00\u591c","words":1148,"paras":["When Mr Utterson arrived home, he went to his safe. He took out Dr Lanyon's letter, He looked at the envelope: 'Open after the death or disappearance of Dr Henry Jekyll.' 'But he has certainly disappeared.","Now is the time to read this letter!' Mr Utterson opened the letter, and began to read. This is what the letter said: Four days ago, on the ninth of January, I received a strange letter from Dr Jekyll. You must read this letter if you want to understand what happened afterwards.","Dr Jekyll's letter to Dr Lanyon was also in the envelope, and the lawyer read it. It said: Dear Lanyon, You are one of my oldest friends. We have quarrelled, but I still see you as a friend. I am writing now to ask you to do something for me.","It is very important. I want you to go to my house tonight. My servant Poole will be there. He Knows you're coming.","You and Poole must break down the door of my laboratory. Go into the laboratory alone, and from the fourth {drawer} of the cabinet take the {powders}? and a book that you will see there. When you have the powders and the book, go home immediately.","At midnight a man will come to your house. Please give him the things from my laboratory. This is all I ask you to do. If you want an explanation, the man will.","give you one. Please do what I ask, Lanyon. It will save your old friend, Henry Jekyll I. cabinet: pp cf 2.","powders: ie a AR Dr Lanuon? s Narrative Dr Lanyon's letter continued: I thought Dr Jekyll was mad, but I decided that I should do what he asked, all the same. I went to the doctor's house that night, and Poole and I went to the laboratory. We broke down the door, and I entered.","I found the cabinet and took out the drawer with the powders and the book, and I took it home with me. While I waited for the man to come at midnight, I looked at the book. It seemed to be a record of understand what the doctor's experiments meant. At midnight there was a Knock at the door of my house.","I went to the door, and opened it. There was a small man standing outside. I asked him into the house. He was an ugly little man, and I did not like him.","I remember that his clothes were too big for him. The man was very {impatient}. I 1. experiments: 3:48 \u00ab 2.","meant; dita ilk of Dr J ekyll and Mr Hyde business is urgent.' I gave the powders to the man. He mixed them together in a glass, and they changed colour. The man then looked at me.","now, and you will never Know what this business is about. Or I can stay, and you will Know everything. If I stay, you will see something new and very terrible.' see now ts a secret.'","He then {drank} the contents? of the glass. He cried out, and almost fell to the floor. Then his body began to grow and change.","The next moment I covered my face in horror. The small man who drank the powders had disappeared. There, in front of me, stood Dr Jekyll! He told me the whole terrible story, and even now it frightens me.","What he told me made me ill. I have not slept since he told me. His story was {wicked}, * and I will not tell it to you, Utterson. I will just+ tell you one thing that I {learnt} from Dr Edward Hyde, the murderer.","Hastie Lanyon Go back to the text inI Put the following events in the correct order. Mr Utterson takes out the envelope from Dr Lanyon. Mr Utterson reads the letter from Dr Jekyll to Dr Lanyon. Mr Utterson goes to the safe.","- 2 Ne The envelope from Dr Lanyon contains a letter from Dr Jekyll to Dr Lanyon. 5. I I Mr Utterson reads the letter from Dr Lanyon. Ir Look at the statements below about Dr Jekyll's letter.","Decide if each statement is correct or incorrect. If it is correct, write A. If it is incorrect, write B. 1.","Dr Jekyll wants Dr Lanyon tocometohis house. =... 2. None of the servants will know that he is coming.","Dr Jekyll asks Dr Lanyon to take some powders 5. The next day a man will come to Dr Lanyon's house. 6. He asks Dr Lanyon to give the man the powders and the book, oii 7.","He must notaskthe man foranexplanation, {sass} EE} What happens to the man after he takes the powders? Find the words in the word square below which belong to the following categories. Some of the letters have been given. 10.","CH ee Emotions and Feelings i x} tz] ee Le 34 ~ \u00a7 I le Ile oo I I I i = amt wn = Us se we ot lu > ym I I rij; 1 #2 l<an I so I aoaio Snes Time Science and Medicine \u2014 hie Fi ID VEN ION L L G QL DP A <A F ES WANODCON I AR TOR ENATIPLE BW EAN DH NDOC DIAATS SWMAMLLUTOY LEP Y TRE HRMIWANTLSULCAR TEAODWNPENULS YET V CM HC FLMLOV I LNGARBAFLOUOT DCI ETSORRYMUE S LGAWVRIAPAGA YN ED Y EWORR I o U ET R EH P BNMP U K EPUTMOXN I POL O V W UGH CE J IMENT A G KG ERE RRX UR T D NY POL I ZOE X PER 5S AN DMAN F MURODER a Look at the text in each question. What does it say? Choose the correct explanation, A, B or C. 0.","I A I I Anybody who {arrests} Mr {fiat} ale Hyde will receive \u00a3100. hrormation l\u00e9aaing B / If Mr Hvde is arrested to the arrest of Mr v1: Hyde will receive a reward of \u00a3100. *+ No one but Mr Hyde must enter my laboratory when I arn POWDER USEFUL AS HEART MEDICINE ONLY IN VERY SMALL AMOUNTS: 1-2 {GRAMS}. MORE MAY BE HARMFUL.","Try t0 get more medicine from Maw the chemist'c. Only if not effective go to other ones. because of the information you give, you will receive \u00a3100. If you lead Mr Hyde to the police, you will receive \u00a3100.","Mr Hyde cannot enter the laboratory without Dr Jekyll's permission. Mr Hyde can enter the laboratory only when Dr Jekyll is not at home. Mr Hyde can enter the laboratory. Everybody else must have written permission.","One or two grams of this powder will kill you. One or two grams of this powder can cure heart problems, but more than that is dangerous. Only large {quantities} of this powder can cure heart problems. because Maw does not have effective medicine.","--... first. Who sent you? something to give me.","Writing What do you think happens next in the story? Write a summary of your ideas in 35-45 words."],"quiz":[{"q":"What did Dr Jekyll ask Dr Lanyon to fetch from the laboratory cabinet?","cn":"\u6770\u57fa\u5c14\u8bf7\u5170\u5b81\u4ece\u67dc\u5b50\u91cc\u53d6\u51fa\u4ec0\u4e48\uff1f","options":["Some money and a will","Some powders and a book","A gun and a knife"],"answer":1},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["Dr Lanyon receives a strange letter from Dr Jekyll","Dr Lanyon and Poole break down the laboratory door","Dr Lanyon takes the drawer of powders home"]},{"q":"What did the small man do in front of Dr Lanyon after he arrived at midnight?","cn":"\u90a3\u4e2a\u5c0f\u4e2a\u5b50\u7537\u4eba\u5348\u591c\u5230\u6765\u540e\uff0c\u5728\u5170\u5b81\u9762\u524d\u505a\u4e86\u4ec0\u4e48\uff1f","options":["He mixed and drank the powders","He read the mysterious book aloud","He asked Lanyon to sign a paper"],"answer":0},{"type":"tf","q":"In front of Dr Lanyon, the small man drank the powders and turned into Dr Jekyll.","cn":"\u5728\u5170\u626c\u533b\u751f\u9762\u524d\uff0c\u90a3\u4e2a\u77ee\u5c0f\u7684\u7537\u4eba\u559d\u4e0b\u836f\u7c89\u540e\u53d8\u6210\u4e86\u6770\u57fa\u5c14\u533b\u751f\u3002","answer":true},{"q":"Why is Dr Lanyon so shocked he cannot bring himself to describe what he learned?","cn":"\u5170\u5b81\u4e3a\u4f55\u9707\u60ca\u5230\u4e0d\u5fcd\u8bf4\u51fa\u4ed6\u5f97\u77e5\u7684\u771f\u76f8\uff1f","options":["He learned that the small man was really Dr Jekyll himself","He learned that the small man wanted to kill him","He learned that Mr Utterson had lied to him"],"answer":0}]},{"id":"u06","section":"\u7b2c\u4e09\u5e55 \u00b7 \u9a87\u4eba\u771f\u76f8","tag":"CHAPTER 6","title_en":"Jekyll's Confession","title_cn":"\u6770\u57fa\u5c14\u7684\u81ea\u767d","teaser_cn":"\u4ed6\u4e00\u76f4\u85cf\u7740\u4e0d\u4e3a\u4eba\u77e5\u7684\u79d8\u5bc6","icon":"\ud83d\udcdc","itemName":"\u5170\u5b81\u7684\u4fe1","words":1397,"paras":["Mr Utterson put down Dr Lanyon's letter. He picked up the paper from Dr Jekyll's laboratory, and began to read. This is what he read: I, Henry Jekyll, was born in 18 \u2014. I had money, I was intelligent, and I liked to work.","My future seemed happy and rich. When I was young I wanted to be respected by my friends. I {pretended} to be a very serious man. I was not like other young men, who drink together and enjoy themselves.","I enjoyed myself, but I kept my {pleasures} a secret from others. In public I was a good man \u2014 privately, I was a bad one. ol I studied science, and I became certain that all human beings are like me. Everyone has two parts \u2014 a good part, and an evil part.","No one can be happy because these two parts of nature fight against each other. In my studies I tried to separate these two parts. I wanted to create two {identities}. One identity would be for the good part of myself.","The other identity would be for the evil part. I thought each identity would be happy: the good part would be completely good, and the evil part would be completely evil. I worked for many years to find out how to create these new identities. I bought some special powders from a chemist in the city.","Then, one night I mixed the powders together. I drank the mixture, and immediately I felt ill. Suddenly I was a different man. I looked at myself in the mirror.","I was younger and smaller, and I was completely wicked. Nothing was important to me, except pleasure. I had become Edward Hyde! I drank another glass of the mixture, and Edward Hyde disappeared \u2014 instantly I became Dr Jekyll again!","I could now change whenever I wanted. The well-known and respected Dr Jekyll could become Edward Hyde. Edward Hyde could do things that the good doctor was not allowed to do. I began to like the new identity I had created for myself.","At first Edward Hyde was happy just to enjoy himself, but soon he began to do terrible things. Dr Jekyll was often {terrified} by the things that Hyde did. The doctor could do nothing. Jekyll and Hyde were different people.","Soon I realised that Edward Hyde was dangerous. He might do something that would damage the doctor's reputation. I remember the night when Hyde walked over the body of the little girl. When he had to find money to pay the girl's family, he came to the doctor's house.","I decided to give Hyde a separate bank account, and to give him his own house. I prepared the will which you {disliked} so much, Utterson. I thought I was safe. About two months before the murder of Sir Danvers Carew, a strange thing happened.","I took the powders as usual, and became Edward Hyde. I went out into the city, and returned home to sleep. When I woke up, I knew something was wrong. Then I looked at my hands.","Dr Jekyll's hands are large, but the hands I saw were small. Then I understood: they were Edward Hyde's hands! I had gone to bed as Henry Jekyll and had {woken} up as Hyde! I ran to the laboratory, and took some more of the mixture.","In a few minutes I was Dr Jekyll again. Soon I understood that Hyde was stronger than Dr Jekyll. It became difficult to change back from Hyde to Dr Jekyll. Sometimes the powders did not work.","I knew that I must choose between the two identities. I decided to be Dr Jekyll. For two months I followed my choice. I worked, I saw my friends, and I began to be happy again.","But every day I thought about Hyde. I missed his life of pleasures * \u2014 I missed the excitement of being Hyde. One day I drank the powders again. This time, when Hyde came, he was angry.","That was the night that he murdered Sir Danvers Carew. Hyde enjoyed the violence of the murder, but 1. reputation: 4)\" Hd HEUATY Tekull?","s Statement he was afraid of the police. He came back to the laboratory, and drank the powders. I, Henry Jekyll, remembered what Hyde had done. I was terrified.","I {swore} that I would never take the powders again. Edward Hyde was finished for ever! For a while I lived as Dr Jekyll. I worked, I saw my friends, I thought I was safe from Hyde.","One day I went to the park. I sat there, thinking about my life. At that instant, I suddenly felt ill: then I felt a change in myself. looked down \u2014 I had become Hyde once more!","1. swore: A 2F o hi A C T I V I i I BH I Go back to the text Ey Read the first part of Dr Jekyll's confession again, and complete the chart below. his family background his character his future prospects! what he wanted how he was different to other young men what he studied Complete the chart below to show Dr Jekyll's theory, and what happened.","6. He then began to like eee i. prospects i Ht - ib ky Dr Jekyll's experiment begins to go wrong. What happens: 1.","about two months before the murder of Sir Danvers Carew? 2. when Dr Jekyll decides to choose between the two identities? 3.","the night when Hyde was angry?. one day in the park? Vocabulary Put the words in the box into the appropriate category. arrest mixture research search experiment trial suspect chemical witness observation element case Writing I This is part of a letter you receive from your American penfriend about Dr Jekyll and Mr Hyde.","Hyde for your English class. I vead it too, but I Aida not Agree with the (Aca that we have a good part Ana evil part inside of us that ave always fighting. What do you thinkZ Now you are writing a letter to your penfriend. Write your letter in about words.","oa The Rouble in [lralire Robert Louis Stevenson was not the only {novelist} to write about theme include the following: Edgar Allan Poe, William Wilson, 1839. of the story through his life. The {narrator} says, \"we were of the same age... the same height...","alike in general {contour} of person and {outline} of feature'. At the end of the story the only to learn that the double was the best part of himself. in my death, see by this image, which is {thine}? own, how utterly thou {hast} murdered {thyself}.'","lL. contour: Ae 1B ' Nb IE - Edgar Allan Poe. He Mary Shelley, Frankenstein, 1318. Mary Shelley was the wife of the Romantic poet, Percy Shelley.","Her novel, like Stevenson's, concerns an {ambitious} scientist, Frankenstein, who uses his knowledge to create another human being. Frankenstein is horrified by what he has done, and {rejects} I the creature he has Mary Shelley (date unknown), by Richard Rotwell. made. The creature turns on his creator, and begins a series of murders designed to punish the scientist.","Many critics have pointed out that Frankenstein and his creature have a very close relationship. The creature can be seen as James Hogg, The Private Memoirs and Confessions of a Justified Sinner, 1824. Many critics have argued that this novel influenced Stevenson in the writing. The novel's hero, Wringhim, 1s Martin.","At the end of the novel Wringhim {realises} that his alter ego * is really the Devil. * turnson: #7 Zi xO Oscar Wilde, The Picture of Dorian Gray, 1891. The beautiful young man, Dorian Gray, does not seem to grow older with the years. His secret is the picture of himself that he keeps locked away in his house.","It 1s the picture which ages, and not the man. Dorian Gray leads a wicked life, while the world still thinks of him as young and charming.! At the end of the novel Dorian Gray is killed Oscar Wilde. when he tries to destroy the picture with a knife.","rz Answer the questions below. 4. What does the narrator of William Wilson discover when he kills his double? 2.","What does the novel Frankenstein have in common with Dr Jekyll and Mr Hyde? 3. What does Frankenstein try to do? 4.","Who is Frankenstein's double? 5. Who is the double in The Private Memoirs and Confessions of a Justified Sinner? 6.","What happens to the picture of Dorian Gray? 1."],"quiz":[{"q":"What did Dr Jekyll believe about human nature that led to his experiment?","cn":"\u6770\u57fa\u5c14\u5bf9\u4eba\u6027\u7684\u4ec0\u4e48\u770b\u6cd5\u4fc3\u4f7f\u4ed6\u505a\u5b9e\u9a8c\uff1f","options":["That everyone has both a good part and an evil part","That evil people can never become good","That science can cure all diseases"],"answer":0},{"type":"tf","q":"Dr Jekyll believed that every human being has both a good part and an evil part inside.","cn":"\u6770\u57fa\u5c14\u533b\u751f\u76f8\u4fe1\u6bcf\u4e2a\u4eba\u5185\u5fc3\u90fd\u540c\u65f6\u5b58\u5728\u5584\u4e0e\u6076\u4e24\u90e8\u5206\u3002","answer":true},{"q":"What happened the first time Dr Jekyll woke up without taking the powders?","cn":"\u7b2c\u4e00\u6b21\u6ca1\u559d\u836f\u6c34\u5c31\u9192\u6765\u65f6\uff0c\u6770\u57fa\u5c14\u53d1\u73b0\u4e86\u4ec0\u4e48\uff1f","options":["He had already become Mr Hyde in his sleep","He had forgotten his own name","He found Mr Hyde standing beside his bed"],"answer":0},{"type":"fill","q":"One morning Dr Jekyll looked at his hands and realized they were small \u2014 without taking the powders, he had become ___.","cn":"\u4e00\u5929\u65e9\u6668\uff0c\u6770\u57fa\u5c14\u533b\u751f\u770b\u7740\u81ea\u5df1\u7684\u624b\uff0c\u53d1\u73b0\u624b\u53d8\u5c0f\u4e86\u2014\u2014\u4ed6\u6ca1\u559d\u836f\u7c89\u5c31\u53d8\u6210\u4e86___\u3002","options":["Edward Hyde","Dr Lanyon","Mr Utterson"],"answer":0},{"q":"Why did Dr Jekyll keep going back to being Mr Hyde even though he knew it was dangerous?","cn":"\u660e\u77e5\u5371\u9669\uff0c\u6770\u57fa\u5c14\u4e3a\u4f55\u8fd8\u662f\u4e00\u6b21\u6b21\u53d8\u56de\u6d77\u5fb7\uff1f","options":["He wanted to catch the real murderer","He missed the excitement and pleasure of being Hyde","He was forced to by Mr Utterson"],"answer":1}]},{"id":"u07","section":"\u7b2c\u4e09\u5e55 \u00b7 \u9a87\u4eba\u771f\u76f8","tag":"CHAPTER 7","title_en":"The Final Powders","title_cn":"\u6700\u540e\u7684\u836f\u7c89","teaser_cn":"\u4e00\u5207\u79d8\u5bc6\u5373\u5c06\u771f\u76f8\u5927\u767d","icon":"\ud83e\uddea","itemName":"\u9a87\u4eba\u836f\u6c34","words":1969,"paras":["Dr Jekyll's letter continued: I was Edward Hyde, and the police in London were looking everywhere for me! London was dangerous for Edward Hyde the murderer. I needed the powders from the laboratory. But how to get them?","I did not trust the servants. Then I had an idea. I remembered Dr Lanyon. He could go to the laboratory for me!","I went to a hotel, and I wrote a letter to Dr Lanyon. I asked him to go to the laboratory, and to bring the powders to his house. The doctor did what I asked. As soon as I took the powders in the doctor's house, I was Dr Jekyll once more.","When Dr Lanyon saw what happened when I took the powders, he was shocked. My old friend was frightened of me. l. conclusion Hi hi} I went back to the laboratory.","Now a terrible time began for me. Hyde was strong now, and he often came back. If I slept, I woke up to discover that I was Hyde. At the same time Dr Jekyll became ill and weak.","Sometimes the powders did _ not work. Hyde and I lived together in the laboratory, We hated each other, and we {feared} each other. I feared! him because he was evil.","He feared me because I wanted to be good. Hyde wanted to live, and he was afraid of the police. I wanted to die, and Hyde was afraid that I would kill myself. He needed my body to live.","1. feared: 7TH: OZ The Sad Conclusion Then I used the last of the powders. I sent Poole to the chemist to buy more. The new powders did not work.","I sent him to another chemist, but they still did not work. Again and again I sent Poole to look for the powders, but the result was always the same. Perhaps the original powders contained an {impurity} 2? \u2014 and it was the impurity that made them work.","I know the end is close. I will soon become Edward Hyde again. Without the powders, I will be Edward Hyde for ever. He will sit here in my laboratory, and he will be afraid of the police.","He, too, knows that the end is close. If the police find him, he will die in prison. Or will he find the courage to kill himself? I, Henry Jekyll, do not know, It is not important to me.","These are the last moments of the life of your old friend. Now II will put down my pen and put an end to the unhappy life of Henry Jekyll. The end 1. original; J2#) HY > MARTY \u00ab 2.","impurity: A)a OS Go back to the text ies Choose the correct answer, A, B, C or D, to the questions below. 1. Why does Dr Jekyll begin {waking} up as Mr Hyde? A Because he does not take the medicine before going to bed.","B Because Mr Hyde is becoming stronger, and Dr Jekyll is becoming ill and weak. C Because Dr Jekyll no longer wants to be good. D I I Because the medicine is stronger than usual. 2.","Why is Mr Hyde afraid that Dr Jekyll will kill himself? Because he needs Dr Jekyll's money. Because he needs Dr Jekyll's body to live. Because he needs Dr Jekyll's laboratory as a hiding place.","Som > Because he does not want to be alone. 3. Why does Dr Jekyll think that the new powders do not work? A Because an unknown impurity in the first powders made them effective.","B Because the powders Poole bought contained an unknown impurity. C Because Mr Hyde is becoming too strong. D I I Because he is too ill. _ 4, Why does Mr Hyde kill himself?","A Because he is afraid of the police. B Because he does not want to spend the rest of his life doing evil things. C Because he does not want to spend the rest of his life in prison. D Because he will die without the right powders.","OM Listening io You will hear a newspaper report. Listen and complete the newspaper article with the words from the box. afraid killed find reporter floor SOrry laboratory liked medical body MURDER IN LONDON \u2014- NEWS REPORT MURDERER'S BODY FOUND The (1).. c..","cescsceseeeeee Of Edward Hyde, the murderer, was found yesterday. A well-known London lawyer, Mr Utterson, called the police to a (2) wu. In the city. The laboratory belongs to Dr Henry Jekyll, the scientist.","You can begin like this: This is the sad, sad stovy of A good friend of mine, Dv Henry Jekyll. For me, his story began one Sunday when I was taking A walk with my cousin, Richava ee {bide} ded ec eee eee eee eee eee ee ee ee eee eee eee RRR RRR MRK KK dee ee PRR RRR KKK PTC EXIT TEST a Answer the questions below. What did Mr Utterson and Mr Enfield like doing together every Sunday?. Why did Mr Utterson already know the name of the man who had written the cheque?.","According to Dr Jekyll's will when will Mr Hyde get his money?. Why did the police go to see Mr Utterson immediately after the murder of Sir Danvers Carew?. What did Mr Utterson think when Mr Guest told him that Mr Hyde's letter was written by Dr Jekyll? Why did Dr Lanyon argue with Dr Jekyll?","7. Why was Poole certain that the man inside Jekyll's laboratory was not Dr Jekyll?. What did Dr Jekyll ask Dr Lanyon to do in his letter?. Who came to get the powders from Dr Lanyon?","Why did Dr Jekyll believe that human beings can never be happy? How did Dr Jekyll become Mr Hyde for the first time? What did Dr Jekyll decide to do for Mr Hyde after he walked over the little girl? Why did Mr Hyde need the powders from the laboratory?","Why did Dr Jekyll begin to fear Mr Hyde? Why did Mr Hyde begin to fear Dr Jekyll? Playing with mystery stories 1. How is Dr Jekyll and Mr Hyde similar to a normal mystery story?","How is it different? PPS PRPS PPP PPP PPP PPP ee eee 2. How is Mr Utterson similar to a normal detective, like Sherlock Holmes, and how is he different? RRR ee ee ee 3.","What is the first evidence that Dr Jekyll and Mr Hyde are the same person? ee ee Points of view 1. How many narrators does this story have? PPPS RHR S SE PES BPP PPP PPP RRR 3.","Who reveals to us the importance of the powders from Maw the chemist's? SRR RR ERR RR RK RR KKK KK RK CK KK KL KTH KL PKL ee SSSR PSP PP SR PPR RRC CCPC TPP PPP PTT RH eS PSP PPP PPP PPP PPP PPP PRP RCP Pe ee 5. Who reveals to us why Mr Hyde killed Sir Danvers Carew with such violence? SPP PRP PREP PRRPTRPEE CK KHHPRPePE Rh Os Focus on the context Answer the following questions.","a. When and where was Robert Louis Stevenson born? b. As a young child, his father told him stories.","What were they about? c. Why was he forced to leave Scotland at an early age? d.","Where and when did he die? e. Name two of his most popular children's books. Focus on the story Choose the correct answer A, B, C or D for the following questions.","1. What was Mr Utterson's occupation? A. He was a doctor.","B. He was a policeman. C. He was a lawyer.","D. He was a scientist. 2. What did Dr Lanyon think of Dr Jekyll?","A. He liked his ideas about science. B. He didn't like his ideas about science.","C. He liked him because they had the same interests. D. He thought he was a good doctor.","3. What was the name of Dr Jekyll's servant? A. Lake.","D. Ocean.. What did Dr Lanyon look like when Mr Utterson saw him in January? A.","He was white and very thin. B. He was suntanned. C.","He was {overweight}. D. He was pale and fat.. How long after this meeting did Dr Lanyon die?","A. Three hours later. B. Three days later.","How did Poole know that the man in the laboratory wasn't Dr Jekyll? A. Dr Jekyll was a short man and this man was tall. B.","Dr Jekyll was a tall man and this man was short. C. Dr Jekyll was a thin man and this man was fat. D.","Dr Jekyll was a fat man and this man was thin.. Whose body did Mr Utterson find in the laboratory? A. Dr Jekyll's.","D. Mr Hyde's.. How was Dr Jekyll able to create two identities? A.","A {magician} helped him. B. He mixed some special powders. C.","He created a monster. D. His double was really the Devil. 6.","One night Mr Utterson saw Mr Hyde in the street. He spoke to him and then Mr Hyde entered Dr Jekyll's laboratory. Mr Utterson Jekyll was out. A year later, aman was murdered by Mr Hyde.","times, but each time Dr Jekyll's servant, Poole, told him his employer was il] and couldn't see anyone. Mr Utterson was worried and went to see Dr Lanyon. He found Dr Lanyon in a very poor condition. The doctor died S000 8...","They only found a letter addressed to Mr Utterson telling him to read the letter Dr Lanyon had sent him. Mr Utterson went home to read Dr Lanyon's letter. In it he read how Dr Lanyon had discovered the terrible truth. Mr Utterson then read the letter Dr Jekyll had written to him and discovered how Dr Jekyll had mixed some special powders and created two identities.","The good part was Dr Jekyll himself but the evil part was Mr Hyde. By drink- ing a glass of the mixture he could change whenever he wanted, but he soon realised that Mr Hyde was dangerous. Towards the end there was no powder left and the new powders bought by Poole did not have the same effect. Dr Jekyll knew that his life had come to an end and realised that with no more powder, he would be Edward Hyde for ever.","A any B all C every 8. A on B in C into INTERNET PROJECT >> Robert Louis Stevenson had a love-hate relationship with Edinburgh. He {criticised} it heavily in his book Edinburgh, Picturesque Notes, but he always missed it deeply when he was away. Edinburgh is now a {lively} modern city with a fascinating history.","lt continues to be an extremely interesting centre for culture and the arts. Every year there is the world famous arts {festivals}. Let's find out more about Edinburgh, its people, history and arts festivals. Use a search engine (like Alta Vista, Google or Yahoo) to look for information on the history of Edinburgh.","Find out about: \u2014 the main events in the history of the city - the most important historical buildings in the city \u2014 one or two of the famous people in history from Edinburgh - the historical relationship between England and Scotland \u2014 the new Scottish Parliament I Write a short answer to each of the above points. Lays Now go back to your search engine to_look for information on Edinburgh's famous arts festival. Find out about: \u2014 the names of the different arts festivals \u2014 when the first arts festival took place \u2014 when the arts festivals take place every year \u2014- which famous artists have performed there \u2014- who is performing this year and how do you get tickets Write a short answer to each of the above points. ot ot ft of * 2 oh Fe FF Ff ee Se Ulu le Now explain to your friend(s) which of the festivals most interests you.","Lieb of Dr J and Mr Hyde ekyll Key To THE ACTIVITIES AND EXIT TEST KEY TO."],"quiz":[{"q":"Why did Dr Jekyll ask Dr Lanyon to bring him the powders instead of going himself?","cn":"\u6770\u57fa\u5c14\u4e3a\u4f55\u8bf7\u5170\u5b81\u53bb\u53d6\u836f\u7c89\uff0c\u800c\u4e0d\u662f\u81ea\u5df1\u53bb\uff1f","options":["He did not trust his own servants with the secret","The police were searching London for Edward Hyde","He was too weak to leave the hotel"],"answer":1},{"type":"tf","q":"The new powders that Poole bought from different chemists worked just as well as the original ones.","cn":"\u666e\u5c14\u4ece\u4e0d\u540c\u836f\u5e97\u4e70\u6765\u7684\u65b0\u836f\u7c89\uff0c\u6548\u679c\u548c\u539f\u6765\u7684\u4e00\u6837\u597d\u3002","answer":false},{"q":"What problem did Dr Jekyll have with the new powders that Poole kept buying?","cn":"\u666e\u5c14\u4e00\u518d\u4e70\u6765\u7684\u65b0\u836f\u7c89\u51fa\u4e86\u4ec0\u4e48\u95ee\u9898\uff1f","options":["They were too expensive","They no longer worked to change him back","The chemists refused to sell them"],"answer":1},{"type":"who","q":"I feared him because he was evil.","cn":"\u6211\u5bb3\u6015\u4ed6\uff0c\u56e0\u4e3a\u4ed6\u5f88\u90aa\u6076\u3002","options":["Dr Jekyll","Mr Hyde","Mr Utterson"],"answer":0},{"q":"Why does Dr Jekyll believe his life must end when the powders run out?","cn":"\u836f\u7c89\u7528\u5b8c\u540e\uff0c\u6770\u57fa\u5c14\u4e3a\u4f55\u8ba4\u4e3a\u81ea\u5df1\u7684\u751f\u547d\u5fc5\u987b\u7ed3\u675f\uff1f","options":["Without the powders he would remain Edward Hyde forever","He is too old and ill to live much longer anyway","Mr Utterson has told the police to arrest him"],"answer":0}]}];
+const GLOSSARY = {"accurately":{"cn":"\u51c6\u786e\u5730","emoji":"\ud83c\udfaf"},"admired":{"cn":"\u94a6\u4f69\u3001\u6b23\u8d4f","emoji":"\ud83d\ude0d"},"admirer":{"cn":"\u5d07\u62dc\u8005","emoji":"\ud83e\udd70","gold":true},"affirmative":{"cn":"\u80af\u5b9a\u7684","emoji":"\u2705"},"ambitious":{"cn":"\u6709\u91ce\u5fc3\u7684","emoji":"\ud83d\ude80"},"angrily":{"cn":"\u751f\u6c14\u5730","emoji":"\ud83d\ude20"},"apparatus":{"cn":"\u4eea\u5668\u3001\u8bbe\u5907","emoji":"\ud83e\uddea"},"arrests":{"cn":"\u902e\u6355","emoji":"\ud83d\ude94"},"banknotes":{"cn":"\u7eb8\u5e01","emoji":"\ud83d\udcb5","gold":true},"bees":{"cn":"\u871c\u8702","emoji":"\ud83d\udc1d"},"bide":{"cn":"\u7b49\u5f85","emoji":"\u23f3","gold":true},"biography":{"cn":"\u4f20\u8bb0","emoji":"\ud83d\udcd6"},"blackmailing":{"cn":"\u6572\u8bc8\u52d2\u7d22","emoji":"\ud83d\udd75\ufe0f","gold":true},"blanks":{"cn":"\u7a7a\u767d\u5904","emoji":"\u2b1c"},"cheerful":{"cn":"\u5feb\u4e50\u7684","emoji":"\ud83d\ude0a"},"chemist":{"cn":"\u836f\u5242\u5e08\u3001\u836f\u5e97","emoji":"\ud83d\udc8a"},"cheque":{"cn":"\u652f\u7968","emoji":"\ud83e\uddfe"},"clerk":{"cn":"\u804c\u5458","emoji":"\ud83d\uddc2\ufe0f"},"compliments":{"cn":"\u95ee\u5019\u3001\u81f4\u610f","emoji":"\ud83d\ude4f"},"conclude":{"cn":"\u4ee5\u2026\u7ed3\u675f","emoji":"\ud83d\udd1a"},"conditional":{"cn":"\u6761\u4ef6\u53e5\u7684","emoji":"\ud83d\udd00"},"confession":{"cn":"\u5766\u767d\u3001\u81ea\u767d","emoji":"\ud83d\ude14"},"contented":{"cn":"\u6ee1\u8db3\u7684","emoji":"\ud83d\ude0c","gold":true},"contour":{"cn":"\u8f6e\u5ed3","emoji":"\u3030\ufe0f"},"criticised":{"cn":"\u6279\u8bc4","emoji":"\ud83d\udce2"},"curiosity":{"cn":"\u597d\u5947\u5fc3","emoji":"\ud83e\uddd0"},"dinners":{"cn":"\u665a\u5bb4","emoji":"\ud83c\udf7d\ufe0f"},"disappearance":{"cn":"\u5931\u8e2a","emoji":"\ud83c\udf2b\ufe0f"},"disappears":{"cn":"\u6d88\u5931","emoji":"\ud83d\udc7b"},"dislike":{"cn":"\u4e0d\u559c\u6b22","emoji":"\ud83d\udc4e"},"disliked":{"cn":"\u4e0d\u559c\u6b22(\u8fc7\u53bb\u5f0f)","emoji":"\ud83d\udc4e"},"drank":{"cn":"\u559d\u4e86","emoji":"\ud83e\udd5b"},"drawer":{"cn":"\u62bd\u5c49","emoji":"\ud83d\uddc4\ufe0f"},"dubious":{"cn":"\u53ef\u7591\u7684","emoji":"\ud83e\udd14"},"elegant":{"cn":"\u4f18\u96c5\u7684","emoji":"\ud83d\udc57"},"envelope":{"cn":"\u4fe1\u5c01","emoji":"\u2709\ufe0f"},"expresses":{"cn":"\u8868\u8fbe","emoji":"\ud83d\udcac"},"fainted":{"cn":"\u660f\u5012","emoji":"\ud83d\ude35","gold":true},"fascinated":{"cn":"\u7740\u8ff7\u7684","emoji":"\u2728"},"feared":{"cn":"\u5bb3\u6015","emoji":"\ud83d\ude28"},"festivals":{"cn":"\u8282\u65e5\u3001\u827a\u672f\u8282","emoji":"\ud83c\udf89"},"fiat":{"cn":"\u547d\u4ee4\u3001\u6cd5\u4ee4","emoji":"\ud83d\udcdc"},"forgery":{"cn":"\u4f2a\u9020","emoji":"\u270d\ufe0f"},"fourteenth":{"cn":"\u7b2c\u5341\u56db","emoji":"\ud83d\udd1f"},"frightened":{"cn":"\u5bb3\u6015\u7684","emoji":"\ud83d\ude31"},"gaps":{"cn":"\u7a7a\u683c\u3001\u7f3a\u53e3","emoji":"\ud83d\udd73\ufe0f"},"gentlemanly":{"cn":"\u7ec5\u58eb\u98ce\u5ea6\u7684","emoji":"\ud83c\udfa9","gold":true},"grams":{"cn":"\u514b(\u91cd\u91cf)","emoji":"\u2696\ufe0f"},"hast":{"cn":"\u4f60\u6709(\u53e4\u82f1\u8bed)","emoji":"\ud83d\udcdc","gold":true},"hive":{"cn":"\u8702\u5de2","emoji":"\ud83d\udc1d"},"horrified":{"cn":"\u60ca\u6050\u7684","emoji":"\ud83d\ude31"},"hugely":{"cn":"\u975e\u5e38\u3001\u6781\u5176","emoji":"\ud83d\udcaf"},"identities":{"cn":"\u8eab\u4efd","emoji":"\ud83e\udeaa"},"impatient":{"cn":"\u4e0d\u8010\u70e6\u7684","emoji":"\u23f1\ufe0f"},"impurity":{"cn":"\u6742\u8d28","emoji":"\ud83e\uddeb","gold":true},"incorrect":{"cn":"\u4e0d\u6b63\u786e\u7684","emoji":"\u274c"},"interrupted":{"cn":"\u6253\u65ad","emoji":"\u270b"},"intrigue":{"cn":"\u9634\u8c0b","emoji":"\ud83d\udd75\ufe0f"},"invites":{"cn":"\u9080\u8bf7","emoji":"\ud83d\udc8c"},"learnt":{"cn":"\u5b66\u5230\u4e86","emoji":"\ud83d\udcda"},"lend":{"cn":"\u501f\u7ed9(\u522b\u4eba)","emoji":"\ud83e\udd1d"},"lively":{"cn":"\u5145\u6ee1\u6d3b\u529b\u7684","emoji":"\ud83c\udf88"},"magician":{"cn":"\u9b54\u6cd5\u5e08","emoji":"\ud83e\uddd9"},"medicines":{"cn":"\u836f","emoji":"\ud83d\udc8a"},"messy":{"cn":"\u51cc\u4e71\u7684","emoji":"\ud83e\udde6"},"modal":{"cn":"\u60c5\u6001\u52a8\u8bcd\u7684","emoji":"\ud83d\udd27","gold":true},"murderer":{"cn":"\u51f6\u624b","emoji":"\ud83d\udd2a"},"narrator":{"cn":"\u53d9\u8ff0\u8005","emoji":"\ud83c\udf99\ufe0f"},"neat":{"cn":"\u6574\u6d01\u7684","emoji":"\u2728"},"ninety":{"cn":"\u4e5d\u5341","emoji":"9\ufe0f\u20e30\ufe0f\u20e3"},"nodded":{"cn":"\u70b9\u5934","emoji":"\ud83d\ude46"},"novelist":{"cn":"\u5c0f\u8bf4\u5bb6","emoji":"\u270d\ufe0f"},"obey":{"cn":"\u670d\u4ece","emoji":"\ud83e\udee1"},"obligations":{"cn":"\u4e49\u52a1","emoji":"\ud83d\udccb"},"outline":{"cn":"\u8f6e\u5ed3\u3001\u5927\u7eb2","emoji":"\ud83d\udcd0"},"overweight":{"cn":"\u8d85\u91cd\u7684","emoji":"\u2696\ufe0f"},"paragraphs":{"cn":"\u6bb5\u843d","emoji":"\ud83d\udcc4"},"peeve":{"cn":"\u4f7f\u607c\u6012\u7684\u4e8b","emoji":"\ud83d\ude24","gold":true},"philosophical":{"cn":"\u54f2\u5b66\u7684","emoji":"\ud83e\udd14"},"pleasures":{"cn":"\u4e50\u8da3","emoji":"\ud83d\ude04"},"policeman":{"cn":"\u8b66\u5bdf","emoji":"\ud83d\udc6e"},"politely":{"cn":"\u793c\u8c8c\u5730","emoji":"\ud83d\ude47"},"portrayal":{"cn":"\u63cf\u7ed8\u3001\u523b\u753b","emoji":"\ud83d\uddbc\ufe0f"},"powders":{"cn":"\u7c89\u672b","emoji":"\ud83e\uddc2","gold":true},"predictions":{"cn":"\u9884\u6d4b","emoji":"\ud83d\udd2e"},"pretended":{"cn":"\u5047\u88c5","emoji":"\ud83c\udfad"},"punish":{"cn":"\u60e9\u7f5a","emoji":"\u26a1"},"puzzle":{"cn":"\u8c1c\u9898\u3001\u5b57\u8c1c","emoji":"\ud83e\udde9"},"quantities":{"cn":"\u6570\u91cf","emoji":"\ud83d\udd22"},"quarrel":{"cn":"\u4e89\u5435","emoji":"\ud83d\ude24"},"readings":{"cn":"\u6717\u8bfb","emoji":"\ud83d\udcd6"},"realises":{"cn":"\u610f\u8bc6\u5230","emoji":"\ud83d\udca1","gold":true},"recognise":{"cn":"\u8ba4\u51fa","emoji":"\ud83d\udc40"},"recounted":{"cn":"\u8bb2\u8ff0","emoji":"\ud83d\udde3\ufe0f"},"rejects":{"cn":"\u62d2\u7edd\u3001\u629b\u5f03","emoji":"\ud83d\ude45"},"sass":{"cn":"\u9876\u5634\u3001\u65e0\u793c\u8bdd","emoji":"\ud83d\ude0f","gold":true},"searched":{"cn":"\u641c\u67e5","emoji":"\ud83d\udd0d"},"speculated":{"cn":"\u731c\u6d4b\u3001\u63a8\u6d4b","emoji":"\ud83e\udd14"},"surname":{"cn":"\u59d3\u6c0f","emoji":"\ud83e\udeaa"},"suspicions":{"cn":"\u6000\u7591","emoji":"\ud83e\udd28"},"suspiciously":{"cn":"\u6000\u7591\u5730","emoji":"\ud83d\udd75\ufe0f","gold":true},"swore":{"cn":"\u53d1\u8a93","emoji":"\ud83e\udd1e"},"tense":{"cn":"\u65f6\u6001","emoji":"\u23f0"},"terrified":{"cn":"\u975e\u5e38\u5bb3\u6015\u7684","emoji":"\ud83d\ude31"},"thanked":{"cn":"\u611f\u8c22","emoji":"\ud83d\ude4f"},"thief":{"cn":"\u5c0f\u5077","emoji":"\ud83e\uddb9"},"thieves":{"cn":"\u5c0f\u5077\u4eec","emoji":"\ud83e\uddb9"},"thine":{"cn":"\u4f60\u7684(\u53e4\u82f1\u8bed)","emoji":"\ud83d\udcdc"},"thyself":{"cn":"\u4f60\u81ea\u5df1(\u53e4\u82f1\u8bed)","emoji":"\ud83d\udcdc","gold":true},"tranquil":{"cn":"\u5e73\u9759\u7684","emoji":"\ud83d\ude0c","gold":true},"twelfth":{"cn":"\u7b2c\u5341\u4e8c","emoji":"\ud83d\udd1f"},"unsuccessful":{"cn":"\u4e0d\u6210\u529f\u7684","emoji":"\u274c"},"untidy":{"cn":"\u4e0d\u6574\u6d01\u7684","emoji":"\ud83e\udde6","gold":true},"verbs":{"cn":"\u52a8\u8bcd","emoji":"\ud83d\udd24"},"vivid":{"cn":"\u751f\u52a8\u7684","emoji":"\ud83c\udf08"},"waking":{"cn":"\u9192\u6765","emoji":"\u23f0"},"wicked":{"cn":"\u90aa\u6076\u7684","emoji":"\ud83d\ude08"},"woken":{"cn":"\u9192\u6765(\u8fc7\u53bb\u5206\u8bcd)","emoji":"\u23f0"}};
+const SECTIONS = {"\u7b2c\u4e00\u5e55 \u00b7 \u795e\u79d8\u7684\u95e8":{"cn":"\u7b2c\u4e00\u5e55 \u00b7 \u795e\u79d8\u7684\u95e8","icon":"\ud83d\udeaa"},"\u7b2c\u4e8c\u5e55 \u00b7 \u51f6\u6848\u4e0e\u8ffd\u67e5":{"cn":"\u7b2c\u4e8c\u5e55 \u00b7 \u51f6\u6848\u4e0e\u8ffd\u67e5","icon":"\ud83d\udd0d"},"\u7b2c\u4e09\u5e55 \u00b7 \u9a87\u4eba\u771f\u76f8":{"cn":"\u7b2c\u4e09\u5e55 \u00b7 \u9a87\u4eba\u771f\u76f8","icon":"\ud83e\uddea"}};
+const META = {"title":"DR JEKYLL & MR HYDE","subtitle":"\u9605\u8bfb\u5927\u5192\u9669 \u00b7 \u4e00\u4e2a\u4eba\u8eab\u4e0a\u7684\u5584\u4e0e\u6076","bolt":"\ud83e\uddea\ud83c\udfad\ud83c\udf2b","pageTitle":"Dr Jekyll and Mr Hyde \u00b7 \u5316\u8eab\u535a\u58eb","saveKey":"jekyll_game_v1","bookId":"jekyll"};   // { title, subtitle, bolt, saveKey }
+const PREDICTIONS = [];   // 先猜后揭晓
+
+/* =====================================================
+   存档
+   ===================================================== */
+const SAVE_KEY = (META && META.saveKey) || "reading_game_v1";
+const BOOK_ID = (META && META.bookId) || SAVE_KEY;
+let save = { done:{}, stars:{}, words:{}, slow:false };
+try { const s = localStorage.getItem(SAVE_KEY); if (s) save = Object.assign(save, JSON.parse(s)); } catch(e){}
+function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){} }
+
+/* ===== 跨书成长数据(全站共享, 书架中枢也读它) ===== */
+const HUB_KEY = "reading_hub_v1";
+function hubLoad(){ try{ return JSON.parse(localStorage.getItem(HUB_KEY)) || {}; }catch(e){ return {}; } }
+function hubSave(h){ try{ localStorage.setItem(HUB_KEY, JSON.stringify(h)); }catch(e){} }
+function ymd(d){ return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+function todayStr(){ return ymd(new Date()); }
+function markStreak(){                       // 每天首次阅读活动记一次连读
+  const h = hubLoad(); const t = todayStr();
+  h.streak = h.streak || { last:null, count:0, best:0 };
+  if (h.streak.last !== t){
+    const y = new Date(); y.setDate(y.getDate()-1);
+    h.streak.count = (h.streak.last === ymd(y)) ? (h.streak.count+1) : 1;
+    h.streak.last = t; h.streak.best = Math.max(h.streak.best||0, h.streak.count);
+    hubSave(h);
+  }
+  return h.streak.count;
+}
+function recordWords(chId, words){           // 通关某章 → 累计跨书阅读词数(每章只计一次)
+  const h = hubLoad();
+  h.words = h.words || {}; h.words[BOOK_ID] = h.words[BOOK_ID] || {};
+  if (!h.words[BOOK_ID][chId]){ h.words[BOOK_ID][chId] = words; hubSave(h); }
+}
+function totalWordsRead(){
+  const h = hubLoad(); let n = 0;
+  for (const b in (h.words||{})) for (const c in h.words[b]) n += h.words[b][c] || 0;
+  return n;
+}
+function kidName(){ return (hubLoad().kidName) || ""; }
+
+let cur = 0, qIdx = 0, wrongCount = 0, quizLock = false;
+
+function $(id){ return document.getElementById(id); }
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._tm); t._tm = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+function stripMarks(s){ return s.replace(/\{([^}]*)\}/g, "$1"); }
+
+/* =====================================================
+   朗读引擎 TTS —— 三层保障:
+   1) 本地 speechSynthesis(优选英文音色, 分句排队, 防长文本被浏览器掐断)
+   2) 本地不出声 → 自动切换在线发音(有道 dictvoice, 需联网)
+   3) 都不行 → 提示换浏览器
+   ===================================================== */
+const TTS = {
+  voices: [], mode: "auto",    // auto | local | online | dead
+  player: null, queue: [], playing: false, keepAlive: null, curPara: -1, unlocked: false
+};
+const IN_WECHAT = /MicroMessenger/i.test(navigator.userAgent || "");
+function ttsInit(){
+  if (!("speechSynthesis" in window) || IN_WECHAT) { TTS.mode = "online"; }
+  if (!("speechSynthesis" in window)) return;
+  const load = ()=>{ try{ TTS.voices = speechSynthesis.getVoices() || []; }catch(e){} };
+  load();
+  try{ speechSynthesis.onvoiceschanged = load; }catch(e){}
+  setTimeout(load, 500); setTimeout(load, 2000);
+}
+/* 移动端/微信自动播放限制: 用户第一次触屏时"解锁"音频通道,
+   之后延迟触发的在线发音才允许出声 */
+const SILENT_WAV = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+function ensurePlayer(){
+  if (!TTS.player) TTS.player = new Audio();
+  return TTS.player;
+}
+function unlockAudio(){
+  if (TTS.unlocked) return;
+  TTS.unlocked = true;
+  try{ const p = ensurePlayer(); p.src = SILENT_WAV; p.play().catch(()=>{ TTS.unlocked = false; }); }catch(e){}
+  try{
+    if ("speechSynthesis" in window){
+      const u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u);
+    }
+  }catch(e){}
+}
+document.addEventListener("touchend", unlockAudio, true);
+document.addEventListener("click", unlockAudio, true);
+function pickVoice(){
+  const vs = TTS.voices;
+  return vs.find(v=>/en[-_]US/i.test(v.lang) && /google|natural|online/i.test(v.name))
+      || vs.find(v=>/en[-_]US/i.test(v.lang))
+      || vs.find(v=>/^en/i.test(v.lang)) || null;
+}
+function splitSentences(text){
+  const parts = (text.match(/[^.!?]+[.!?”"']*\s*/g) || [text]).map(s=>s.trim()).filter(Boolean);
+  // 合并过短的句子, 控制每段 ≤ 190 字符(在线接口和本地引擎都友好)
+  const out = [];
+  let buf = "";
+  for (const p of parts){
+    if ((buf + " " + p).length > 190 && buf) { out.push(buf.trim()); buf = p; }
+    else buf = buf ? buf + " " + p : p;
+  }
+  if (buf.trim()) out.push(buf.trim());
+  return out;
+}
+function rate(){ return save.slow ? 0.7 : 0.88; }
+/* 预录音频的播放倍速: 原速播放(语速不变); 句间停顿靠剪静音+预加载解决 */
+function playSpeed(){ return save.slow ? 0.8 : 1.0; }
+
+/* 把一段文本切成"自然句子"(与 gen_audio.py 完全一致的切法),不做合并 */
+function splitSents(text){
+  const raw = text.match(/[^.!?]+[.!?]*["'”’]*/g) || [text];
+  const out = [];
+  for (let s of raw){
+    s = s.trim(); if (!s) continue;
+    if (!/[A-Za-z0-9]/.test(s) && out.length) out[out.length - 1] += " " + s;
+    else out.push(s);
+  }
+  return out;
+}
+function stopAll(){
+  if (RS){ clearTimeout(RS._gap); }
+  RS = null;
+  TTS.playing = false; TTS.queue = [];
+  clearInterval(TTS.keepAlive);
+  try{ speechSynthesis.cancel(); }catch(e){}
+  if (TTS.player){ try{ TTS.player.pause(); TTS.player.onended = null; }catch(e){} }
+  highlightSent(null);
+  setPauseUI();
+}
+/* 高亮"正在读的那一句" */
+function highlightSent(it){
+  document.querySelectorAll(".story-card .sent.speaking").forEach(e=>e.classList.remove("speaking"));
+  if (!it) return;
+  const el = document.querySelector('.sent[data-pi="' + it.pi + '"][data-si="' + it.si + '"]');
+  if (el){ el.classList.add("speaking"); try{ el.scrollIntoView({behavior:"smooth", block:"center"}); }catch(e){} }
+}
+/* 记录某段"已听完",全部段落听完才解锁答题 */
+function markHeard(i){
+  if (i < 0 || cur == null) return;
+  const ch = BOOK[cur];
+  heardSet.add(i);
+  save.heard = save.heard || {};
+  save.heard[ch.id] = Array.from(heardSet);
+  bumpRead(i + 1);                 // 听完某段也算读过
+  persist();
+  updateQuizGate();
+}
+let heardSet = new Set();
+
+/* ===== 阅读进度: 记住读到第几段 + 标记已读段落 ===== */
+let readPos = 0;                   // 本章已读到的段落数(0..N), 段 i 已读 <=> i < readPos
+function saveReadPos(){
+  if (cur == null) return;
+  save.read = save.read || {};
+  save.read[BOOK[cur].id] = readPos;
+  persist();
+}
+function paintRead(){
+  document.querySelectorAll("#story-body p[data-pi]").forEach(p=>{
+    p.classList.toggle("read", (+p.dataset.pi) < readPos);
+  });
+}
+function bumpRead(n){
+  if (n > readPos){ readPos = n; saveReadPos(); paintRead(); updateQuizGate(); }
+}
+let _scrollT = 0;
+function onReadScroll(){
+  if (!$("scr-read").classList.contains("active")) return;
+  const now = Date.now();
+  if (now - _scrollT < 180) return; _scrollT = now;
+  const line = window.innerHeight * 0.5;    // 段落底部越过屏幕中线 = 读完这段
+  let fp = readPos;
+  document.querySelectorAll("#story-body p[data-pi]").forEach(p=>{
+    if (p.getBoundingClientRect().bottom < line){ const pi = (+p.dataset.pi) + 1; if (pi > fp) fp = pi; }
+  });
+  bumpRead(fp);
+}
+window.addEventListener("scroll", onReadScroll, { passive:true });
+/* 读过或听过都算"走过这一章": readPos 由滚动阅读和逐句朗读共同推进 */
+function goneThrough(){
+  if (!BOOK[cur]) return 0;
+  return Math.max(readPos, heardSet.size);   // 两者取大, 稳妥
+}
+function allHeard(){
+  return BOOK[cur] && goneThrough() >= BOOK[cur].paras.length;
+}
+function updateQuizGate(){
+  const btn = $("btn-quiz");
+  if (!btn || cur == null) return;
+  const ch = BOOK[cur];
+  const done = !!save.done[ch.id];       // 已通关章节不再限制
+  if (done || allHeard()){
+    btn.textContent = "✅ 我读完了，去答题";
+    btn.style.opacity = "1";
+  } else {
+    const left = Math.max(0, ch.paras.length - goneThrough());
+    btn.textContent = "🔒 读完/听完故事就能答题（还剩 " + left + " 段）";
+    btn.style.opacity = ".6";
+  }
+}
+
+/* 本地引擎播放; onFail 在完全没出声时触发 */
+function speakLocal(sentences, onFail, onDone){
+  try{ speechSynthesis.cancel(); }catch(e){ onFail && onFail(); return; }
+  let started = false, finished = 0;
+  const total = sentences.length;
+  sentences.forEach(s=>{
+    const u = new SpeechSynthesisUtterance(s);
+    u.lang = "en-US"; u.rate = rate();
+    const v = pickVoice(); if (v) u.voice = v;
+    u.onstart = ()=>{ started = true; TTS.mode = "local"; };
+    u.onend = ()=>{ finished++; if (finished >= total && onDone) onDone(); };
+    try{ speechSynthesis.speak(u); }catch(e){}
+  });
+  /* Chrome 桌面版 15 秒掐断长朗读的经典 bug: 周期性 resume 保活 */
+  clearInterval(TTS.keepAlive);
+  TTS.keepAlive = setInterval(()=>{
+    try{
+      if (!speechSynthesis.speaking){ clearInterval(TTS.keepAlive); }
+      else { speechSynthesis.resume(); }
+    }catch(e){}
+  }, 10000);
+  /* 3 秒还没出声 → 判定本地引擎不可用 */
+  setTimeout(()=>{
+    if (!started){
+      try{ speechSynthesis.cancel(); }catch(e){}
+      clearInterval(TTS.keepAlive);
+      onFail && onFail();
+    }
+  }, 3000);
+}
+
+/* 预录音频(与游戏同源托管的 mp3, 最稳的通道) */
+const AUDIO_BASE = "audio/";
+function slug(w){
+  const s = w.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  return s || "x";
+}
+function detectAudio(){
+  try{
+    fetch(AUDIO_BASE + "test.mp3", {method:"HEAD"})
+      .then(r=>{ TTS.hasAudio = !!r.ok; })
+      .catch(()=>{});
+  }catch(e){}
+}
+function playFile(url, onDone, onFail){
+  const p = ensurePlayer();
+  TTS.playing = true;
+  p.src = url;
+  p.playbackRate = playSpeed();
+  p.onended = ()=>{ TTS.playing = false; onDone && onDone(); };
+  p.onerror = ()=>{ TTS.playing = false; onFail && onFail(); };
+  p.play().then(()=>{ TTS.lastErr = ""; TTS.hasAudio = true; }).catch(err=>{
+    TTS.playing = false; TTS.lastErr = "play:" + (err && err.name || "blocked");
+    toast("请再点一次 🔊,并确认媒体音量已调大");
+  });
+}
+
+/* 在线发音(有道词典接口, 需联网; 复用同一个已解锁的 Audio 元素) */
+function speakOnline(sentences, onDone, onFail){
+  TTS.queue = sentences.slice(); TTS.playing = true;
+  const p = ensurePlayer();
+  p.playbackRate = playSpeed();
+  const next = ()=>{
+    if (!TTS.playing) return;
+    if (!TTS.queue.length){ TTS.playing = false; onDone && onDone(); return; }
+    const s = TTS.queue.shift();
+    p.src = "https://dict.youdao.com/dictvoice?type=2&audio=" + encodeURIComponent(s);
+    p.onended = next;
+    p.onerror = ()=>{ TTS.playing = false; TTS.lastErr = "online:loaderror";
+      if (onFail) onFail(); else toast("在线朗读失败:请检查网络;首页有[声音检测]可排查"); };
+    p.play().catch(err=>{ TTS.playing = false; TTS.lastErr = "play:" + (err && err.name || "blocked");
+      toast("请再点一次 🔊,并把媒体音量调大"); });
+  };
+  next();
+}
+
+/* 统一入口: 依次尝试 预录音频 → 本地引擎 → 在线发音;
+   用户在[声音检测]里手动固定过模式则只走该通道(音频模式保留在线兜底) */
+function speak(text, onDone, hint){
+  stopAll();
+  const forced = (save.ttsMode && save.ttsMode !== "auto") ? save.ttsMode : null;
+  const sentences = splitSentences(text || "");
+  /* 有预录音频就直接先试播,加载失败会自动落到下一通道,
+     不再依赖启动时的 hasAudio 探测(某些环境探测请求会被拦而播放正常) */
+  const url = hint
+    ? AUDIO_BASE + (hint.file ? hint.file : "w/" + slug(hint.word) + ".mp3")
+    : null;
+  const chain = [];
+  if (url && (!forced || forced === "recorded"))
+    chain.push(fail=>playFile(url, onDone, fail));
+  if (sentences.length && (!forced || forced === "local"))
+    chain.push(fail=>speakLocal(sentences, fail, onDone));
+  if (sentences.length && (!forced || forced === "online" || forced === "recorded"))
+    chain.push(fail=>speakOnline(sentences, onDone, fail));
+  if (!chain.length) return;
+  const step = i=>{
+    if (i >= chain.length){ toast("朗读失败:请到首页[声音检测]排查"); return; }
+    chain[i](()=>step(i + 1));
+  };
+  step(0);
+}
+
+/* ============ 逐句朗读引擎(支持暂停/继续) ============ */
+let RS = null;   // { items:[{pi,si,file,text}], pos, paused }
+function sentFile(ch, pi, si){ return "s/" + ch.id + "_" + pi + "_" + si + ".mp3"; }
+function buildItems(paraIdxs){
+  const ch = BOOK[cur]; const items = [];
+  paraIdxs.forEach(pi=>{
+    const sents = splitSents(ch.paras[pi]);
+    sents.forEach((s, si)=>items.push({ pi, si, file: sentFile(ch, pi, si), text: stripMarks(s) }));
+  });
+  return items;
+}
+function paraSentCount(pi){ return splitSents(BOOK[cur].paras[pi]).length; }
+function setPauseUI(){
+  const b = $("btn-pause"); if (!b) return;
+  b.textContent = (RS && RS.paused) ? "▶️ 继续" : "⏸ 暂停";
+}
+function readItems(items, startPos){
+  stopAll();
+  if (!items.length) return;
+  RS = { items: items, pos: startPos || 0, paused: false };
+  setPauseUI();
+  rsStep();
+}
+function rsStep(){
+  if (!RS || RS.paused) return;
+  if (RS.pos >= RS.items.length){ RS = null; highlightSent(null); setPauseUI(); return; }
+  const it = RS.items[RS.pos];
+  highlightSent(it);
+  prefetchNext();                        // 预加载下一句, 缩短句间加载停顿
+  speakSentence(it, ()=>{
+    if (it.si === paraSentCount(it.pi) - 1) markHeard(it.pi);   // 该段最后一句读完 → 记已听
+    if (!RS || RS.paused) return;
+    RS.pos++;
+    // 句间留一点换气停顿(慢速时更长), 高亮先跳到下一句让孩子准备
+    const gap = save.slow ? 620 : 380;
+    if (RS.pos < RS.items.length) highlightSent(RS.items[RS.pos]);
+    RS._gap = setTimeout(()=>{ if (RS && !RS.paused) rsStep(); }, gap);
+  });
+}
+function prefetchNext(){
+  const nx = RS && RS.items[RS.pos + 1];
+  if (!nx || !nx.file) return;
+  try{ const a = new Audio(); a.preload = "auto"; a.src = AUDIO_BASE + nx.file; TTS._pre = a; }catch(e){}
+}
+/* 播放单句:预录音频 → 本地引擎 → 在线,任一成功即止 */
+function speakSentence(it, onDone){
+  const forced = (save.ttsMode && save.ttsMode !== "auto") ? save.ttsMode : null;
+  const chain = [];
+  if (!forced || forced === "recorded") chain.push(fail=>playFile(AUDIO_BASE + it.file, onDone, fail));
+  if (!forced || forced === "local")    chain.push(fail=>speakLocal([it.text], fail, onDone));
+  if (!forced || forced === "online" || forced === "recorded") chain.push(fail=>speakOnline([it.text], onDone, fail));
+  const step = i=>{ if (i >= chain.length){ toast("朗读失败:请到首页[声音检测]排查"); return; } chain[i](()=>step(i + 1)); };
+  step(0);
+}
+function pauseToggle(){
+  if (!RS){ readAloud(); return; }        // 没在读 → 直接开始读
+  if (RS.paused) readResume(); else readPause();
+}
+function readPause(){
+  if (!RS) return;
+  RS.paused = true;
+  clearTimeout(RS._gap);
+  try{ if (TTS.player) TTS.player.pause(); }catch(e){}
+  try{ if ("speechSynthesis" in window) speechSynthesis.pause(); }catch(e){}
+  setPauseUI();
+}
+function readResume(){
+  if (!RS) return;
+  RS.paused = false;
+  clearTimeout(RS._gap);
+  setPauseUI();
+  let resumed = false;
+  try{ if (TTS.player && TTS.player.src && TTS.player.paused){ TTS.player.play(); resumed = true; } }catch(e){}
+  try{ if ("speechSynthesis" in window && speechSynthesis.paused){ speechSynthesis.resume(); resumed = true; } }catch(e){}
+  if (!resumed) rsStep();                  // 暂停恰好卡在两句之间 → 直接接着下一句
+}
+function readAloud(){
+  const items = buildItems(BOOK[cur].paras.map((_, i)=>i));
+  // 从上次读到的段落之后开始读(已读过的不再重复); 整章读完过则从头再读
+  let start = 0;
+  if (readPos > 0 && readPos < BOOK[cur].paras.length){
+    const idx = items.findIndex(it => it.pi >= readPos);
+    if (idx > 0){ start = idx; toast("▶️ 从上次读到的地方接着读"); }
+  }
+  readItems(items, start);
+}
+function readPara(i){ readItems(buildItems([i]), 0); }
+function stopAloud(){ stopAll(); }
+function toggleRate(){
+  save.slow = !save.slow; persist();
+  $("btn-rate").textContent = save.slow ? "🐇 正常速" : "🐢 慢速";
+  toast(save.slow ? "已切换为慢速朗读 🐢" : "已切换为正常语速 🐇");
+}
+
+/* =====================================================
+   首页
+   ===================================================== */
+function isUnlocked(i){ return i === 0 || !!save.done[BOOK[i-1].id]; }
+function firstUndone(){
+  for (let i = 0; i < BOOK.length; i++) if (!save.done[BOOK[i].id]) return i;
+  return BOOK.length - 1;
+}
+function renderHome(){
+  const doneN = BOOK.filter(c=>save.done[c.id]).length;
+  const starN = Object.values(save.stars).reduce((a,b)=>a+b, 0);
+  const wordN = Object.keys(save.words).length;
+  $("st-ch").textContent = doneN + "/" + BOOK.length;
+  $("st-star").textContent = starN;
+  $("st-word").textContent = wordN;
+  $("prog-bar").style.width = Math.round(doneN / BOOK.length * 100) + "%";
+  $("prog-label").textContent = doneN === BOOK.length
+    ? "🎉 全书通关!你读完了一整本英文小说!"
+    : "整本书进度 " + Math.round(doneN / BOOK.length * 100) + "%";
+  $("btn-continue").textContent = doneN === 0 ? "▶️ 开始冒险" :
+    (doneN === BOOK.length ? "🎉 再玩一遍喜欢的章节" : "▶️ 继续冒险:" + BOOK[firstUndone()].title_cn);
+  $("wb-count").textContent = wordN ? "(" + wordN + ")" : "";
+
+  // 跨书成长横幅: 已读词数 + 连读天数; 全书通关时给证书入口
+  const h = hubLoad();
+  const streak = (h.streak && h.streak.last === todayStr()) ? h.streak.count : (h.streak ? 0 : 0);
+  const twr = totalWordsRead();
+  let banner = `📚 累计已读 <b>${twr}</b> 词`;
+  if (h.streak && h.streak.count > 0) banner += ` · 🔥 连读 <b>${h.streak.count}</b> 天`;
+  banner += `<div class="g-sub">读得越多，数字越大——这是你自己读出来的成绩单！</div>`;
+  if (doneN === BOOK.length){
+    banner += `<div style="margin-top:8px"><a class="shelf-link" style="background:#ffb300;color:#2b1a00;border:none" href="javascript:showCert()">🏅 领取本书通关证书</a></div>`;
+  }
+  $("growth-banner").innerHTML = banner;
+
+  const map = $("map"); map.innerHTML = "";
+  let lastSection = null;
+  const nextIdx = firstUndone();
+  BOOK.forEach((ch, i)=>{
+    if (ch.section !== lastSection){
+      lastSection = ch.section;
+      const s = SECTIONS[ch.section] || {cn: ch.section, icon: "📖"};
+      const h = document.createElement("div");
+      h.className = "section-head";
+      h.innerHTML = `<span class="s-icon">${s.icon}</span><span class="s-name">${s.cn}</span><span class="s-en">${ch.section}</span>`;
+      map.appendChild(h);
+    }
+    const unlocked = isUnlocked(i);
+    const done = !!save.done[ch.id];
+    const node = document.createElement("div");
+    node.className = "map-node" + (unlocked ? "" : " locked") + (i === nextIdx && unlocked && !done ? " next" : "");
+    const stars = done ? "★".repeat(save.stars[ch.id] || 1) : "";
+    node.innerHTML = `
+      <div class="icon">${ch.icon}</div>
+      <div class="info">
+        <div class="name">${ch.title_en}</div>
+        <div class="place">${ch.title_cn} · ${ch.words}词 ${done ? "" : "· " + ch.teaser_cn}</div>
+      </div>
+      <div class="state">${ done ? `<span class="badge-done">${stars}</span>` : (unlocked ? "▶️" : "🔒") }</div>`;
+    node.onclick = unlocked ? (()=>openChapter(i)) : (()=>toast("先完成上一章才能解锁哦 🔒"));
+    map.appendChild(node);
+  });
+}
+function continueGame(){ openChapter(firstUndone()); }
+function goHome(){ stopAll(); renderHome(); show("scr-home"); }
+function resetProgress(){
+  if (!confirm("确定要清空所有进度和单词册,重新开始吗?")) return;
+  save = { done:{}, stars:{}, words:{}, heard:{}, read:{}, guesses:{}, review:{}, slow: save.slow, ttsMode: save.ttsMode, fontIdx: save.fontIdx }; persist(); renderHome(); toast("已重新开始 ✨");
+}
+
+/* =====================================================
+   阅读页
+   ===================================================== */
+function openChapter(i){
+  stopAll();
+  cur = i;
+  markStreak();                    // 打开章节 = 今天有阅读活动
+  const ch = BOOK[i];
+  $("read-tag").textContent = ch.tag;
+  $("read-title").textContent = ch.title_en;
+  $("read-title-cn").textContent = ch.title_cn + " · " + ch.words + " 词";
+  $("btn-rate").textContent = save.slow ? "🐇 正常速" : "🐢 慢速";
+  const gwHtml = (frag)=>frag.replace(/\{([^}]+)\}/g, (m, w)=>{
+    const key = w.trim().toLowerCase();
+    const cls = save.words[key] ? " learned" : ((GLOSSARY[key]||{}).gold ? " gold" : "");
+    return `<span class="gw${cls}" data-w="${w.replace(/"/g,'&quot;')}">${w}</span>`;
+  });
+  const body = $("story-body");
+  body.innerHTML = ch.paras.map((par, pi)=>{
+    // 把段落切成句子, 每句包一个 .sent(供逐句高亮), 生词 gw 仍在句内
+    const sents = splitSents(par).map((s, si)=>
+      `<span class="sent" data-pi="${pi}" data-si="${si}">${gwHtml(s)}</span>`).join(" ");
+    return `<p data-pi="${pi}">${sents} <span class="pspk" data-p="${pi}">🔊</span></p>`;
+  }).join("");
+  body.querySelectorAll(".gw").forEach(el=>{ el.onclick = (ev)=>{ ev.stopPropagation(); showWordCard(el.dataset.w, el); }; });
+  body.querySelectorAll(".pspk").forEach(el=>{ el.onclick = (ev)=>{ ev.stopPropagation(); readPara(+el.dataset.p); }; });
+  // 恢复本章已听进度(持久化,重进不用重听)
+  save.heard = save.heard || {};
+  heardSet = new Set(save.heard[ch.id] || []);
+  // 恢复本章"读到哪"进度
+  save.read = save.read || {};
+  readPos = save.read[ch.id] || 0;
+  paintRead();
+  updateQuizGate();
+  applyFont();
+  show("scr-read");
+  // 上次没读完 → 自动滚回上次位置继续
+  if (readPos > 0 && readPos < ch.paras.length){
+    setTimeout(()=>{
+      const t = $("story-body").querySelector('p[data-pi="' + readPos + '"]');
+      if (t){ t.scrollIntoView({block:"center"}); toast("⏱ 已回到上次读到的地方，接着读吧"); }
+    }, 220);
+  } else {
+    window.scrollTo(0, 0);
+  }
+}
+function backToRead(){ openChapter(cur); }
+
+/* ---------- 单词卡 ---------- */
+function sentenceOf(word){
+  const ch = BOOK[cur];
+  const low = word.toLowerCase();
+  for (const par of ch.paras){
+    if (par.toLowerCase().indexOf("{" + low) === -1 &&
+        par.toLowerCase().indexOf(low) === -1) continue;
+    const plain = stripMarks(par);
+    const ss = plain.match(/[^.!?]+[.!?”"']*/g) || [plain];
+    for (const s of ss) if (s.toLowerCase().includes(low)) return s.trim();
+  }
+  return "";
+}
+function showWordCard(word, el){
+  const key = word.trim().toLowerCase();
+  const g = GLOSSARY[key] || { cn: "(点🔊听发音)", emoji: "⭐" };
+  const firstTime = !save.words[key];
+  if (firstTime){
+    save.words[key] = { ch: BOOK[cur].id };
+    persist();
+    if (el) el.classList.add("learned");
+  }
+  const eg = sentenceOf(word);
+  const card = $("word-card");
+  card.className = "word-card" + (g.gold ? " goldcard" : "");
+  card.innerHTML = `
+    <div class="w-emoji">${g.emoji}</div>
+    <div class="w-word">${word}</div>
+    <div class="w-cn">${g.cn}</div>
+    ${g.gold ? `<div class="w-goldtag">✨ 金色稀有生词</div>` : ""}
+    ${eg ? `<div class="w-eg">“${eg}”</div>` : ""}
+    <div class="w-collect">${firstTime ? (g.gold ? "🏆 收集到一个金色生词!" : "🎉 新单词已收进单词册!") : "✅ 已在单词册里"}</div>
+    <button class="btn btn-primary btn-block" id="w-speak">🔊 听发音</button>`;
+  $("w-speak").onclick = ()=>speak(word + (eg ? ". " + eg : ""), null, {word: key});
+  $("word-overlay").classList.add("show");
+  speak(word, null, {word: key});
+}
+function closeWordCard(ev){
+  if (ev.target.id === "word-overlay"){ $("word-overlay").classList.remove("show"); stopAll(); }
+}
+
+/* =====================================================
+   答题
+   ===================================================== */
+function tryStartQuiz(){
+  const ch = BOOK[cur];
+  if (!save.done[ch.id] && !allHeard()){
+    const left = Math.max(0, ch.paras.length - goneThrough());
+    toast("把故事读完或听完就能答题啦(还剩 " + left + " 段)~");
+    return;
+  }
+  startQuiz();
+}
+function startQuiz(){
+  stopAll();
+  qIdx = 0; wrongCount = 0; quizLock = false;
+  $("quiz-tag").textContent = BOOK[cur].tag + " · QUIZ";
+  renderQuestion();
+  show("scr-quiz");
+}
+const KIND_LABEL = { choice:"🔤 选一选", tf:"⚖️ 判断对错", fill:"✏️ 选词填空", who:"💬 谁说的？", order:"🔢 按顺序排一排" };
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function renderQuestion(){
+  const q = BOOK[cur].quiz[qIdx];
+  const type = q.type || "choice";
+  $("quiz-progress").textContent = "第 " + (qIdx+1) + " / " + BOOK[cur].quiz.length + " 题";
+  $("quiz-feedback").textContent = "";
+  $("q-kind").textContent = KIND_LABEL[type] || KIND_LABEL.choice;
+  $("q-text").innerHTML = ""; $("q-cn").textContent = ""; $("q-options").innerHTML = "";
+  quizLock = false;
+  if (type === "tf") renderTF(q);
+  else if (type === "fill") renderFill(q);
+  else if (type === "who") renderWho(q);
+  else if (type === "order") renderOrder(q);
+  else renderChoice(q);
+}
+const PRAISE = ["Great job! 🎉","Excellent! ⭐","You got it! 💪","Amazing! 🌟","Perfect! 🏆"];
+function qPass(){
+  quizLock = true;
+  $("quiz-feedback").textContent = PRAISE[qIdx % PRAISE.length];
+  setTimeout(()=>{
+    qIdx++;
+    if (qIdx < BOOK[cur].quiz.length) renderQuestion();
+    else finishChapter();
+  }, 900);
+}
+function qFail(el, msg){
+  wrongCount++;
+  if (el){ el.classList.add("wrong"); setTimeout(()=>el.classList.remove("wrong"), 600); }
+  $("quiz-feedback").textContent = msg || "再想想～答案就藏在故事里 🔍(左上角可以回去再读)";
+}
+/* 兼容旧调用 */
+function answer(el, right){ if (!quizLock){ if (right){ el.classList.add("right"); qPass(); } else qFail(el); } }
+
+function renderChoice(q){
+  $("q-text").textContent = q.q;
+  $("q-cn").textContent = q.cn || "";
+  const box = $("q-options");
+  q.options.forEach((opt, i)=>{
+    const d = document.createElement("div");
+    d.className = "option"; d.textContent = String.fromCharCode(65+i) + ".  " + opt;
+    d.onclick = ()=>{ if (quizLock) return; if (i === q.answer){ d.classList.add("right"); qPass(); } else qFail(d); };
+    box.appendChild(d);
+  });
+}
+function renderTF(q){
+  $("q-text").textContent = q.q;
+  $("q-cn").textContent = q.cn || "这句话对不对？";
+  const box = $("q-options"); box.className = "options tf-row";
+  [{t:"✓ 对", v:true},{t:"✗ 错", v:false}].forEach(o=>{
+    const d = document.createElement("div");
+    d.className = "option tf-opt"; d.textContent = o.t;
+    d.onclick = ()=>{ if (quizLock) return; if (o.v === q.answer){ d.classList.add("right"); qPass(); } else qFail(d); };
+    box.appendChild(d);
+  });
+}
+function renderFill(q){
+  // q.q 里用 ___ 表示空格
+  $("q-text").innerHTML = (q.q || "").replace("___", '<span class="blank" id="the-blank">?</span>');
+  $("q-cn").textContent = q.cn || "把正确的词填进空格里";
+  const box = $("q-options"); box.className = "options chip-box";
+  q.options.forEach((opt, i)=>{
+    const d = document.createElement("div");
+    d.className = "chip"; d.textContent = opt;
+    d.onclick = ()=>{
+      if (quizLock) return;
+      if (i === q.answer){
+        d.classList.add("right");
+        const bl = $("the-blank"); if (bl){ bl.textContent = opt; bl.classList.add("filled"); }
+        qPass();
+      } else qFail(d);
+    };
+    box.appendChild(d);
+  });
+}
+function renderWho(q){
+  $("q-text").innerHTML = '<div class="quote-bubble">“' + q.q + '”</div><div style="margin-top:14px">这句话是谁说的？</div>';
+  $("q-cn").textContent = q.cn || "";
+  const box = $("q-options"); box.className = "options";
+  q.options.forEach((opt, i)=>{
+    const d = document.createElement("div");
+    d.className = "option"; d.textContent = String.fromCharCode(65+i) + ".  " + opt;
+    d.onclick = ()=>{ if (quizLock) return; if (i === q.answer){ d.classList.add("right"); qPass(); } else qFail(d); };
+    box.appendChild(d);
+  });
+}
+function renderOrder(q){
+  $("q-text").textContent = q.q || "按事情发生的先后，依次点一点：";
+  $("q-cn").textContent = q.cn || "";
+  const box = $("q-options"); box.className = "options";
+  // q.items 已按正确顺序; 打乱显示, 每项记住其正确序号
+  const shuffled = shuffle(q.items.map((t, idx)=>({ t, idx })));
+  let expect = 0;                       // 下一个应点的正确序号
+  shuffled.forEach(it=>{
+    const d = document.createElement("div");
+    d.className = "order-item";
+    d.innerHTML = '<span class="order-badge">•</span><span>' + it.t + '</span>';
+    d.onclick = ()=>{
+      if (quizLock || d.classList.contains("placed")) return;
+      if (it.idx === expect){
+        d.classList.add("placed");
+        d.querySelector(".order-badge").textContent = (expect + 1);
+        expect++;
+        if (expect === q.items.length) qPass();
+      } else {
+        qFail(d, "顺序不对哦，想想哪件事先发生 🤔");
+      }
+    };
+    box.appendChild(d);
+  });
+}
+function finishChapter(){
+  const ch = BOOK[cur];
+  const stars = wrongCount === 0 ? 3 : (wrongCount <= 2 ? 2 : 1);
+  const firstClear = !save.done[ch.id];
+  save.done[ch.id] = true;
+  save.stars[ch.id] = Math.max(save.stars[ch.id] || 0, stars);
+  save.read = save.read || {};
+  save.read[ch.id] = ch.paras.length;      // 通关 = 整章已读
+  persist();
+  recordWords(ch.id, ch.words);            // 累计跨书阅读词数
+  markStreak();
+  $("reward-part").textContent = ch.icon;
+  $("reward-title").textContent = (firstClear ? "获得纪念品:" : "纪念品已擦亮:") + ch.itemName + "!";
+  $("reward-stars").textContent = "⭐".repeat(stars);
+  const nx = cur + 1;
+  if (nx < BOOK.length){
+    const left = BOOK.length - 1 - cur;    // 章末悬念
+    const cliff = left <= 1 ? "🔥 就差最后一章，真相马上揭晓！"
+                : "🔎 距离结局还有 <b>" + left + "</b> 章，往下读揭开谜底！";
+    $("reward-sub").innerHTML = `已解锁下一章 <b>${BOOK[nx].title_en}</b><br>${BOOK[nx].teaser_cn}<br><span style="color:#ffd54f">${cliff}</span>`;
+  } else {
+    $("reward-sub").innerHTML = `🎉🎉🎉<br>你独立读完了一整本 ${BOOK.reduce((a,c)=>a+c.words,0)} 词的英文小说!<br>` +
+      `<a class="shelf-link" style="background:#ffb300;color:#2b1a00;border:none;margin-top:10px" href="javascript:showCert()">🏅 领取通关证书</a>`;
+  }
+  show("scr-reward");
+  maybePrediction(ch.id);
+}
+
+/* ===== 先猜后揭晓 ===== */
+function maybePrediction(chId){
+  save.guesses = save.guesses || {};
+  for (const p of PREDICTIONS){                 // 先看有没有要揭晓的
+    if (p.revealAt === chId && save.guesses[p.id] != null && !save.guesses[p.id + "_done"]){
+      setTimeout(()=>showReveal(p), 1100); return;
+    }
+  }
+  for (const p of PREDICTIONS){                 // 再看有没有要提问的
+    if (p.askAt === chId && save.guesses[p.id] == null){
+      setTimeout(()=>showPrediction(p), 1100); return;
+    }
+  }
+}
+function showPrediction(p){
+  const card = $("pred-card");
+  card.innerHTML = `<div class="p-icon">🔮</div><div class="p-q">${p.q}</div>` +
+    p.options.map((o,i)=>`<div class="p-opt" data-i="${i}">${o}</div>`).join("") +
+    `<div class="chapter-title-cn" style="margin-top:8px">先猜一个，读到后面揭晓——猜错也没关系！</div>`;
+  card.querySelectorAll(".p-opt").forEach(el=>{
+    el.onclick = ()=>{
+      save.guesses[p.id] = +el.dataset.i; persist();
+      $("pred-overlay").classList.remove("show");
+      toast("🔮 你的预测已记下，读到后面揭晓！");
+    };
+  });
+  $("pred-overlay").classList.add("show");
+}
+function showReveal(p){
+  const guess = save.guesses[p.id];
+  const right = guess === p.answer;
+  save.guesses[p.id + "_done"] = true; persist();
+  $("pred-card").innerHTML =
+    `<div class="p-icon">${right ? "🎯" : "💡"}</div>` +
+    `<div class="p-verdict ${right ? "right" : "wrong"}">${right ? "猜对啦！" : "没猜到吧~"}</div>` +
+    `<div class="chapter-title-cn">你当时猜的是：<b>${p.options[guess]}</b></div>` +
+    `<div class="p-reveal">${p.reveal}</div>` +
+    `<button class="btn btn-primary btn-block" onclick="document.getElementById('pred-overlay').classList.remove('show')">明白啦</button>`;
+  $("pred-overlay").classList.add("show");
+}
+
+/* ===== 生词复习小游戏(简易遗忘曲线) ===== */
+const RV_INTERVAL = [0, 1, 2, 4, 7, 15];       // box 越高, 隔越久(天)
+let rvQueue = [], rvIdx = 0, rvRight = 0;
+function dayNum(){ return Math.floor(Date.now() / 86400000); }
+function startReview(){
+  const words = Object.keys(save.words);
+  if (!words.length){ toast("先去故事里收集一些生词，再来复习哦 📖"); return; }
+  save.review = save.review || {};
+  const today = dayNum();
+  let due = words.filter(w=>{ const r = save.review[w]; return !r || r.due <= today; });
+  if (!due.length) due = words.slice();          // 没有到期的就全部提前复习
+  rvQueue = shuffle(due).slice(0, 12); rvIdx = 0; rvRight = 0;
+  renderReview();
+  show("scr-review");
+}
+function renderReview(){
+  if (rvIdx >= rvQueue.length){ return finishReview(); }
+  const w = rvQueue[rvIdx];
+  const g = GLOSSARY[w] || { cn:"", emoji:"⭐" };
+  $("rv-progress").textContent = "第 " + (rvIdx+1) + " / " + rvQueue.length + " 个";
+  $("rv-bar").style.width = Math.round(rvIdx / rvQueue.length * 100) + "%";
+  $("rv-feedback").textContent = "";
+  // 干扰项: 其他生词的中文
+  const others = Object.keys(GLOSSARY).filter(x=>x!==w && GLOSSARY[x].cn && GLOSSARY[x].cn !== g.cn);
+  const opts = shuffle([g.cn].concat(shuffle(others).slice(0,3).map(x=>GLOSSARY[x].cn)));
+  $("rv-body").innerHTML =
+    `<div class="rv-card">
+       <div class="rv-word${g.gold?" gold":""}">${w}</div>
+       <div class="rv-listen" id="rv-listen">🔊 听发音</div>
+       <div class="rv-opts">` +
+       opts.map(o=>`<div class="rv-opt">${o}</div>`).join("") +
+    `  </div>
+     </div>`;
+  $("rv-listen").onclick = ()=>speak(w, null, {word:w});
+  $("rv-body").querySelectorAll(".rv-opt").forEach(el=>{
+    el.onclick = ()=>{
+      if (el.classList.contains("right") || el.classList.contains("wrong")) return;
+      const ok = el.textContent === g.cn;
+      const today = dayNum();
+      const r = save.review[w] || { box:0 };
+      if (ok){
+        el.classList.add("right"); rvRight++;
+        r.box = Math.min(RV_INTERVAL.length-1, (r.box||0)+1);
+        $("rv-feedback").textContent = ["答对啦 🎉","太棒了 ⭐","记住咯 💪"][rvIdx%3];
+      } else {
+        el.classList.add("wrong");
+        r.box = 0;
+        $("rv-body").querySelectorAll(".rv-opt").forEach(o=>{ if(o.textContent===g.cn) o.classList.add("right"); });
+        $("rv-feedback").textContent = "正确意思是:" + g.cn;
+      }
+      r.due = today + RV_INTERVAL[r.box]; save.review[w] = r; persist();
+      setTimeout(()=>{ rvIdx++; renderReview(); }, ok ? 750 : 1500);
+    };
+  });
+  speak(w, null, {word:w});
+}
+function finishReview(){
+  $("rv-progress").textContent = "复习完成";
+  $("rv-bar").style.width = "100%";
+  $("rv-feedback").textContent = "";
+  $("rv-body").innerHTML =
+    `<div class="rv-done"><div class="big">${rvRight===rvQueue.length?"🏆":"👍"}</div>
+       <div class="reward-title" style="color:#ffd54f">复习完成！答对 ${rvRight}/${rvQueue.length}</div>
+       <div class="reward-sub">记住的词会隔几天再考你，忘了的明天再来~</div>
+       <button class="btn btn-primary btn-block" style="margin-top:22px" onclick="startReview()">再来一组</button>
+       <button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="showWordbook()">回单词册</button>
+     </div>`;
+}
+
+/* ===== 通关证书 ===== */
+function editKidName(){
+  const cur = kidName();
+  const n = prompt("写上你的名字，印在证书上：", cur || "");
+  if (n != null){ const h = hubLoad(); h.kidName = n.trim().slice(0, 16); hubSave(h); if ($("scr-cert").classList.contains("active")) showCert(); renderHome(); }
+}
+function showCert(){
+  let name = kidName();
+  if (!name){ editKidName(); name = kidName(); if (!name) name = "小读者"; }
+  $("cert-name").textContent = name || "小读者";
+  $("cert-book").textContent = "《" + META.title + "》 " + (META.pageTitle && META.pageTitle.indexOf("·")>=0 ? META.pageTitle.split("·").pop().trim() : "");
+  $("cert-words").textContent = BOOK.reduce((a,c)=>a+c.words,0);
+  $("cert-vocab").textContent = Object.keys(save.words).length;
+  $("cert-stars").textContent = Object.values(save.stars).reduce((a,b)=>a+b,0);
+  const d = new Date();
+  $("cert-date").textContent = "颁发于 " + d.getFullYear() + " 年 " + (d.getMonth()+1) + " 月 " + d.getDate() + " 日";
+  show("scr-cert");
+}
+
+/* =====================================================
+   单词册 & 收藏馆
+   ===================================================== */
+function showWordbook(){
+  const list = $("wordbook-list");
+  const byCh = {};
+  Object.entries(save.words).forEach(([w, info])=>{
+    (byCh[info.ch] = byCh[info.ch] || []).push(w);
+  });
+  const total = Object.keys(GLOSSARY).length;
+  const goldTotal = Object.values(GLOSSARY).filter(g=>g.gold).length;
+  const got = Object.keys(save.words).length;
+  const goldGot = Object.keys(save.words).filter(w=>(GLOSSARY[w]||{}).gold).length;
+  if (!got){
+    list.innerHTML = `<div class="wb-empty">单词册还是空的 📭<br>去故事里点一点紫色的单词吧!<br><span style="color:#ffd766">✨ 金色的是稀有生词，集齐更棒</span></div>`;
+  } else {
+    let html = `<div class="chapter-title-cn">已收集 ${got} / ${total} 个生词 · <span style="color:#ffd766">✨ 金色 ${goldGot}/${goldTotal}</span></div>`;
+    const wbItem = (w)=>{
+      const g = GLOSSARY[w] || {cn:"", emoji:"⭐"};
+      return `<div class="wb-item${g.gold?" gold":""}">
+        <div class="wb-emoji">${g.gold?"✨":g.emoji}</div>
+        <div class="wb-main"><div class="wb-word">${w}</div><div class="wb-cn">${g.cn}</div></div>
+        <div class="wb-sound" data-w="${w.replace(/"/g,'&quot;')}">🔊</div>
+      </div>`;
+    };
+    // 金色生词单独置顶一组
+    const goldWs = Object.keys(save.words).filter(w=>(GLOSSARY[w]||{}).gold).sort();
+    if (goldWs.length){
+      html += `<div class="wb-chapter gold-hd">✨ 金色稀有生词（${goldWs.length}）</div>` + goldWs.map(wbItem).join("");
+    }
+    BOOK.forEach(ch=>{
+      const ws = (byCh[ch.id]||[]).filter(w=>!(GLOSSARY[w]||{}).gold);
+      if (!ws.length) return;
+      html += `<div class="wb-chapter">${ch.icon} ${ch.title_cn}(${ws.length})</div>`;
+      html += ws.sort().map(wbItem).join("");
+    });
+    list.innerHTML = html;
+    list.querySelectorAll(".wb-sound").forEach(el=>{ el.onclick = ()=>speak(el.dataset.w, null, {word: el.dataset.w}); });
+  }
+  show("scr-wordbook");
+}
+function showShelf(){
+  const grid = $("shelf-grid");
+  grid.innerHTML = BOOK.map(ch=>{
+    const owned = !!save.done[ch.id];
+    return `<div class="shelf-cell${owned ? "" : " miss"}">
+      <div class="c-emoji">${owned ? ch.icon : "❓"}</div>
+      <div class="c-name">${owned ? ch.itemName : "???"}</div>
+    </div>`;
+  }).join("");
+  show("scr-shelf");
+}
+
+/* =====================================================
+   声音检测
+   ===================================================== */
+const TEST_TEXT = "Hello! Welcome to Frankenstein. Can you hear me?";
+function testFile(){
+  stopAll();
+  playFile(AUDIO_BASE + "test.mp3", ()=>toast("测试⓪播放完毕,听到了吗?"),
+    ()=>toast("音频文件加载失败 ❌(离线打开的单文件版没有音频包)"));
+}
+function testLocal(){
+  stopAll();
+  speakLocal(splitSentences(TEST_TEXT), ()=>toast("本地引擎没出声 ❌ 试试别的测试"));
+}
+function testOnline(){
+  stopAll();
+  speakOnline(splitSentences(TEST_TEXT));
+}
+const MODE_NAMES = {auto: "已设为自动选择 🤖", recorded: "已固定用音频文件 ⓪",
+  local: "已固定用本地发音 ①", online: "已固定用在线发音 ②"};
+function setMode(m){
+  save.ttsMode = m; persist();
+  paintMode();
+  toast(MODE_NAMES[m]);
+}
+function paintMode(){
+  const cur = save.ttsMode || "auto";
+  ["auto","recorded","local","online"].forEach(m=>{
+    const b = $("m-" + m);
+    b.style.borderColor = (m === cur) ? "#ffd54f" : "#4c4380";
+    b.style.color = (m === cur) ? "#ffd54f" : "#e8e2ff";
+  });
+}
+function showSound(){
+  paintMode();
+  let vn = 0;
+  try{ vn = ("speechSynthesis" in window) ? speechSynthesis.getVoices().length : -1; }catch(e){}
+  $("snd-diag").innerHTML = "诊断: 音频包" + (TTS.hasAudio ? "✓" : "✗")
+    + " | 本地引擎音色数 " + vn
+    + " | 微信环境 " + (IN_WECHAT ? "是" : "否")
+    + (TTS.lastErr ? " | 上次错误 " + TTS.lastErr : "")
+    + "<br>浏览器: " + (navigator.userAgent || "").slice(0, 90);
+  show("scr-sound");
+}
+
+/* 首页标题等文案由 META 注入 */
+document.title = (META && META.pageTitle) || "阅读大冒险";
+$("home-title").textContent = (META && META.title) || "READING ADVENTURE";
+$("home-subtitle").textContent = (META && META.subtitle) || "读完这本书，点亮所有成就";
+$("home-bolt").textContent = (META && META.bolt) || "📖";
+
+/* ===== 阅读字号(可调, 记忆) ===== */
+const FONT_STEPS = [17, 20, 23, 27, 31];
+const FONT_NAMES = ["小", "中", "大", "特大", "超大"];
+function applyFont(){
+  let i = (save.fontIdx == null) ? 1 : save.fontIdx;
+  i = Math.max(0, Math.min(FONT_STEPS.length - 1, i));
+  document.documentElement.style.setProperty("--story-fs", FONT_STEPS[i] + "px");
+  const lbl = document.getElementById("fs-label");
+  if (lbl) lbl.textContent = FONT_NAMES[i];
+}
+function changeFont(d){
+  let i = (save.fontIdx == null) ? 1 : save.fontIdx;
+  i = Math.max(0, Math.min(FONT_STEPS.length - 1, i + d));
+  save.fontIdx = i; persist(); applyFont();
+  toast("字号:" + FONT_NAMES[i]);
+}
+applyFont();
+ttsInit();
+detectAudio();
+renderHome();
+</script>
+</body>
+</html>
