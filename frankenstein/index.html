@@ -764,7 +764,16 @@ function readResume(){
   try{ if ("speechSynthesis" in window && speechSynthesis.paused){ speechSynthesis.resume(); resumed = true; } }catch(e){}
   if (!resumed) rsStep();                  // 暂停恰好卡在两句之间 → 直接接着下一句
 }
-function readAloud(){ readItems(buildItems(BOOK[cur].paras.map((_, i)=>i)), 0); }
+function readAloud(){
+  const items = buildItems(BOOK[cur].paras.map((_, i)=>i));
+  // 从上次读到的段落之后开始读(已读过的不再重复); 整章读完过则从头再读
+  let start = 0;
+  if (readPos > 0 && readPos < BOOK[cur].paras.length){
+    const idx = items.findIndex(it => it.pi >= readPos);
+    if (idx > 0){ start = idx; toast("▶️ 从上次读到的地方接着读"); }
+  }
+  readItems(items, start);
+}
 function readPara(i){ readItems(buildItems([i]), 0); }
 function stopAloud(){ stopAll(); }
 function toggleRate(){
