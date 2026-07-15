@@ -96,6 +96,8 @@ const BOOKS = [
     desc:"警世 · 为知识把灵魂卖给魔鬼（题材较沉重）", saveKey:"faustus_game_v1", chapters:9, words:8768 },
   { id:"xfiles", path:"./xfiles/", cover:"🔦", title:"X-Files: Squeeze X档案之突变异种",
     desc:"惊悚 · FBI探员追捕变异凶手（较吓人）", saveKey:"xfiles_game_v1", chapters:10, words:7070 },
+  { id:"charlie", path:"./charlie/", cover:"🍫", title:"Charlie & the Chocolate Factory 查理和巧克力工厂",
+    desc:"欢乐 · 金奖券开启的巧克力工厂奇遇（放心给娃）", saveKey:"charlie_game_v1", chapters:29, words:32000 },
 ];
 const HUB_KEY="reading_hub_v1";
 function hub(){ try{return JSON.parse(localStorage.getItem(HUB_KEY))||{}}catch(e){return{}} }
