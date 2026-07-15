@@ -660,6 +660,7 @@ function bumpRead(n){
 let _scrollT = 0;
 function onReadScroll(){
   if (!$("scr-read").classList.contains("active")) return;
+  if (RS) return;                 // 朗读进行中: 以音频读到哪为准, 手动往下划不算已读
   const now = Date.now();
   if (now - _scrollT < 180) return; _scrollT = now;
   const line = window.innerHeight * 0.5;    // 段落底部越过屏幕中线 = 读完这段
