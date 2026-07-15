@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dr Faustus · 浮士德的悲剧</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: linear-gradient(180deg,#1a1f3c 0%,#2b2350 60%,#3a2c5e 100%);
+    color:#f3efe4; min-height:100%; overflow-x:hidden;
+  }
+  .screen { display:none; max-width:760px; margin:0 auto; padding:24px 20px 48px; min-height:100vh; }
+  .screen.active { display:block; animation:fadein .35s ease; }
+  @keyframes fadein { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+
+  /* ---------- 首页 ---------- */
+  .title-zone { text-align:center; margin:20px 0 8px; }
+  .title-zone .bolt { font-size:44px; }
+  h1.game-title { font-size:28px; letter-spacing:1px; margin-top:6px;
+    background:linear-gradient(90deg,#ffe082,#a5ffb0,#8ecfff);
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .subtitle { color:#bfb8d9; font-size:14px; margin-top:6px; }
+
+  .shelf-link { display:inline-block; margin:12px auto 0; padding:7px 16px; border-radius:20px;
+    background:#2e2856; border:1px solid #4c4380; color:#e8e2ff; font-size:14px; text-decoration:none; }
+  .growth-banner { margin:12px 0 0; padding:12px 14px; border-radius:14px;
+    background:linear-gradient(90deg,#33295c,#3a2c5e); border:1px solid #4c4380;
+    text-align:center; font-size:15px; color:#ffe082; font-weight:700; line-height:1.7; }
+  .growth-banner .g-sub { color:#a79fce; font-weight:400; font-size:12px; }
+  /* 通关证书 */
+  .cert-wrap { padding:18px 6px; }
+  .cert { background:linear-gradient(160deg,#fffdf5,#fff2cf); color:#3a2a10; border-radius:20px;
+    padding:30px 24px; text-align:center; border:3px solid #e0b84a;
+    box-shadow:0 10px 30px rgba(0,0,0,.4); position:relative; }
+  .cert .seal { font-size:52px; }
+  .cert h2 { font-size:22px; margin:8px 0 4px; color:#8a6d1a; letter-spacing:1px; }
+  .cert .cert-sub { font-size:13px; color:#9a7d2a; }
+  .cert .cert-name { font-size:30px; font-weight:900; margin:16px 0 6px; color:#5a4410;
+    border-bottom:2px dashed #e0b84a; display:inline-block; padding:0 18px 6px; }
+  .cert .cert-book { font-size:18px; font-weight:800; margin:14px 0 4px; }
+  .cert .cert-stats { display:flex; justify-content:center; gap:18px; margin:16px 0 6px; flex-wrap:wrap; }
+  .cert .cert-stat { text-align:center; }
+  .cert .cert-stat b { display:block; font-size:22px; color:#b8860b; }
+  .cert .cert-stat span { font-size:12px; color:#9a7d2a; }
+  .cert .cert-date { font-size:12px; color:#9a7d2a; margin-top:12px; }
+
+  .stat-row { display:flex; gap:10px; margin:18px 0 6px; }
+  .stat-box { flex:1; background:#262148; border:1px solid #443b74; border-radius:16px;
+    padding:12px 8px; text-align:center; }
+  .stat-box .num { font-size:22px; font-weight:800; color:#ffd54f; }
+  .stat-box .lbl { font-size:12px; color:#a79fce; margin-top:3px; }
+
+  .progress-wrap { background:#241f42; border-radius:10px; height:14px; margin:12px 0 4px; overflow:hidden; }
+  .progress-bar { height:100%; background:linear-gradient(90deg,#66bb6a,#ffd54f); border-radius:10px;
+    transition:width .5s; }
+  .progress-label { text-align:center; font-size:12px; color:#a79fce; margin-bottom:10px; }
+
+  .section-head { display:flex; align-items:center; gap:10px; margin:26px 0 4px; }
+  .section-head .s-icon { font-size:22px; }
+  .section-head .s-name { font-size:16px; font-weight:800; color:#ffd54f; }
+  .section-head .s-en { font-size:12px; color:#8d84b8; }
+
+  .map-node { display:flex; align-items:center; gap:14px; background:#262148;
+    border:1px solid #443b74; border-radius:18px; padding:14px 16px; margin:10px 0;
+    cursor:pointer; transition:transform .12s; }
+  .map-node:active { transform:scale(.98); }
+  .map-node.locked { opacity:.42; cursor:default; }
+  .map-node.next { border-color:#ffd54f; box-shadow:0 0 12px rgba(255,213,79,.25); }
+  .map-node .icon { font-size:30px; width:44px; text-align:center; }
+  .map-node .info { flex:1; min-width:0; }
+  .map-node .name { font-size:16px; font-weight:700; }
+  .map-node .place { font-size:12px; color:#a79fce; margin-top:3px; }
+  .map-node .state { font-size:18px; min-width:60px; text-align:right; }
+  .badge-done { color:#ffd54f; letter-spacing:1px; }
+
+  .toolbar { display:flex; gap:12px; margin-top:24px; }
+  .btn { border:none; border-radius:16px; padding:15px 20px; font-size:16px; font-weight:700;
+    cursor:pointer; font-family:inherit; color:#2b1a00; }
+  .btn:active { transform:scale(.97); }
+  .btn-primary { background:linear-gradient(90deg,#ffb300,#ff8f00); }
+  .btn-ghost { background:#2e2856; color:#e8e2ff; border:1px solid #4c4380; }
+  .btn-block { display:block; width:100%; }
+  .toolbar .btn { flex:1; }
+  .btn-continue { margin-top:16px; font-size:17px; }
+
+  /* ---------- 阅读页 ---------- */
+  .chapter-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap; }
+  .back-btn { background:#2e2856; border:1px solid #4c4380; color:#e8e2ff; border-radius:12px;
+    padding:8px 14px; font-size:15px; cursor:pointer; font-family:inherit; }
+  .chapter-tag { font-size:13px; color:#ffd54f; letter-spacing:2px; }
+  h2.chapter-title { font-size:23px; margin:10px 0 2px; }
+  .chapter-title-cn { color:#bfb8d9; font-size:14px; margin-bottom:14px; }
+
+  .story-card { background:#f7f1e1; color:#2d2a24; border-radius:20px; padding:22px 20px;
+    font-size:var(--story-fs, 20px); line-height:1.85; box-shadow:0 6px 24px rgba(0,0,0,.35); }
+  .story-card p { margin-bottom:14px; position:relative; padding-left:12px; border-left:4px solid transparent;
+    transition:border-color .3s, background .3s; }
+  .story-card p:last-child { margin-bottom:0; }
+  /* 已读过的段落: 绿色左条 + 淡绿底, 一眼看出读到哪 */
+  .story-card p.read { border-left-color:#66bb6a; background:rgba(102,187,106,.10); border-radius:0 8px 8px 0; }
+  .story-card p.read::after { content:"✓"; position:absolute; left:-2px; top:-2px; font-size:11px; color:#2e7d32; }
+  /* 句子级高亮:正在朗读的那一句变亮黄 */
+  .story-card .sent { border-radius:6px; transition:background .12s, box-shadow .12s; }
+  .story-card .sent.speaking { background:#ffe36b; box-shadow:0 0 0 4px #ffe36b; }
+  .gw { color:#8e24aa; font-weight:700; border-bottom:2px dotted #8e24aa; cursor:pointer; }
+  .gw.learned { color:#2e7d32; border-bottom-color:#2e7d32; }
+  .pspk { font-size:14px; opacity:.45; cursor:pointer; margin-left:6px; user-select:none; }
+
+  .read-tools { display:flex; gap:10px; margin:6px 0 10px; }
+  .read-tools .btn { flex:1; font-size:15px; padding:13px 8px; }
+  .fs-row { display:flex; align-items:center; justify-content:center; gap:8px; margin:0 0 14px;
+    color:#a79fce; font-size:14px; }
+  .fs-btn { background:#2e2856; border:1px solid #4c4380; color:#e8e2ff; border-radius:10px;
+    width:44px; height:38px; font-weight:800; cursor:pointer; font-family:inherit; }
+  .fs-btn:active { transform:scale(.95); }
+  .fs-btn.small { font-size:14px; }
+  .fs-btn.big { font-size:20px; }
+  .hint-line { text-align:center; font-size:13px; color:#a79fce; margin-top:10px; line-height:1.8; }
+
+  /* ---------- 单词卡弹窗 ---------- */
+  .overlay { position:fixed; inset:0; background:rgba(10,8,26,.72); display:none;
+    align-items:center; justify-content:center; z-index:50; padding:24px; }
+  .overlay.show { display:flex; }
+  .word-card { background:#fffef8; color:#2d2a24; border-radius:22px; padding:24px 22px;
+    width:100%; max-width:420px; text-align:center; animation:pop .22s ease; }
+  @keyframes pop { from{transform:scale(.85); opacity:0;} to{transform:none; opacity:1;} }
+  .word-card .w-emoji { font-size:38px; }
+  .word-card .w-word { font-size:29px; font-weight:800; color:#6a1b9a; margin-top:6px; word-break:break-word; }
+  .word-card .w-cn { font-size:20px; margin-top:8px; }
+  .word-card .w-eg { font-size:15px; color:#6d675c; margin-top:12px; line-height:1.6; font-style:italic; }
+  .word-card .w-collect { margin-top:10px; font-size:13px; color:#2e7d32; }
+  .word-card .btn { margin-top:14px; }
+
+  /* ---------- 答题页 ---------- */
+  .quiz-progress { font-size:14px; color:#ffd54f; margin:8px 0 14px; letter-spacing:1px; }
+  .question-card { background:#262148; border:1px solid #443b74; border-radius:20px; padding:20px; }
+  .question-text { font-size:19px; line-height:1.6; font-weight:700; }
+  .question-cn { font-size:13px; color:#a79fce; margin-top:6px; }
+  .options { margin-top:18px; }
+  .option { background:#312a5e; border:2px solid #4c4380; border-radius:16px; padding:15px;
+    font-size:16px; margin:10px 0; cursor:pointer; transition:all .15s; line-height:1.5; }
+  .option:active { transform:scale(.98); }
+  .option.right { background:#1b5e20; border-color:#66bb6a; }
+  .option.wrong { background:#7f1d1d; border-color:#ef5350; animation:shake .3s; }
+  @keyframes shake { 0%,100%{transform:none;} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+  .quiz-feedback { min-height:30px; text-align:center; font-size:16px; margin-top:12px; }
+  /* 题型小标签 */
+  .q-kind { display:inline-block; font-size:12px; font-weight:800; color:#2b1a00;
+    background:#ffd54f; border-radius:20px; padding:4px 12px; margin-bottom:12px; }
+  /* 判断对错 */
+  .tf-row { display:flex; gap:12px; margin-top:18px; }
+  .tf-row .option { flex:1; text-align:center; font-size:20px; font-weight:800; margin:0; }
+  /* 选词填空 */
+  .blank { display:inline-block; min-width:64px; border-bottom:3px solid #ffd54f; color:#ffd54f;
+    font-weight:800; text-align:center; margin:0 4px; }
+  .blank.filled { border-bottom-color:#66bb6a; color:#a5ffb0; }
+  .chip-box { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+  .chip { background:#312a5e; border:2px solid #4c4380; border-radius:14px; padding:12px 18px;
+    font-size:17px; cursor:pointer; transition:all .15s; }
+  .chip:active { transform:scale(.96); }
+  .chip.right { background:#1b5e20; border-color:#66bb6a; }
+  .chip.wrong { background:#7f1d1d; border-color:#ef5350; animation:shake .3s; }
+  /* 谁说的 */
+  .quote-bubble { background:#f7f1e1; color:#2d2a24; border-radius:16px; padding:16px 18px;
+    font-size:19px; font-style:italic; line-height:1.5; position:relative; margin:4px 0 4px; }
+  .quote-bubble::after { content:""; position:absolute; left:28px; bottom:-12px; border:8px solid transparent;
+    border-top-color:#f7f1e1; border-bottom:0; }
+  /* 排序 */
+  .order-item { display:flex; align-items:center; gap:12px; background:#312a5e; border:2px solid #4c4380;
+    border-radius:16px; padding:14px; margin:10px 0; font-size:16px; cursor:pointer; line-height:1.45; }
+  .order-item:active { transform:scale(.98); }
+  .order-item.placed { background:#1b5e20; border-color:#66bb6a; cursor:default; }
+  .order-item.wrong { animation:shake .3s; border-color:#ef5350; }
+  .order-badge { width:28px; height:28px; border-radius:50%; background:#4c4380; color:#e8e2ff;
+    font-weight:800; display:flex; align-items:center; justify-content:center; flex:0 0 auto; font-size:15px; }
+  .order-item.placed .order-badge { background:#ffd54f; color:#2b1a00; }
+
+  /* ---------- 奖励页 ---------- */
+  .reward-zone { text-align:center; padding-top:56px; }
+  .reward-part { font-size:92px; animation:drop .6s cubic-bezier(.2,1.4,.4,1); display:inline-block; }
+  @keyframes drop { from{transform:translateY(-80px) scale(.4); opacity:0;} to{transform:none; opacity:1;} }
+  .reward-title { font-size:24px; font-weight:800; margin-top:14px; color:#ffd54f; }
+  .reward-sub { color:#bfb8d9; margin-top:10px; font-size:16px; line-height:1.8; }
+  .reward-stars { font-size:30px; margin-top:12px; letter-spacing:6px; }
+  .reward-zone .btn { margin-top:26px; }
+
+  /* ---------- 单词册 & 收藏馆 ---------- */
+  .wb-chapter { font-size:14px; font-weight:800; color:#ffd54f; margin:18px 0 4px; }
+  .wb-item { background:#262148; border:1px solid #443b74; border-radius:16px; padding:12px 16px;
+    margin:8px 0; display:flex; align-items:center; gap:12px; }
+  .wb-item .wb-emoji { font-size:24px; }
+  .wb-item .wb-main { flex:1; min-width:0; }
+  .wb-item .wb-word { font-weight:800; font-size:17px; color:#ce93d8; word-break:break-word; }
+  .wb-item .wb-cn { font-size:14px; color:#cfc8ea; margin-top:2px; }
+  .wb-item .wb-sound { font-size:22px; cursor:pointer; padding:4px; }
+  .wb-empty { text-align:center; color:#a79fce; margin-top:60px; line-height:2; }
+  .shelf-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:10px; margin-top:16px; }
+  .shelf-cell { background:#262148; border:1px solid #443b74; border-radius:16px; padding:12px 6px;
+    text-align:center; }
+  .shelf-cell .c-emoji { font-size:30px; }
+  .shelf-cell .c-name { font-size:12px; color:#cfc8ea; margin-top:6px; }
+  .shelf-cell.miss { opacity:.32; filter:grayscale(1); }
+
+  /* 金色生词 */
+  .gw.gold { color:#c58a00; border-bottom-color:#e0a800; }
+  .word-card.goldcard { background:linear-gradient(160deg,#fffdf2,#fff0c4); border:2px solid #e0b84a; }
+  .w-goldtag { display:inline-block; margin-top:8px; font-size:12px; font-weight:800; color:#8a6d1a;
+    background:#ffe9a8; border-radius:20px; padding:3px 12px; }
+  .wb-item.gold { border-color:#e0b84a; background:linear-gradient(90deg,#2c2545,#3a3018); }
+  .wb-item.gold .wb-word { color:#ffd766; }
+  .wb-chapter.gold-hd { color:#ffd766; }
+
+  /* 预测/揭晓弹窗 */
+  .pred-card { background:#fffef8; color:#2d2a24; border-radius:22px; padding:24px 22px;
+    width:100%; max-width:440px; text-align:center; animation:pop .22s ease; }
+  .pred-card .p-icon { font-size:40px; }
+  .pred-card .p-q { font-size:18px; font-weight:800; margin:10px 0 4px; line-height:1.5; }
+  .pred-card .p-opt { background:#f0ebff; border:2px solid #d5c9f2; color:#3a2d5e; border-radius:14px;
+    padding:13px; margin:9px 0; font-size:16px; cursor:pointer; font-weight:700; }
+  .pred-card .p-opt:active { transform:scale(.98); }
+  .pred-card .p-reveal { font-size:16px; line-height:1.7; color:#3a2d1a; margin:10px 0; }
+  .pred-card .p-verdict { font-size:22px; font-weight:900; margin:6px 0; }
+  .pred-card .p-verdict.right { color:#2e7d32; }
+  .pred-card .p-verdict.wrong { color:#c56000; }
+
+  /* 生词复习小游戏 */
+  .rv-top { text-align:center; margin:8px 0 14px; }
+  .rv-progress { font-size:14px; color:#ffd54f; letter-spacing:1px; }
+  .rv-scorebar { background:#241f42; border-radius:8px; height:10px; margin:10px 0 0; overflow:hidden; }
+  .rv-scorebar .b { height:100%; background:linear-gradient(90deg,#66bb6a,#ffd54f); width:0; transition:width .3s; }
+  .rv-card { background:#262148; border:1px solid #443b74; border-radius:20px; padding:26px 20px; text-align:center; }
+  .rv-word { font-size:34px; font-weight:900; color:#ce93d8; word-break:break-word; }
+  .rv-word.gold { color:#ffd766; }
+  .rv-listen { margin-top:10px; font-size:24px; cursor:pointer; }
+  .rv-opts { margin-top:20px; }
+  .rv-opt { background:#312a5e; border:2px solid #4c4380; border-radius:16px; padding:15px; font-size:18px;
+    margin:10px 0; cursor:pointer; }
+  .rv-opt:active { transform:scale(.98); }
+  .rv-opt.right { background:#1b5e20; border-color:#66bb6a; }
+  .rv-opt.wrong { background:#7f1d1d; border-color:#ef5350; animation:shake .3s; }
+  .rv-feedback { text-align:center; min-height:26px; font-size:16px; margin-top:12px; }
+  .rv-done { text-align:center; padding-top:40px; }
+  .rv-done .big { font-size:70px; }
+
+  .toast { position:fixed; left:50%; bottom:34px; transform:translateX(-50%);
+    background:#ffd54f; color:#3a2a00; font-weight:700; padding:12px 22px; border-radius:30px;
+    font-size:15px; display:none; z-index:60; box-shadow:0 4px 18px rgba(0,0,0,.4);
+    max-width:86vw; text-align:center; }
+  .toast.show { display:block; animation:fadein .25s ease; }
+</style>
+</head>
+<body>
+
+<!-- ============ 首页 ============ -->
+<div class="screen active" id="scr-home">
+  <div class="title-zone">
+    <div class="bolt" id="home-bolt">📖</div>
+    <h1 class="game-title" id="home-title"></h1>
+    <div class="subtitle" id="home-subtitle"></div>
+  </div>
+
+  <a class="shelf-link" href="../">📚 我的书架</a>
+  <div class="growth-banner" id="growth-banner"></div>
+
+  <div class="stat-row">
+    <div class="stat-box"><div class="num" id="st-ch">0</div><div class="lbl">已通关章节</div></div>
+    <div class="stat-box"><div class="num" id="st-star">0</div><div class="lbl">获得星星</div></div>
+    <div class="stat-box"><div class="num" id="st-word">0</div><div class="lbl">收集单词</div></div>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="prog-bar" style="width:0%"></div></div>
+  <div class="progress-label" id="prog-label"></div>
+
+  <button class="btn btn-primary btn-block btn-continue" id="btn-continue" onclick="continueGame()">▶️ 继续冒险</button>
+
+  <div id="map"></div>
+
+  <div class="toolbar">
+    <button class="btn btn-ghost" onclick="showWordbook()">📖 单词册 <span id="wb-count"></span></button>
+    <button class="btn btn-ghost" onclick="showShelf()">🏆 收藏馆</button>
+    <button class="btn btn-ghost" onclick="resetProgress()">🔄 重置</button>
+  </div>
+  <div class="toolbar">
+    <button class="btn btn-ghost" onclick="showSound()">🔧 朗读没声音?点这里检测</button>
+  </div>
+</div>
+
+<!-- ============ 通关证书 ============ -->
+<div class="screen" id="scr-cert">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 返回</button>
+    <span class="chapter-tag">CERTIFICATE</span>
+  </div>
+  <div class="cert-wrap">
+    <div class="cert" id="cert-card">
+      <div class="seal">🏅</div>
+      <h2>阅读大冒险 · 通关证书</h2>
+      <div class="cert-sub">READING ADVENTURE · CERTIFICATE</div>
+      <div class="cert-name" id="cert-name">小读者</div>
+      <div class="cert-sub">独立读完了英文原著</div>
+      <div class="cert-book" id="cert-book"></div>
+      <div class="cert-stats">
+        <div class="cert-stat"><b id="cert-words">0</b><span>阅读词数</span></div>
+        <div class="cert-stat"><b id="cert-vocab">0</b><span>收集生词</span></div>
+        <div class="cert-stat"><b id="cert-stars">0</b><span>获得星星</span></div>
+      </div>
+      <div class="cert-date" id="cert-date"></div>
+    </div>
+  </div>
+  <button class="btn btn-ghost btn-block" style="margin-top:14px" onclick="editKidName()">✏️ 改名字</button>
+  <div class="hint-line">📸 截图保存，发给爸爸妈妈、爷爷奶奶看看吧！</div>
+</div>
+
+<!-- ============ 声音检测 ============ -->
+<div class="screen" id="scr-sound">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag">SOUND CHECK</span>
+  </div>
+  <h2 class="chapter-title">🔧 声音检测</h2>
+  <div class="chapter-title-cn">先把平板的<b>媒体音量</b>调大,再依次点下面的按钮</div>
+  <button class="btn btn-ghost btn-block" style="margin:10px 0" onclick="testFile()">▶️ 测试⓪ 音频文件(推荐)</button>
+  <button class="btn btn-ghost btn-block" style="margin:10px 0" onclick="testLocal()">▶️ 测试① 本地发音引擎</button>
+  <button class="btn btn-ghost btn-block" style="margin:10px 0" onclick="testOnline()">▶️ 测试② 在线发音(需联网)</button>
+  <div class="chapter-title-cn" style="margin-top:18px">哪个有声音,就选用哪个:</div>
+  <div class="toolbar" style="margin-top:8px">
+    <button class="btn btn-ghost" id="m-auto" onclick="setMode('auto')">🤖 自动</button>
+    <button class="btn btn-ghost" id="m-recorded" onclick="setMode('recorded')">⓪ 音频</button>
+    <button class="btn btn-ghost" id="m-local" onclick="setMode('local')">① 本地</button>
+    <button class="btn btn-ghost" id="m-online" onclick="setMode('online')">② 在线</button>
+  </div>
+  <div class="hint-line" style="margin-top:22px; text-align:left">
+    都没声音时请检查:<br>
+    · 平板<b>媒体音量</b>是否调大(和铃声音量是两回事)<br>
+    · 是否连着<b>蓝牙耳机/音箱</b>——声音可能被送去了别的设备<br>
+    · 微信里打开的话,点右上角 ⋯ 选择<b>"在浏览器打开"</b>再试<br>
+    · 先在浏览器里放一个视频:视频也没声就是平板设置问题
+  </div>
+  <div class="hint-line" style="margin-top:12px; text-align:left; opacity:.7" id="snd-diag"></div>
+</div>
+
+<!-- ============ 阅读页 ============ -->
+<div class="screen" id="scr-read">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag" id="read-tag"></span>
+  </div>
+  <h2 class="chapter-title" id="read-title"></h2>
+  <div class="chapter-title-cn" id="read-title-cn"></div>
+  <div class="read-tools">
+    <button class="btn btn-ghost" id="btn-readaloud" onclick="readAloud()">🔊 读给我听</button>
+    <button class="btn btn-ghost" id="btn-pause" onclick="pauseToggle()">⏸ 暂停</button>
+    <button class="btn btn-ghost" id="btn-rate" onclick="toggleRate()">🐢 慢速</button>
+  </div>
+  <div class="fs-row">
+    <span>字号</span>
+    <button class="fs-btn small" onclick="changeFont(-1)">A－</button>
+    <span id="fs-label" style="min-width:44px;text-align:center">中</span>
+    <button class="fs-btn big" onclick="changeFont(1)">A＋</button>
+  </div>
+  <div class="story-card" id="story-body"></div>
+  <button class="btn btn-primary btn-block" id="btn-quiz" onclick="tryStartQuiz()">✅ 我读完了，去答题</button>
+  <div class="hint-line">💡 点"🔊 读给我听"把整章听完就能解锁答题 · 每段末尾的 🔊 可单独听一段 · 紫色单词点一下有惊喜</div>
+</div>
+
+<!-- ============ 答题页 ============ -->
+<div class="screen" id="scr-quiz">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="backToRead()">← 回去再读读</button>
+    <span class="chapter-tag" id="quiz-tag"></span>
+  </div>
+  <div class="quiz-progress" id="quiz-progress"></div>
+  <div class="question-card">
+    <div class="q-kind" id="q-kind"></div>
+    <div class="question-text" id="q-text"></div>
+    <div class="question-cn" id="q-cn"></div>
+    <div class="options" id="q-options"></div>
+  </div>
+  <div class="quiz-feedback" id="quiz-feedback"></div>
+</div>
+
+<!-- ============ 奖励页 ============ -->
+<div class="screen" id="scr-reward">
+  <div class="reward-zone">
+    <div class="reward-part" id="reward-part"></div>
+    <div class="reward-title" id="reward-title"></div>
+    <div class="reward-stars" id="reward-stars"></div>
+    <div class="reward-sub" id="reward-sub"></div>
+    <button class="btn btn-primary btn-block" onclick="goHome()">🗺 回到地图，继续冒险</button>
+  </div>
+</div>
+
+<!-- ============ 单词册 ============ -->
+<div class="screen" id="scr-wordbook">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag">MY WORD BOOK</span>
+  </div>
+  <h2 class="chapter-title">📖 我的单词册</h2>
+  <button class="btn btn-primary btn-block" style="margin:6px 0 4px" onclick="startReview()">🎮 复习生词小游戏</button>
+  <div id="wordbook-list"></div>
+</div>
+
+<!-- ============ 生词复习小游戏 ============ -->
+<div class="screen" id="scr-review">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="showWordbook()">← 单词册</button>
+    <span class="chapter-tag">VOCAB REVIEW</span>
+  </div>
+  <div class="rv-top">
+    <div class="rv-progress" id="rv-progress"></div>
+    <div class="rv-scorebar"><div class="b" id="rv-bar"></div></div>
+  </div>
+  <div id="rv-body"></div>
+  <div class="rv-feedback" id="rv-feedback"></div>
+</div>
+
+<!-- ============ 收藏馆 ============ -->
+<div class="screen" id="scr-shelf">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag">COLLECTION</span>
+  </div>
+  <h2 class="chapter-title">🏆 我的收藏馆</h2>
+  <div class="chapter-title-cn">每通关一章，就能获得一件故事纪念品</div>
+  <div class="shelf-grid" id="shelf-grid"></div>
+</div>
+
+<!-- 单词卡弹窗 -->
+<div class="overlay" id="word-overlay" onclick="closeWordCard(event)">
+  <div class="word-card" id="word-card"></div>
+</div>
+
+<!-- 预测/揭晓弹窗 -->
+<div class="overlay" id="pred-overlay">
+  <div class="pred-card" id="pred-card"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ======== 数据(由构建脚本注入) ======== */
+const BOOK = [{"id":"u00","section":"\u4e0a\u90e8 \u00b7 \u4e0e\u9b54\u9b3c\u7b7e\u7ea6","tag":"START","title_en":"A Scholar's Strange Decision","title_cn":"\u535a\u58eb\u7684\u6289\u62e9","teaser_cn":"\u535a\u5b66\u7684\u535a\u58eb\u505a\u51fa\u795e\u79d8\u7684\u51b3\u5b9a","icon":"\ud83d\udcdc","itemName":"\u8840\u5199\u5951\u7ea6","words":856,"paras":["Faustus was born in Germany, in a town called Rhode. His parents were not rich, but the boy showed that he was very intelligent and {ambitious}. He was sent to Wittenberg University when he was a young man and soon made a reputation for himself. He became famous in the University for his knowledge and his wit and it was not long before the University made him 'Dr' Faustus.","His success meant very little to him, however, and he {longed} for excitement and {glamour}. One night he was in his study thinking about the future. His studies now seemed {dull} to him and he did not know what he should do. He looked at the books lying on his desk and began to pick them up one by one.","The first book he picked up was a study of Aristotle. He turned the pages {idly}.","'The purpose of logic is to argue well,' he read.","He threw the book back onto the desk {impatiently}.","'I've {learnt} everything that was possible from logic. I can argue and debate better than most of the {professors} here at the University!' he thought.","He picked up a second book from the desk and {glanced} at the title page.","'The purpose of medicine is health,' he read. Again he threw the book back onto his desk impatiently.","'I'm already famous for my medical skills,' he thought {proudly}. 'I don't need to study medicine any more. Besides, what can medicine do? It can't make people live forever and it can't bring the dead back to life.'","Once again he reached for a book from the pile on his desk. This time he picked up a volume about law.","'Law!' he thought scornfully. 'That might be all right for someone who just wants to make money \u2014 but law doesn't {satisfy} me.'","Finally Dr Faustus picked up a Bible.","'This is still the best subject to study,' he thought.","He turned the pages of the Bible with interest and then read a passage.","'If we say we have no sin we {deceive} ourselves and there is no truth in us,' he read.","'But if that's true,' Faustus suddenly thought, 'we're all {sinners}. Sinners go to hell when they die. We'll all go to hell!' he concluded. 'There's nothing we can do about it at all \u2014 it's just inevitable!'","He pushed the Bible away from him impatiently. He reached out for another book.","'Ah,' he said {excitedly}, 'a book of magic and {spells}! That's what really interests me. If I learnt the black arts, just think what I could do! I'd be more powerful than a King or Emperor. This is the subject I want to know more about.'","Dr Faustus had made up his mind. He was going to learn about magic and the black arts. He thought about two friends he had in Wittenberg, Valdes and Cornelius. They both studied magic and they had offered to teach Faustus what they knew.","Just at that moment Faustus' servant Wagner came into the study.","'Go and find Valdes and Cornelius,' Faustus {instructed} him.","'Ask them to come here to see me.'","'Yes, sir,' said Wagner. He left the room and went to look for his master's two friends.","Faustus sat by the fire waiting for them to come. Suddenly he saw two angels in front of him \u2014 a good angel and a bad angel.","'Don't do it, Faustus,' the good angel cried. 'Put that book about magic away. Read the Bible and save your soul!'","Now the bad angel began to speak. 'Learn about magic, Faustus. You'll become rich, powerful and famous!'","Faustus was excited at the decision he had made. He imagined himself with spirits that he could command and he {amused} himself by thinking what he would tell them to do. They could bring him gold from India. They could bring him {exotic} food from anywhere in the world. They could debate philosophy with him. He spent the time waiting for his friends, {pleasantly} {daydreaming} about the future.","At last Valdes and Cornelius arrived. Dr Faustus {greeted} them {keenly}.","'I've been thinking about what you said,' he told them, 'and I've decided to accept your offer. I want you to teach me everything you know about magic. I'm tired of philosophy, and law, and medicine, and {divinity}. I want something new.'","Valdes was very pleased with Faustus' decision.","'We'll show you everything,' he said. 'The spirits will soon {obey} you and then you can do whatever you want. The spirits will protect you and they can become any shape you want. They'll do whatever you tell them to.'","'Yes, it's true. Once you see what magic can do for you, you'll never want to study anything else, Faustus. Magic will make you rich and famous, I promise you!' Cornelius added.","'Come and dine with me tonight,' Faustus said excitedly. 'You can tell me everything then. I'm determined to see what the spirits can do for me!'"],"quiz":[{"q":"Why did the University call him 'Dr' Faustus?","cn":"\u5927\u5b66\u4e3a\u4ec0\u4e48\u79f0\u4ed6\u4e3a'\u798f\u65af\u7279\u535a\u58eb'?","options":["Because he was rich","Because of his knowledge and wit","Because he was the oldest student"],"answer":1},{"type":"tf","q":"Faustus was sent to Oxford University when he was young.","cn":"\u6d6e\u58eb\u5fb7\u5e74\u8f7b\u65f6\u88ab\u9001\u53bb\u725b\u6d25\u5927\u5b66\u8bfb\u4e66\u3002","answer":false},{"q":"Which book did Faustus pick up last, before deciding to study magic?","cn":"\u798f\u65af\u7279\u51b3\u5b9a\u5b66\u9b54\u6cd5\u4e4b\u524d,\u6700\u540e\u62ff\u8d77\u7684\u662f\u54ea\u672c\u4e66?","options":["A history book","A Bible","A play"],"answer":1},{"type":"who","q":"Learn about magic, Faustus. You'll become rich, powerful and famous!","cn":"\u5b66\u9b54\u6cd5\u5427\uff0c\u6d6e\u58eb\u5fb7\u3002\u4f60\u4f1a\u53d8\u5f97\u5bcc\u6709\u3001\u5f3a\u5927\u53c8\u51fa\u540d\uff01","options":["Good Angel","Bad Angel","Mephostophilis"],"answer":1},{"q":"Why did Faustus feel unhappy with logic, medicine and law?","cn":"\u798f\u65af\u7279\u4e3a\u4ec0\u4e48\u5bf9\u903b\u8f91\u5b66\u3001\u533b\u5b66\u548c\u6cd5\u5f8b\u611f\u5230\u4e0d\u6ee1?","options":["He failed his exams in these subjects","He was too poor to buy more books","He felt he had already mastered them and wanted more power"],"answer":2}]},{"id":"u01","section":"\u4e0a\u90e8 \u00b7 \u4e0e\u9b54\u9b3c\u7b7e\u7ea6","tag":"CHAPTER 1","title_en":"Summoning a Spirit","title_cn":"\u53ec\u5524\u9b54\u9b3c","teaser_cn":"\u4e66\u623f\u91cc\u51fa\u73b0\u4e86\u4e00\u4e2a\u5947\u602a\u7684\u8bbf\u5ba2","icon":"\ud83d\udcd6","itemName":"\u9b54\u6cd5\u4e66","words":802,"paras":["That evening two scholars from the university walked past Dr Faustus' house.","'I wonder what's happened to Dr Faustus?' one of the scholars said.","'There's his servant,' the other {scholar} replied, pointing to someone in the street. 'Let's ask him, shall we?' The two men stopped Wagner.","'Where's your master?' one of them asked.","'He's in the house, having dinner with Valdes and Cornelius,' Wagner replied.","One of the scholars {sighed}.","'I was afraid of this,' he said sadly. 'It looks as if Faustus has decided to take up magic. Valdes and Cornelius are famous for their love of magic!'","'Let's talk to the {rector} of the university,' his friend suggested. 'He may be able to warn Faustus not to do it.'","'We can try, but I don't think it'll do any good.'","The two scholars walked away sadly. They did not like to think that their friend had taken up such a dangerous interest.","A while later Valdes and Cornelius came out of the house. They had kept their promise. They had told Faustus everything they knew about magic and they had given him some books and spells.","After saying goodbye to the two men, Faustus ran {eagerly} back into his study. He closed the door behind him. He drew a circle on the floor of the study and wrote various magic names inside it. He also drew stars on the floor. He then picked up the book that Valdes and Cornelius had left behind and began to read {aloud} from it. He was trying to make a spirit appear before him.","At first nothing happened. Then Faustus heard a terrible noise of thunder. He went on reading aloud and a devil suddenly appeared in the room. Faustus was so surprised that he nearly dropped the book. He was {thrilled} at his success, however, and he decided to see if the devil would do what he ordered.","'Go away!' he {commanded}. 'You're too ugly to appear in front of me. Go away and come back in the form of a Franciscan {friar}.'","The devil, whose name was Mephostophilis, {bowed} courteously and disappeared. A few minutes later he returned to the study.","Once again he bowed {politely} to Dr Faustus.","'What do you want me to do?' Mephostophilis asked.","'I command you to obey me during my life,' Faustus ordered. 'You must do whatever I tell you to.'","'I am Lucifer's servant,' Mephostophilis replied. 'I can only obey you if he tells me to.'","This was not what Faustus had expected.","'But didn't Lucifer send you to me just now?' he asked.","'No,' Mephostophilis said quietly. 'I came here because I wanted to.'","'But I {summoned} you!' Faustus said {angrily}. 'You came because of my magic. That's the truth, isn't it?'","'I came because I heard you {cursing} God,' Mephostophilis said. 'When we {devils} hear someone doing that, we always come. It's a chance for us, you see. A person who curses God is in danger of {damnation}.'","'Tell me about Lucifer,' Faustus ordered. 'He was an angel once, wasn't he?'","'Yes, he was,' Mephostophilis said quietly, 'and God loved him. But Lucifer was proud you see, and God threw him into hell.'","'What about you?' Faustus wanted to know. 'What about you and all the other devils?'","'We were angels, too,' Mephostophilis admitted. 'We joined Lucifer when he {rebelled} against God. We are {damned} with Lucifer in hell.'","'But you're not in hell now,' Faustus {objected}. 'You're free! You can walk around.'","Mephostophilis {smiled} contemptuously at Faustus.","'This is hell,' he informed him. 'I was an angel once and I saw the face of God. I knew all the {delights} of heaven. Of course this is hell!'","'I have a message for Lucifer,' Faustus told Mephostophilis. 'Go and tell him that I am ready to give him my soul. Tell him that he must give me twenty-four years of life in exchange for it. During those twenty-four years Lucifer must give me everything I ask for. Tell him that I want you to be my servant during those twenty-four years.'","'I'll tell him,' Mephostophilis agreed.","'Bring me his answer later tonight,' Faustus commanded.","Mephostophilis made a {courteous} bow before he disappeared.","Faustus was very excited. He could hardly wait for Mephostophilis to come back. He began {dreaming} about what he would do once Lucifer had agreed to his offer. How everybody would wonder at him if he could control the spirits! What things he could learn! He would astonish the whole world with his learning and his {cleverness}!"],"quiz":[{"q":"What did Faustus do to try to summon a spirit?","cn":"\u798f\u65af\u7279\u505a\u4e86\u4ec0\u4e48\u6765\u53ec\u5524\u9b54\u9b3c?","options":["He drew a magic circle and read aloud from a spell book","He prayed all night and cried","He burned old books in the fire"],"answer":0},{"type":"fill","q":"Faustus ordered the devil to go away and come back in the form of a ___.","cn":"\u6d6e\u58eb\u5fb7\u547d\u4ee4\u9b54\u9b3c\u5148\u79bb\u5f00\uff0c\u518d\u53d8\u6210___\u7684\u6837\u5b50\u56de\u6765\u3002","options":["Franciscan friar","King","Angel"],"answer":0},{"q":"What shape did Faustus ask Mephostophilis to appear in?","cn":"\u798f\u65af\u7279\u8ba9\u6885\u83f2\u65af\u7279\u83f2\u5229\u65af\u53d8\u6210\u4ec0\u4e48\u6837\u5b50?","options":["A dragon","A King wearing a crown","A Franciscan friar"],"answer":2},{"type":"who","q":"I am Lucifer's servant. I can only obey you if he tells me to.","cn":"\u6211\u662f\u8def\u897f\u6cd5\u7684\u4ec6\u4eba\uff0c\u53ea\u6709\u4ed6\u5429\u5490\u6211\uff0c\u6211\u624d\u4f1a\u542c\u547d\u4e8e\u4f60\u3002","options":["Mephostophilis","Lucifer","Wagner"],"answer":0},{"q":"Why did Mephostophilis really come to Faustus?","cn":"\u6885\u83f2\u65af\u7279\u83f2\u5229\u65af\u5176\u5b9e\u662f\u4e3a\u4ec0\u4e48\u6765\u627e\u798f\u65af\u7279\u7684?","options":["Because Lucifer ordered him to come","Because he heard Faustus curse God","Because he wanted to become human again"],"answer":1}]},{"id":"u02","section":"\u4e0a\u90e8 \u00b7 \u4e0e\u9b54\u9b3c\u7b7e\u7ea6","tag":"CHAPTER 2","title_en":"The Blood Contract","title_cn":"\u8840\u7684\u5951\u7ea6","teaser_cn":"\u4e00\u4efd\u7279\u6b8a\u7684\u534f\u8bae\u6084\u6084\u5199\u6210","icon":"\ud83d\ude08","itemName":"\u9b54\u9b3c\u4ec6\u4ece","words":980,"paras":["While Faustus was waiting for Mephostophilis to return, he thought more closely about what he was doing. One part of him was afraid. He knew that he was turning away from God for ever. He knew that he would lose his soul. But another part of him was thrilled at the thought of the power that Lucifer would give him. He struggled with his {conscience}.","As he was arguing with himself, the good angel and bad angel came back into the study.","'Go forward, Faustus,' the bad angel {whispered} to him. 'You'll soon be famous and rich.'","'Stop, Faustus!' the good angel cried. 'You'll lose your soul. '","The two angels looked at him for a moment and then they left the study.","'I'll be rich,' Faustus said to himself. 'And Mephostophilis will be my servant.'","Suddenly he put his {doubts} aside. It was nearly midnight.","He stood inside the magic circle and raised his arms.","'Mephostophilis,' he cried, 'come here!' Mephostophilis suddenly appeared in the study.","'What did Lucifer say?' Faustus asked impatiently. 'Did he agree to everything?'","'He agreed,' Mephostophilis said quietly. 'I'll be your servant for twenty-four years and you will then give Lucifer your soul. But there's one condition,' he added {softly}. 'Lucifer wants a proper contract with you. You must write the agreement in your own blood. Lucifer {insists} on it. If you don't give him a proper contract, I'll go straight back to him and you won't see me any more.'","'I'll do it,' Faustus said.","Faustus took a knife and cut his arm. It was a deep cut, and blood {poured} out.","'Now write the contract,' commanded Mephostophilis {sternly}. He handed Faustus a pen.","Faustus {dipped} the pen into his blood and began to write.","As he was writing, the blood in the pen suddenly dried. He shook the pen, but it was blocked.","'What does this mean?' he asked himself. He felt afraid again.","'Why can't I write?' he asked Mephostophilis {anxiously}.","'Don't worry,' Mephostophilis said reassuringly. 'I'll heat the pen with some coal. It'll work then.'","Mephostophilis took the pen and {warmed} it over some coal. The blood was soon flowing once more and Faustus began to write the contract.","1. Faustus shall be a spirit in body and soul.","2. Mephostophilis will be his servant.","3. Mephostophilis will do everything that Faustus commands","4. Mephostophilis will be invisible when he comes to Faustus' house.","5. Mephostophilis shall appear in the shape that Faustus commands.","At the bottom of this document Faustus wrote:","I, John Faustus, agree that Lucifer and his servants can come and carry me away with them after twenty-four years.","Then he signed his name on the contract.","'It's done!' he cried {triumphantly}.","'But there's something written on my arm!' cried Faustus in alarm. 'Homo fuge!' All his fear came back to him in a rush. 'But where can run to? God will throw me down to hell.'","Mephostophilis could see that Faustus was {regretting} what he had done. He decided to offer him a little {distraction} from the terrible signing of the contract.","He made a {discreet} sign with his hand, and a group of devils entered the study. They were {richly} dressed and they began a {ceremonial} dance around the room.","'What's this for?' Faustus asked {curiously}.","'It's nothing. I just thought it would {amuse} you,' Mephostophilis said.","'Can I raise spirits like these when I want to?' Faustus asked.","'Of course you can,' Mephostophilis said. 'You can do much more than that. But give me the contract,' he ordered.","Faustus handed it to him. Mephostophilis read it quickly.","There was a {gleam} in his eye as he {folded} the piece of paper away carefully. Then he turned to Faustus with a smile.","'Now you can ask me anything you want,' he informed him.","Faustus asked Mephostophilis to tell him about hell. 'Where exactly is it?' he wanted to know.","'Hell is everywhere,' replied Mephostophilis. 'Wherever we devils are, that is hell. It's the place where we suffer and are {tortured}. '","'I don't believe in hell,' Faustus announced {firmly}. 'I think hell's a {fable}.'","'Wait until you get there,' Mephostophilis said quietly. 'Then you'll change your mind.'","'Do you really think I'll go to hell?' Faustus asked uneasily.","'Of course you will,' Mephostophilis told him. 'I've got the contract. You've promised to give Lucifer your soul after twenty-four years.'","'It's a fable,' Faustus repeated.","'Then how do you explain me?' Mephostophilis asked softly. 'I am damned and I am in hell.'","Faustus laughed scornfully.","'You can walk around and eat and enjoy yourself. If you can do all of that in hell, I don't mind being damned! But let's not talk about that,' he decided. 'Bring me a wife, Mephostophilis! I want the most beautiful girl in Germany for my wife!' he said excitedly.","Mephostophilis made another discreet sign and a female devil appeared. She was old and {terribly} ugly. Faustus looked at her in disgust. He shrank back against the wall. Mephostophilis watched Faustus with amusement.","'Don't talk about wives!' he said. 'Marriage is just an empty ceremony. I'll bring you the most beautiful girl \u2014 a different one each day. But don't think about marriage if you want me to be your servant. And now I have a present for you,' he said. He gave Faustus a book.","'This book contains all kinds of magic spells,' he told him. 'There are spells for gold, spells for controlling the wind, and all sorts of other magic.'","Faustus took the book gratefully. He turned the pages quickly.","'Thanks, Mephostophilis,' he said."],"quiz":[{"q":"What did Faustus have to use to sign the contract?","cn":"\u798f\u65af\u7279\u7b7e\u5951\u7ea6\u65f6\u5fc5\u987b\u7528\u4ec0\u4e48\u6765\u5199?","options":["Black ink","His own blood","A magic feather"],"answer":1},{"type":"tf","q":"Faustus signed the contract with ordinary black ink.","cn":"\u6d6e\u58eb\u5fb7\u662f\u7528\u666e\u901a\u9ed1\u58a8\u6c34\u7b7e\u7684\u5951\u7ea6\u3002","answer":false},{"q":"What strange thing happened when Faustus tried to write?","cn":"\u798f\u65af\u7279\u5199\u5951\u7ea6\u65f6\u53d1\u751f\u4e86\u4ec0\u4e48\u5947\u602a\u7684\u4e8b?","options":["The paper caught fire","The pen broke in half","The blood in the pen dried up"],"answer":2},{"type":"fill","q":"Mephostophilis heated the pen with some ___ so the blood could flow again.","cn":"\u6885\u83f2\u65af\u6258\u83f2\u5229\u65af\u7528\u4e00\u4e9b___\u7ed9\u7b14\u52a0\u70ed\uff0c\u597d\u8ba9\u8840\u518d\u6b21\u6d41\u52a8\u3002","options":["coal","fire wood","a candle"],"answer":0},{"q":"What does the words 'Homo fuge' on his arm suggest?","cn":"\u624b\u81c2\u4e0a\u51fa\u73b0\u7684'\u5feb\u9003'\u5b57\u6837\u8bf4\u660e\u4e86\u4ec0\u4e48?","options":["Part of him still feared he was making a terrible mistake","It was just a random magic trick with no meaning","Mephostophilis wrote it as a joke to scare him"],"answer":0}]},{"id":"u03","section":"\u4e2d\u90e8 \u00b7 \u9b54\u6cd5\u4e0e\u6743\u52bf","tag":"CHAPTER 3","title_en":"Doubts and Deadly Sins","title_cn":"\u4e03\u5b97\u7f6a\u7684\u8bf1\u60d1","teaser_cn":"\u5185\u5fc3\u6323\u624e\u65f6\u6765\u4e86\u51e0\u4f4d\u5947\u602a\u7684\u5ba2\u4eba","icon":"\ud83d\udc51","itemName":"\u6743\u52bf\u4e4b\u51a0","words":1390,"paras":["The days after he signed the agreement with Lucifer were busy ones for Faustus. Mephostophilis organised a variety of entertainment and a lot of {journeys} for him. They talked together about philosophy and science.","Mephostophilis kept him amused and {entertained}, although sometimes Faustus noticed that his devil servant never fully answered the questions that he was asked.","At times Faustus was very unhappy and he {blamed} Mephostophilis for {tempting} him. But Mephostophilis {mocked} him.","'It was your own doing,' he reminded him. 'You wanted to learn about magic, and to have power and money, remember? You wanted to astonish the world with your learning and your wit. You signed the agreement with Lucifer.'","'I'm going to give up magic,' Faustus said. 'I want to {repent}.'","The good angel and the bad angel entered the study.","'Give up this magic and God will forgive you,' the good angel said.","'You have become a devil,' the bad angel said. 'God cannot forgive you.'","'Even if I am a devil, God can still forgive me,' Faustus said. 'God will forgive me if I repent.'","'You will never repent,' the bad angel told him. The good and the bad angels left the study.","Faustus was in terrible {agony} now. He was {terrified} of what he had done and he tried to repent, but it was no good. He remembered the wonderful things that Mephostophilis had showed him and the places he had seen. He knew that the {pleasures} Mephostophilis gave him would prevent him from repenting.","Mephostophilis and Faustus had many intellectual discussions together, but Faustus did not learn very much from them. It seemed to him that Mephostophilis did not give him any new knowledge \u2014 he merely repeated things that Faustus already knew. And there were some questions that he refused to answer at all.","Once, they were having a discussion about the movement of the stars and planets. Faustus asked questions as usual and listened with {irritation} to the simple answers that his servant from hell gave him. At last he expressed his {impatience}.","'You only tell me things that anyone with some education could tell me!' he {complained} {bitterly}. 'I didn't agree to give my soul to Lucifer so that I could hear things that any student might tell me. Let's talk about something else. Tell me, Mephostophilis,' he asked, 'who made the world?'","Mephostophilis was silent for a moment. He avoided Faustus' eyes.","'I won't tell you,' he said at last.","'Please,' Faustus insisted. 'Answer my question.'","'Don't ask me that again,' Mephostophilis said menacingly.","Suddenly Faustus gave way to all the anger and {frustration} he had been feeling.","'You promised to obey me,' he said angrily. 'That was our agreement! '","'I promised to tell you everything that I could,' Mephostophilis replied. 'But this question is against the rules of hell. I can't answer it. Don't think about it any more, Faustus. You'd be better to think about hell \u2014 you are damned.'","Faustus was disappointed in Mephostophilis, and all his {bitterness} and rage made him determined to {outrage} his servant.","'I won't think about hell!' cried Faustus. 'I want to think about God who made the world. I want to save my soul. Go away from me, you devil!' he {shouted}. Mephostophilis left the room angrily.","'It can't be too late to save my soul!' Faustus cried in {misery}. The good angel and the bad angel entered the room when they heard these desperate words. The bad angel, who was the first to speak, whispered softly, 'It is too late, Faustus. You cannot save your soul now. You've gone too far.'","'It's never too late, Faustus,' the good angel said. 'Repent, Faustus, and save your soul.'","'If you repent, Faustus, devils will come and tear you to pieces!' the bad angel threatened him.","'Repent, and they will never touch you,' the good angel said.","The two angels left the room.","Faustus decided to make one last effort to be free of Lucifer and Mephostophilis. He began to pray.","'Christ, help me! Help to save my soul,' he began.","Suddenly there was a great crash in the room and Lucifer, Beelzebub and Mephostophilis stood in front of him. They were angry and Faustus was afraid of what they were going to do to him.","'Christ can't help you,' Lucifer said {coldly}. 'You belong to me now, Faustus.'","'Who are you?' Faustus asked. He was {trembling} with fear because Lucifer and his devils were about to kill him and drag him off to hell with them, 'I'm Lucifer and this is Beelzebub.'","Faustus looked at Lucifer in horror. He thought he was going to die.","'You've come to take my soul!' he cried. 'You've come to carry me off to hell.'","Lucifer smiled reassuringly at Faustus and shook his head.","'We've come to talk to you,' he said. 'That's all. You're breaking the agreement, Faustus.'","'That's right,' Beelzebub said. 'You shouldn't be talking about God and Christ.'","'You should be thinking about hell,' Lucifer explained.","Faustus {gazed} in panic at the three devils that were standing in front of him. He was terrified.","'I'll never do it again,' he promised. 'I'll never mention God or Christ again, I promise!'","'We've come from hell to show you something amusing,' Beelzebub announced. 'Sit down and we'll show you the Seven Deadly Sins. You'll enjoy this, I promise you.'","'Mephostophilis, bring them in,' commanded Lucifer. The Seven Deadly Sins entered the room.","'You can ask them anything,' Beelzebub told Faustus airily. 'They'll tell you anything you want to know about them.'","Faustus looked at the first Deadly Sin.","'Who are you?' he asked. 'Tell me about yourself.'","'I am Pride,' the Deadly Sin replied haughtily.'Women love me. Sometimes they put me on their heads and {admire} themselves. Sometimes they hang me round their {necks}, like a {necklace}. They adore me!' The Deadly Sin paused and pulled an ugly face.","'But what's that terrible smell in here?' he cried. 'I won't stay here a moment longer unless you sprinkle perfume on the ground and give me the finest carpet to walk on!'","Faustus laughed delightedly.","'You're proud all right, I can see that,' he said. 'But what about you?' he asked, turning to the next Deadly Sin. 'Who are you?'","'I'm Covetousness,' the Deadly Sin replied. 'If I had my way you'd all be turned to gold and I'd lock you in my chest. Gold, gold, gold \u2014 that's what I love!'","'And what about you?' Faustus asked the third Deadly Sin. 'Who are you?'","'I'm Envy,' the Deadly Sin told him. 'I can't read and so I want to burn every book in the world. I hate to see other people happy.'","'And you?' Faustus asked the fourth Deadly Sin. 'Who are you?'","'I'm Wrath. I was born in hell and I roam around the world with a sword.'","Faustus turned to the fifth Deadly Sin. 'Who are you?' he asked.","'I'm Gluttony,' the Deadly Sin replied. 'My parents are dead and they left me just enough money for thirty meals and ten snacks a day. Will you ask me to stay for dinner, Faustus?'","Faustus laughed again and dismissed the Deadly Sin.","'Who are you?' he asked the sixth Deadly Sin.","'I'm Sloth. I lie in the sun all day and I never do anything. Why have you disturbed me by bringing me here? I won't say another word until you put me back in the place I came from.'","'And you, the seventh?' asked Faustus, 'Who are you?'","'I'm Lechery,' the Deadly Sin told him. 'All my pleasures are in the body.'","'That's enough,' Lucifer now announced. 'Go away to hell!' he commanded. The Deadly Sins left.","'What a show,' said Faustus, 'but how I would love to see hell and come back again!'","'We can arrange that,' said Lucifer before he left."],"quiz":[{"q":"What question did Mephostophilis refuse to answer?","cn":"\u6885\u83f2\u65af\u7279\u83f2\u5229\u65af\u62d2\u7edd\u56de\u7b54\u4ec0\u4e48\u95ee\u9898?","options":["How old Lucifer was","Where hell was located","Who made the world"],"answer":2},{"type":"who","q":"I'm Wrath. I was born in hell and I roam around the world with a sword.","cn":"\u6211\u662f\u66b4\u6012\u3002\u6211\u751f\u5728\u5730\u72f1\uff0c\u5e26\u7740\u4e00\u628a\u5251\u5230\u5904\u6e38\u8361\u3002","options":["Wrath","Envy","Sloth"],"answer":0},{"q":"What did Lucifer show Faustus to stop him thinking of repenting?","cn":"\u8def\u897f\u6cd5\u7ed9\u798f\u65af\u7279\u770b\u4e86\u4ec0\u4e48,\u597d\u8ba9\u4ed6\u522b\u60f3\u7740\u6094\u6539?","options":["The Seven Deadly Sins","A map of hell","A book of prayers"],"answer":0},{"type":"tf","q":"Mephostophilis refused to tell Faustus who made the world.","cn":"\u6885\u83f2\u65af\u6258\u83f2\u5229\u65af\u62d2\u7edd\u544a\u8bc9\u6d6e\u58eb\u5fb7\u662f\u8c01\u521b\u9020\u4e86\u4e16\u754c\u3002","answer":true},{"q":"Why did Mephostophilis get angry when Faustus talked about God?","cn":"\u798f\u65af\u7279\u63d0\u5230\u4e0a\u5e1d\u65f6,\u6885\u83f2\u65af\u7279\u83f2\u5229\u65af\u4e3a\u4ec0\u4e48\u751f\u6c14?","options":["Because Mephostophilis wanted more gold","Because Faustus was breaking their agreement by trying to repent","Because Faustus was too loud"],"answer":1}]},{"id":"u04","section":"\u4e2d\u90e8 \u00b7 \u9b54\u6cd5\u4e0e\u6743\u52bf","tag":"CHAPTER 4","title_en":"Trouble at the Pope's Feast","title_cn":"\u6559\u7687\u7684\u5bb4\u4f1a","teaser_cn":"\u4e00\u573a\u5bb4\u4f1a\u4e0a\u53d1\u751f\u4e86\u79bb\u5947\u7684\u4e8b\u60c5","icon":"\ud83d\udd2e","itemName":"\u6c34\u6676\u7403","words":1069,"paras":["Mephostophilis and Faustus now set out on an eight-day tour of the universe. They flew around the stars together and Faustus learned a great deal about {astronomy}.","Faustus was delighted with this experience and soon started on another grand journey, this time around the world. He and Mephostophilis finally {travelled} through the important cities of Germany, France and Italy. At last they arrived in Rome. They saw the historical {sights} of Rome together and Faustus was again delighted with the experience.","Mephostophilis now told him that he had planned something special for him.","'We're going to the {papal} palace!' he announced.","Faustus knew that Pope Adrian was about to celebrate his victory over the rival German Pope, Bruno. An important {feast} had been planned. Suddenly he decided that the feast would be a {splendid} occasion for him to show his powers.","'This feast is a very important one for the Pope,' he said to Mephostophilis, 'and I'd like to play some part in it. Can you {devise} some way that I can do that?'","Mephostophilis promised to {organise} something for Faustus and the two of them {hurried} to the palace.","When they arrived they were just in time to see Pope Adrian, his guest King Raymond of Hungary and the Cardinals with their prisoner Bruno. The Cardinals threw the rival Pope to the ground and Pope Adrian walked over him to reach his throne.","'Bruno helps the {rightful} Pope to climb into Peter's chair,' commented Raymond.","'That place is mine!' cried Bruno bitterly. 'I am the Pope.'","Pope Adrian sneered at Bruno's words.","'You're my prisoner,' he told him, 'and you'll soon find out what your rightful place is.' He {signalled} to the Cardinals of France and Padua. 'Go and find out what the Synod has decided to do with Bruno,' he commanded.","The two Cardinals hurried from the chamber.","Faustus suddenly had an idea, and began whispering {hurriedly} to Mephostophilis.","'You go with the Cardinals,' he {hissed}. 'Make them fall asleep, and then you and I will take their places. We'll talk to the Pope, and we'll set Bruno free!' he concluded {boldly}.","The rival Pope meanwhile was trying to argue with Pope Adrian.","'You know that I was appointed by the German Emperor,' he said.","'I'm going to {punish} the German Emperor as well,' Adrian said proudly. 'First I'll excommunicate him and then I'll take his crown from him.'","Bruno tried once more to argue his case.","'What about the promise that Pope Julius made to the German Emperor Sigismund?' he went on. 'He promised that the Popes of Rome would always acknowledge the German Emperor as their lord!'","Adrian dismissed the argument with a wave of the hand.","'Julius broke the rules of the church when he made that promise,' he said. 'His {decrees} mean nothing. The power of the whole world belongs to the Pope, not to Emperors and Kings.'","Just then Faustus and Mephostophilis entered the chamber, {disguised} as the Cardinals of France and Padua.","'Well,' asked Adrian, 'what has the Synod decided to do with Bruno?'","'They have decided to punish Bruno and the German Emperor,' Faustus replied {solemnly}. 'They say that Bruno should be executed if his actions were not forced by the Emperor. He should be burned at the stake.'","Pope Adrian smiled {cruelly}.","'Take him away with you,' he ordered Faustus and Mephostophilis. 'Put him in prison and we will decide what to do with him tomorrow. And take his crown with you,' he added. 'Put it in the Papal treasury.'","Faustus and Mephostophilis hurried away with Bruno and the crown. Mephostophilis soon {smuggled} the rival Pope away from the city. Now Faustus wanted to attend the Pope's {celebratory} feast.","'Make me invisible, Mephostophilis,' he ordered. 'I want to see what happens to the Cardinals whose place we took earlier. I wonder what Pope Adrian will do to them!'","The guests were beginning to arrive for the feast when Faustus reached the palace. Pope Adrian was {welcoming} the Cardinals.","'Would you like to know what the Synod has decided to do with Bruno?' one of the Cardinals asked him.","The Pope looked at him in surprise.","'What are you talking about?' he asked impatiently. 'You've already told me the Synod's decision that Bruno and the German Emperor should be punished. You know I'm making my own decision about him tomorrow.'","'But we haven't said anything!' the Cardinal said in {astonishment}.","King Raymond {intervened} angrily.","'Don't deny it!' he said sternly. 'I was there. I heard you tell Pope Adrian what the Synod had decided. You took Bruno away to prison with you, and you took his crown away with you as well.'","'You're mistaken!' cried the Cardinal fearfully. 'I don't know what you're talking about.'","Suddenly Pope Adrian got very angry.","'Take these two to prison!' he commanded his soldiers. 'If they don't tell us where Bruno and the crown are, they will die for their sins!'","Soldiers suddenly appeared, and removed the two terrified Cardinals.","Soon the Pope and his guests moved to the table to eat.","Faustus went with them, moving unseen around the room.","He was determined to enjoy himself as much as he could. Every time the Pope tried to lift some food to his mouth, an invisible hand snatched it away. When the Pope tried to drink, an in visible hand snatched his glass away. The Pope and his guests were astonished, and some of them were frightened.","'I think there's a ghost at the feast,' one of the archbishops said. 'It must be the unhappy soul of some dead person who cannot find rest. He has come here to ask for your blessing.'","'You may be right,' the Pope agreed. He ordered some priests to say prayers for the dead man. Then he crossed himself.","Suddenly Faustus struck a hard blow at the Pope's ear. Pope Adrian jumped up from the table, holding his ear. He was furious at the insult.","'I curse this soul!' he cried angrily.","'What will you do now, Faustus?' Mephostophilis asked. 'The Pope will ask the priests to curse you with bell, book and candle.'"],"quiz":[{"q":"How did Faustus and Mephostophilis help Bruno escape?","cn":"\u798f\u65af\u7279\u548c\u6885\u83f2\u65af\u7279\u83f2\u5229\u65af\u600e\u6837\u5e2e\u5e03\u9c81\u8bfa\u9003\u8d70?","options":["By disguising themselves as two Cardinals","By fighting the Pope's soldiers","By bribing the Pope's guards"],"answer":0},{"type":"fill","q":"Faustus and Mephostophilis disguised themselves as the ___ of France and Padua to free Bruno.","cn":"\u6d6e\u58eb\u5fb7\u548c\u6885\u83f2\u65af\u6258\u83f2\u5229\u65af\u88c5\u626e\u6210\u6cd5\u56fd\u548c\u5e15\u591a\u74e6\u7684___\uff0c\u6551\u8d70\u4e86\u5e03\u9c81\u8bfa\u3002","options":["Cardinals","Soldiers","Priests"],"answer":0},{"q":"What did the invisible Faustus do at the Pope's feast?","cn":"\u9690\u8eab\u7684\u798f\u65af\u7279\u5728\u6559\u7687\u7684\u5bb4\u4f1a\u4e0a\u505a\u4e86\u4ec0\u4e48?","options":["He sang a loud song","He snatched food and drink and struck the Pope's ear","He set the dinner table on fire"],"answer":1},{"type":"who","q":"That place is mine! I am the Pope.","cn":"\u90a3\u4e2a\u4f4d\u5b50\u662f\u6211\u7684\uff01\u6211\u624d\u662f\u6559\u7687\u3002","options":["Bruno","Pope Adrian","King Raymond"],"answer":0},{"q":"Why was the Pope angry and confused with the real Cardinals?","cn":"\u6559\u7687\u4e3a\u4ec0\u4e48\u5bf9\u771f\u6b63\u7684\u7ea2\u8863\u4e3b\u6559\u53c8\u6c14\u53c8\u56f0\u60d1?","options":["Because they arrived late to the feast","Because they refused to eat the food","Because he thought they had already reported the Synod's decision, but they hadn't"],"answer":2}]},{"id":"u05","section":"\u4e2d\u90e8 \u00b7 \u9b54\u6cd5\u4e0e\u6743\u52bf","tag":"CHAPTER 5","title_en":"Tricks at the Emperor's Court","title_cn":"\u7687\u5bab\u91cc\u7684\u628a\u620f","teaser_cn":"\u5bab\u5ef7\u91cc\u4e0a\u6f14\u4e86\u4e00\u573a\u60ca\u4eba\u7684\u9b54\u6cd5\u79c0","icon":"\u23f3","itemName":"24\u5e74\u6c99\u6f0f","words":1161,"paras":["Faustus and Mephostophilis returned to Wittenberg after their {lengthy} travels. His friends were happy to see Faustus again and they were {astonished} at his new knowledge. His reputation as a learned man grew and eventually he became famous throughout Germany. The Emperor, Charles V, heard of his extraordinary learning and sent for him.","Not all of the Emperor's knights were happy that Faustus had been invited to the palace. Benvolio, in particular, was very {sceptical} about the magic powers that Faustus was {rumoured} to have.","'Aren't you coming to see Faustus the great {magician}?' asked his friend Martino. 'He says he's going to perform magic tricks never seen before in Germany!'","'I was out drinking last night,' replied Benvolio, 'and I've got a terrible {headache}. I can't be {bothered} to watch this magician. I may look out of my window to see what happens, but I won't come to the palace.'","The Emperor welcomed Faustus very warmly. He {thanked} him for {rescuing} Bruno from Pope Adrian and he promised Faustus his friendship. Faustus replied politely to the Emperor's greeting and assured him of his loyalty. Then he promised to use his magic powers to amuse the Emperor.","'I can make the dead appear,' he offered grandly.","'Then show me Alexander the Great and his {mistress},' the Emperor said. 'Show us what they really looked like!'","'And do it quickly,' Benvolio {muttered} to himself, as he looked out of the window of his house. 'I'm tired already and if you don't do something now, I'll fall asleep!'","Faustus {overheard} Benvolio's rude comment.","'I'll do something, don't worry, my friend,' he said under his breath. Then he turned to Charles V. 'When Alexander and his mistress appear,' he advised him, 'you must not ask them anything or touch them. They are spirits.'","'If you can bring Alexander here, I'll be Acteon and become a {stag},' Benvolio said {sarcastically}.","'And I'll give you the {horns} to play your part well,' Faustus muttered.","After a short time Alexander the Great appeared in front of the Emperor. Charles watched in astonishment as Alexander killed Darius and then moved towards his mistress. Alexander took Darius' crown and placed it on his mistress' head. Then he turned towards Charles and {waved} to him. Charles V moved forward as if he wanted to touch Alexander's hand. Faustus put a hand on his shoulder.","'You're {forgetting} that these are not real people, sir,' he said. 'They're spirits.'","'You're right, Faustus. They were so real, I wanted to touch them,' the Emperor said.","Suddenly Faustus pointed to the window where Benvolio had been watching events. Everyone looked up. Benvolio was asleep at the window and there was a pair of horns on his head. They {gasped} in astonishment at the cleverness of the trick.","'Benvolio, wake up!' called the Emperor.","'Who's disturbing me?' Benvolio asked sleepily. He put his hands to his head and {rubbed} it. 'I've got such a headache,' he complained.","Everyone laughed and pointed at the horns on the unfortunate man's head. Benvolio was {horrified} when he realised what Faustus had done to him.","'You deserve it,' Faustus said to him. 'Remember what you said: \"If you can bring Alexander here, I'll be Acteon and become a stag.\" Now you have the horns! I think I'll call some {hounds} to hunt you down!'","Benvolio was terrified now. He {begged} Faustus not to call the hounds.","The Emperor asked Faustus to remove the horns from the poor man's head. Faustus agreed to do so.","Later that day several of the Emperor's knights met to talk about Faustus. Benvolio wanted revenge for the trick that Faustus had played on him. He was determined to make Faustus suffer.","'Think very carefully,' Martino warned him. 'Faustus is dangerous. '","'He {insulted} me,' Benvolio said. 'If you're a real friend of mine, you'll help me to {avenge} that insult!'","'Calm down,' Frederick said. 'We'll help you. Why don't we set an ambush for him?' he suggested. 'We'll hide near the road and when Faustus comes along, we'll kill him. He won't have a chance!'","The three knights waited for Faustus to come along. They did not have to wait long. Soon they could see Faustus walking by himself along the road. They did not know that Faustus was wearing a false head.","'He's coming!' Frederick cried in excitement. 'Quickly, men, attack him with your swords!'","Benvolio was the first man to take out his sword. He ran up behind Faustus, and struck him on the head with his weapon. Faustus gave a terrible groan and fell to the ground. Benvolio cut off his head.","'He wasn't so dangerous, after all,' Frederick commented. 'Where's all his magic and power now when he really needs it?'","'I'm going to put some horns on his head and hang it from the window where I was standing earlier,' Benvolio said gleefully.","The three knights began to talk excitedly about what they would do to hide Faustus' body. They were not looking at him while they were talking. Faustus quietly climbed to his feet and faced them.","Benvolio was the first to see the headless man stand up.","'He's alive!' he screamed.","'Give him back his head!' Frederick shouted.","Faustus looked at the knights with contempt. He smiled grimly at them.","'Fools,' he said, 'don't you know that I was given twenty- four years of life by Lucifer? Nothing can kill me during that time.'","Faustus called Mephostophilis and some other devils. They arrived immediately and stood waiting for his orders.","'We'll make the world laugh at these men,' he decided. 'Take this one,' he said, pointing at Benvolio. 'Throw him into some filthy water.' Then he pointed at Frederick. 'And drag this one through the woods until his face bleeds.' Finally he pointed at Martino. 'Take this one,' he commanded the devils, 'and roll him down a steep cliff to break his bones.'","The Emperor's court was astonished later in the day when three dirty, bloodstained men entered the palace. The three men were the Emperor's knights, Martino, Benvolio and Frederick. It soon became known that the three knights had horns on their heads that they could not remove.","'What can we do?' Frederick asked his friends. 'We can't revenge ourselves on Faustus. He's too clever for us.'","'If we attack him again,' Benvolio said, 'he'll just put asses' ears on our heads. Everybody will laugh at us!'","'What can we do?' Martino wanted to know.","'We must hide away from everyone,' Benvolio said sadly. 'I've got a castle deep in the country. Let's go there, where no one will see us and laugh at our misfortune.'"],"quiz":[{"q":"Who did Faustus make appear for the Emperor?","cn":"\u798f\u65af\u7279\u4e3a\u7687\u5e1d\u53ec\u5524\u51fa\u4e86\u8c01?","options":["The Pope","Alexander the Great and his mistress","Bruno the rival Pope"],"answer":1},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["Faustus makes Benvolio fall asleep and grow horns.","Benvolio and his friends attack Faustus and cut off his head.","Faustus sends devils to punish the three knights."]},{"q":"What did Faustus do to Benvolio for insulting him?","cn":"\u672c\u6c83\u5229\u5965\u4fae\u8fb1\u798f\u65af\u7279\u540e,\u798f\u65af\u7279\u5bf9\u4ed6\u505a\u4e86\u4ec0\u4e48?","options":["Put horns on his head while he slept","Turned him into a horse","Made him invisible for a day"],"answer":0},{"type":"who","q":"Fools, don't you know that I was given twenty-four years of life by Lucifer? Nothing can kill me during that time.","cn":"\u50bb\u74dc\u4eec\uff0c\u4f60\u4eec\u4e0d\u77e5\u9053\u8def\u897f\u6cd5\u7ed9\u4e86\u6211\u4e8c\u5341\u56db\u5e74\u5bff\u547d\u5417\uff1f\u8fd9\u6bb5\u65f6\u95f4\u91cc\u6ca1\u4ec0\u4e48\u80fd\u6740\u6b7b\u6211\u3002","options":["Faustus","Mephostophilis","Benvolio"],"answer":0},{"q":"Why couldn't the knights truly kill Faustus?","cn":"\u9a91\u58eb\u4eec\u4e3a\u4ec0\u4e48\u65e0\u6cd5\u771f\u6b63\u6740\u6b7b\u798f\u65af\u7279?","options":["Because Faustus wore magic armour","Because the knights used the wrong weapon","Because Lucifer had given him twenty-four years of life that could not be ended early"],"answer":2}]},{"id":"u06","section":"\u4e0b\u90e8 \u00b7 \u5815\u843d\u7ec8\u7ae0","tag":"CHAPTER 6","title_en":"The Horse and the Grapes","title_cn":"\u9a6c\u4e0e\u8461\u8404","teaser_cn":"\u4e24\u4e2a\u6709\u8da3\u53c8\u53e4\u602a\u7684\u5c0f\u6545\u4e8b","icon":"\ud83d\udd6f","itemName":"\u5fcf\u6094\u70db","words":788,"paras":["Faustus increasingly used his magic powers to play a lot of tricks on people. One day he was staying in an inn, when he was approached by a horse-dealer whose business was going badly. The horse-dealer offered to buy Faustus' horse, which he had seen and {admired}.","'I'll give you forty dollars for the horse,' he offered.","Faustus smiled at the man.","'You can't buy a horse as good as this one for forty dollars,' he said. 'I'm not even sure that I want to sell him - but I might change my mind if you offered fifty dollars.'","The horse-dealer shook his head sadly.","'I haven't got fifty dollars,' he said bitterly. 'I've lost a lot of money on horses recently. Please take forty dollars for yours!'","'All right,' Faustus agreed. 'I'll take forty dollars for the horse. But there's one thing you've got to know about this horse. He's an excellent animal in every way. You can ride him anywhere and he'll always do what you want. But you mustn't ride him into water. Do you understand me? Never take this horse into water!'","'What's the matter with him?' the horse-dealer asked. 'He drinks water, doesn't he?'","Faustus smiled again.","'Oh yes,' he replied, 'he drinks water all right. But never ride him over water.'","The horse-dealer paid Faustus forty dollars and {rode} the horse away. He thought he had made a good {bargain} and he was a happy man.","Faustus watched the man ride away. Suddenly he felt {unbearably} sad. He knew that the twenty-four years he had agreed with Lucifer were coming to an end. He was tired and decided to sleep for a while.","The horse-dealer, meanwhile, took the horse that Faustus had sold him, and rode him around for a while. The horse was a good animal and very {lively}. The horse-dealer wondered why Faustus had told him not to ride the animal into water and he decided to find out what would happen. He rode the horse into a shallow river. The animal suddenly disappeared and the poor man found himself sitting on a wet {bundle} of {straw} in the middle of the river!","Faustus was sleeping when the horse-dealer came back. The man was wet and dirty and he was {furious}. He began shouting and {swearing}. He was looking for Faustus and threw open the door of the room where the magician was sleeping. He tried to wake him up by pulling his leg and suddenly Faustus' leg came off in the horse-dealer's hand.","'What have I done?' the man cried in {despair}. 'Have I killed him?'","Faustus began to call for help.","'Murder! Help me, good people, I'm being murdered!'","The horse-dealer {panicked} and ran away.","Faustus laughed to see the man running off.","'I've got my leg back,' he {joked} to himself, 'and he's got a bundle of wet straw for his forty dollars!'","Faustus was now so famous that important people were always {inviting} him to their houses so that he could show them his special powers. One of the visits that he paid was to the Duke of Vanbolt. He showed the Duke and his wife many wonderful sights, including a castle that {floated} in the air. The Duke was very pleased with his guest and thanked him for what he had shown them.","Faustus turned to the Duke's wife who was expecting a child.","'I've heard that women in your condition often have strange longings,' he told her. 'Is there any {delicacy} that I can {fetch} for you \u2014 anything in the whole world?'","The Duchess thought for a moment and then she smiled.","'There is one thing,' she told him softly. 'It's the middle of winter now and I keep dreaming of {grapes}. I would love to eat some grapes.'","'That's an easy matter,' Faustus told her with a smile. He made a sign to Mephostophilis. Mephostophilis disappeared and after a few minutes he came back. He was carrying a large bunch of grapes in his hand.","Faustus took the grapes and gave them to the Duchess with a bow.","'Try these,' he said. 'They should be good.'","The Duchess was astonished. She took the grapes and ate some.","'They're delicious,' she told Faustus. 'The best grapes I've ever {tasted}.'","'But where do they come from?' asked the Duke.","'It's winter here,' Faustus explained, 'but in other parts of the world it's summer. Mephostophilis flew to another part of the world to pick these grapes for you.'"],"quiz":[{"q":"What happened when the horse-dealer rode the horse into water?","cn":"\u9a6c\u8d29\u5b50\u9a91\u9a6c\u4e0b\u6c34\u540e\u53d1\u751f\u4e86\u4ec0\u4e48?","options":["The horse turned into a fish","The horse grew wings and flew away","The horse disappeared and became a bundle of straw"],"answer":2},{"type":"tf","q":"The horse-dealer paid Faustus fifty dollars for the horse.","cn":"\u9a6c\u8d29\u5b50\u4ed8\u7ed9\u6d6e\u58eb\u5fb7\u4e94\u5341\u7f8e\u5143\u4e70\u90a3\u5339\u9a6c\u3002","answer":false},{"q":"How did Faustus get fresh grapes for the Duchess in winter?","cn":"\u51ac\u5929\u91cc,\u798f\u65af\u7279\u662f\u600e\u4e48\u7ed9\u516c\u7235\u592b\u4eba\u5f04\u5230\u65b0\u9c9c\u8461\u8404\u7684?","options":["He grew them instantly by magic","Mephostophilis flew to another part of the world where it was summer","He bought them from a passing merchant"],"answer":1},{"type":"fill","q":"Faustus warned the horse-dealer never to ride the horse into ___.","cn":"\u6d6e\u58eb\u5fb7\u8b66\u544a\u9a6c\u8d29\u5b50\u5343\u4e07\u522b\u9a91\u7740\u90a3\u5339\u9a6c\u8fdb\u5165___\u3002","options":["water","the forest","the city"],"answer":0},{"q":"Why did Faustus feel unbearably sad after selling the horse?","cn":"\u5356\u6389\u9a6c\u4e4b\u540e,\u798f\u65af\u7279\u4e3a\u4ec0\u4e48\u611f\u5230\u5341\u5206\u4f24\u5fc3?","options":["Because he knew his twenty-four years with Lucifer were almost over","Because he needed the money badly","Because he missed his old horse"],"answer":0}]},{"id":"u07","section":"\u4e0b\u90e8 \u00b7 \u5815\u843d\u7ec8\u7ae0","tag":"CHAPTER 7","title_en":"Helen and the Old Man","title_cn":"\u6d77\u4f26\u4e0e\u8001\u4eba","teaser_cn":"\u4e00\u4f4d\u8001\u4eba\u5e26\u6765\u91cd\u8981\u7684\u5fe0\u544a","icon":"\u26d3","itemName":"\u7075\u9b42\u9501\u94fe","words":989,"paras":["The twenty-four years of the contract were now nearly over. Faustus and Mephostophilis returned to Wittenberg once again. Faustus' servant, Wagner, {sensed} that a great change was coming, but he did not understand what was really happening to his master. He just knew that Faustus had made a will.","'He's left everything to me!' the servant said to himself in wonder. 'But if he thinks he's going to die soon, why does he go on entertaining people, and laughing and joking?'","The servant shook his head sadly. There were things about Faustus that he could not understand, even after all these years of serving him.","One evening Faustus invited two old friends from the university to {dine} with him. The two scholars were delighted with the dinner he gave them and they were pleased to see that Faustus had lost none of his old wit and intelligence. Soon the conversation turned to the great {beauties} of the classical world.","'Faustus,' said one of the scholars, 'we've all read about Helen of Troy. We know that she was the most beautiful woman of her time. Can you use your powers to make her appear before us? We'd like to see for ourselves this wonder of the ancient world!'","Faustus smiled at his old friends.","'Of course I can,' he said gently. 'I'll make her appear for you.'","He gave a quick signal to Mephostophilis and the room was suddenly full of music. A few minutes passed and then they saw Helen appear. The two scholars were {amazed}.","'I can't describe such beauty,' one of the scholars said.","'I'm not surprised the Greeks fought a ten-year war for this woman,' the other scholar said. 'She's the most beautiful woman one could imagine.'","Soon afterwards the two scholars thanked Faustus for his {hospitality} and went home. He sat by himself for a while, thinking about the agreement he had made with Lucifer. His thoughts were {somber} and {grim}. Suddenly an old man entered the study.","'Give up this magic,' the old man said gently. 'Give it all up, Faustus, and turn to God. You've been a {wicked} man, but if you continue you'll become a devil. Give it up, Faustus, and repent!'","Faustus looked at the old man in despair.","'It's too late,' he replied quietly. 'My soul is damned. I can't do anything about it now. I can only die now.'","Mephostophilis handed Faustus a {dagger}.","'Hell is calling me,' Faustus went on. 'My time is nearly finished.'","Faustus pointed the dagger at his heart.","'Stop!' the old man cried. 'Don't give in to despair. You mustn't think you're too wicked for God to save you \u2014 that sin of despair is the worst of all! I can see an angel above your head, Faustus. Ask the angel for {forgiveness}. It's not too late.'","The old man's words gave Faustus hope.","'Let me think about what you've told me,' he said. 'Give me some time to think about my sins.'","'I'll leave you then,' the old man agreed, 'but I'm afraid for you, Faustus.'","Faustus sat in the study, thinking hard. He repented his agreement with Lucifer, but he knew there was one sin that he could not overcome.","'The old man is right,' he told himself. 'This despair of mine is just pride. I know that, but I can't change myself. Heaven and hell are fighting inside me!'","Suddenly Mephostophilis became very angry and began threatening Faustus.","'You're going against our agreement,' he {raged}. 'You should be thinking about hell and not about saving your soul. I'll tear you to pieces, Faustus!'","Faustus looked at Mephostophilis in horror. He was terrified of what Lucifer and his devils would do to him if he made them angry.","'Forgive me, Mephostophilis,' he begged. 'I won't do it again, I promise.'","Mephostophilis did not say anything, but continued {glaring} {fiercely} at Faustus.","'I didn't mean it, really I didn't,' Faustus cried {desperately}. 'Please tell Lucifer I didn't mean it. Tell him I'll even write another letter {confirming} our agreement. I'll write it in blood, like I did before, shall I?'","'Perhaps you should,' Mephostophilis agreed.","'Don't hurt me,' Faustus {pleaded}.'Hurt that old man who came here and talked to me about {repentance}. He's the one to blame, not me!'","Mephostophilis smiled at Faustus.","'The old man? I can't do anything to hurt his soul because his faith is very strong - but I can hurt his body!'","Faustus was very {relieved} that Mephostophilis' anger was turning away from him to another victim.","'One last thing I ask of you, old friend,' he now said. 'Make Helen return here as my lover. Her beauty will stop these dark thoughts of mine.'","Mephostophilis {grinned} at Faustus. He knew that this latest wish was a terrible sin, and he {relished} the idea of Faustus losing his soul.","Soon the spirit of Helen of Troy appeared in the study. Faustus gazed at her in wonder and awe.","'Come to me, Helen,' he said, 'and let me kiss you.'","The spirit of Helen {embraced} Faustus.","'Your {kisses} take my {immortal} soul,' he {breathed} softly. 'Look where it flies away from me. Kiss me again and give me back my soul!'","The old man entered the study again and stood watching Faustus and Helen sorrowfully.","'Now you are really damned, Faustus,' he said angrily. 'You've driven heaven away from you by this wickedness.'","Some of Lucifer's devils now entered the study in terrifying shapes. They stood around the old man, trying to frighten him.","'My faith is stronger than you,' the old man told them contemptuously. 'You can't hurt me \u2014God will always protect me.'"],"quiz":[{"q":"Who did Faustus make appear for his two old friends?","cn":"\u798f\u65af\u7279\u4e3a\u4e24\u4f4d\u8001\u670b\u53cb\u53ec\u5524\u51fa\u4e86\u8c01?","options":["Helen of Troy","The Duchess of Vanholt","Pope Adrian"],"answer":0},{"type":"who","q":"Come to me, Helen, and let me kiss you.","cn":"\u6765\u5427\uff0c\u6d77\u4f26\uff0c\u8ba9\u6211\u543b\u4f60\u3002","options":["Faustus","The old man","Mephostophilis"],"answer":0},{"q":"What did the old man urge Faustus to do?","cn":"\u8001\u4eba\u529d\u798f\u65af\u7279\u505a\u4ec0\u4e48?","options":["Sign a new contract with Lucifer","Marry Helen of Troy","Give up magic and ask God for forgiveness"],"answer":2},{"type":"tf","q":"Mephostophilis said he could not hurt the old man's soul because his faith was strong.","cn":"\u6885\u83f2\u65af\u6258\u83f2\u5229\u65af\u8bf4\uff0c\u56e0\u4e3a\u8001\u4eba\u4fe1\u5ff5\u575a\u5b9a\uff0c\u4ed6\u6ca1\u6cd5\u4f24\u5bb3\u8001\u4eba\u7684\u7075\u9b42\u3002","answer":true},{"q":"Why did Faustus ask for Helen to become his lover?","cn":"\u798f\u65af\u7279\u4e3a\u4ec0\u4e48\u8981\u6d77\u4f26\u505a\u4ed6\u7684\u7231\u4eba?","options":["Because Lucifer ordered him to marry her","To distract himself from his fear and guilt about repenting","Because he wanted to impress the old man"],"answer":1}]},{"id":"u08","section":"\u4e0b\u90e8 \u00b7 \u5815\u843d\u7ec8\u7ae0","tag":"CHAPTER 8","title_en":"The Final Hour","title_cn":"\u6700\u540e\u7684\u65f6\u523b","teaser_cn":"\u7ea6\u5b9a\u7684\u65e5\u5b50\u7ec8\u4e8e\u6765\u4e34\u4e86","icon":"\ud83d\udc80","itemName":"\u60b2\u5267\u7ec8\u5c40","words":733,"paras":["At last the twenty-four years that Lucifer had given Faustus came to an end. Lucifer, Beelzebub and Mephostophilis came up from hell to witness the death of the man who had given them his soul.","'Faustus is ours at midnight,' Lucifer said triumphantly. 'His soul is damned for ever.'","The two scholars whom Faustus had entertained happened to call on him during the evening, and they found Faustus in a {gloomy} mood.","'Why didn't I stay here in Wittenberg with you?' Faustus asked them sadly. 'My life would have been different, and I would not have been damned.'","'He must be ill,' one of the scholars said. 'Let's fetch a doctor for him.'","'It's a moral {sickness},' Faustus said, 'and there's no doctor in the world who can cure me.'","'If that's really true,' one of the scholars said, 'pray to God for help.'","Faustus smiled grimly at the mention of God. Then he told his visitors about the secret of his life. He explained about the agreement he had made with Lucifer, and how the twenty-four years were at an end. He told them there could be no forgiveness for him.","'Pray to God,' the scholar repeated.","'How can I pray to God?' Faustus cried desperately, 'when I turned away from Him all those years ago? God will never forgive me! Besides,' he went on, 'they stop me {praying} - they hold my hands when I want to pray!'","'Who does, Faustus?' one of the scholars cried. 'Who stops you praying?'","'Lucifer and Mephostophilis stop me praying. I gave them my soul for my {cunning},' Faustus said.","The two scholars were very sorry for their old friend. They did not know what they could do to help him. They promised to pray for him.","'The time has nearly come,' Faustus whispered. 'You must go. It might be dangerous for you to stay here!'","The scholars did not want to leave him alone, so they went into the room next to the study. They began to pray for their friend's soul.","When Faustus was alone again in the study, Mephostophilis appeared. He seemed very {cheerful} at the thought of Faustus' death.","'It's all your fault!' Faustus told him. 'You tempted me and I listened to you. You've {robbed} me of the happiness I could have had in heaven.'","'It's true,' Mephostophilis admitted with a cruel smile. 'I was there right from the start. Do you remember that evening you were looking through your books on the desk? Do you remember the page you opened in the Bible \u2014 \"If we say we have no sin we deceive ourselves and there is no truth in us\"? It was me that turned the pages of the Bible to find those lines. It was I, Faustus!'","The good angel and the bad angel now entered the study.","'You should have listened to me, Faustus,' the good angel told him sadly. 'You loved the pleasures of the world too much.'","'And now you must try the {pains} of hell!' the bad angel mocked him.","The clock struck eleven.","'Just one hour!' Faustus thought with horror. 'And then my soul goes to hell for ever. If only the time would go slowly,' he thought. 'I wish the sun would rise in the sky, so that it would never be midnight!'","The clock struck the half-hour.","'Time won't stand still for me,' Faustus thought desperately. 'Then, God, don't let me stay in hell for ever. A thousand years, a hundred thousand years \u2014 but save me in the end!'","Slowly the hands of the clock moved towards midnight. At last the moment had come. There was a crash of thunder outside the house, and Lucifer and his devils entered the study. They moved towards him, grinning and {sneering} at his suffering.","'No, Lucifer, no! Give me one more minute!' Faustus cried in horror.","When the scholars came into Faustus' study a few hours later, they were sure that something {dreadful} had happened to their friend.","They had heard the thunder during the night, and they were nervous. What they saw as they came into the study horrified them. Faustus had been torn to pieces by the devils."],"quiz":[{"q":"What did the scholars try to do to help Faustus?","cn":"\u5b66\u8005\u4eec\u60f3\u505a\u4ec0\u4e48\u6765\u5e2e\u52a9\u798f\u65af\u7279?","options":["They called for soldiers to guard him","They prayed for him in the next room","They gave him a magic charm"],"answer":1},{"type":"fill","q":"Faustus is ours at ___, Lucifer said triumphantly.","cn":"\u8def\u897f\u6cd5\u5f97\u610f\u5730\u8bf4\uff1a\u6d6e\u58eb\u5fb7\u5728___\u5c31\u662f\u6211\u4eec\u7684\u4e86\u3002","options":["midnight","noon","six o'clock"],"answer":0},{"q":"What secret did Mephostophilis finally reveal to Faustus?","cn":"\u6885\u83f2\u65af\u7279\u83f2\u5229\u65af\u6700\u540e\u5411\u798f\u65af\u7279\u900f\u9732\u4e86\u4ec0\u4e48\u79d8\u5bc6?","options":["That he had secretly tempted Faustus from the very beginning","That Lucifer had already forgiven Faustus","That the contract was never real"],"answer":0},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["The clock strikes eleven.","The clock strikes the half-hour.","Lucifer and the devils come and tear Faustus to pieces."]},{"q":"What does the ending of the story suggest?","cn":"\u8fd9\u4e2a\u6545\u4e8b\u7684\u7ed3\u5c40\u8bf4\u660e\u4e86\u4ec0\u4e48?","options":["That magic always brings lasting happiness","That the scholars saved him in the end","That trading his soul for power ultimately led to his destruction"],"answer":2}]}];
+const GLOSSARY = {"admire":{"cn":"\u559c\u7231\u3001\u6b23\u8d4f","emoji":"\ud83d\ude0d"},"admired":{"cn":"\u559c\u7231\u3001\u6b23\u8d4f","emoji":"\ud83d\ude0d"},"agony":{"cn":"\u6781\u5ea6\u75db\u82e6","emoji":"\ud83d\ude16"},"aloud":{"cn":"\u51fa\u58f0\u5730","emoji":"\ud83d\udd0a"},"amazed":{"cn":"\u60ca\u8bb6\u7684","emoji":"\ud83d\ude32"},"ambitious":{"cn":"\u6709\u91ce\u5fc3\u7684","emoji":"\ud83d\ude80"},"amuse":{"cn":"\u9017\u4e50","emoji":"\ud83d\ude04"},"amused":{"cn":"\u89c9\u5f97\u597d\u7b11","emoji":"\ud83d\ude04"},"angrily":{"cn":"\u751f\u6c14\u5730","emoji":"\ud83d\ude20"},"anxiously":{"cn":"\u7126\u8651\u5730","emoji":"\ud83d\ude30"},"astonished":{"cn":"\u9707\u60ca\u7684","emoji":"\ud83d\ude2e"},"astonishment":{"cn":"\u9707\u60ca","emoji":"\ud83d\ude2e","gold":true},"astronomy":{"cn":"\u5929\u6587\u5b66","emoji":"\ud83c\udf0c"},"avenge":{"cn":"\u62a5\u4ec7","emoji":"\u2694\ufe0f"},"bargain":{"cn":"\u5212\u7b97\u7684\u4ea4\u6613","emoji":"\ud83e\udd1d"},"beauties":{"cn":"\u7f8e\u4eba","emoji":"\ud83d\udc83"},"begged":{"cn":"\u6073\u6c42","emoji":"\ud83d\ude4f"},"bitterly":{"cn":"\u75db\u82e6\u5730","emoji":"\ud83d\ude23"},"bitterness":{"cn":"\u6028\u6068","emoji":"\ud83d\ude23"},"blamed":{"cn":"\u8d23\u602a","emoji":"\ud83d\udc49"},"boldly":{"cn":"\u5927\u80c6\u5730","emoji":"\ud83d\ude0e"},"bothered":{"cn":"\u61d2\u5f97\u7406\u4f1a","emoji":"\ud83d\ude29"},"bowed":{"cn":"\u97a0\u8eac","emoji":"\ud83d\ude47"},"breathed":{"cn":"\u8f7b\u58f0\u8bf4","emoji":"\ud83d\ude2e\u200d\ud83d\udca8"},"bundle":{"cn":"\u4e00\u6346","emoji":"\ud83c\udf8b"},"celebratory":{"cn":"\u5e86\u795d\u7684","emoji":"\ud83c\udf89"},"ceremonial":{"cn":"\u4eea\u5f0f\u6027\u7684","emoji":"\ud83c\udfad"},"cheerful":{"cn":"\u9ad8\u5174\u7684","emoji":"\ud83d\ude0a"},"cleverness":{"cn":"\u806a\u660e\u624d\u667a","emoji":"\ud83e\udde0","gold":true},"coldly":{"cn":"\u51b7\u51b7\u5730","emoji":"\ud83e\udd76","gold":true},"commanded":{"cn":"\u547d\u4ee4","emoji":"\ud83d\udce2"},"complained":{"cn":"\u62b1\u6028","emoji":"\ud83d\ude24"},"confirming":{"cn":"\u786e\u8ba4","emoji":"\u2705"},"conscience":{"cn":"\u826f\u5fc3","emoji":"\ud83d\udcad"},"courteous":{"cn":"\u6709\u793c\u8c8c\u7684","emoji":"\ud83c\udfa9"},"cruelly":{"cn":"\u6b8b\u5fcd\u5730","emoji":"\ud83d\ude08","gold":true},"cunning":{"cn":"\u72e1\u8bc8\u3001\u667a\u8c0b","emoji":"\ud83e\udd8a"},"curiously":{"cn":"\u597d\u5947\u5730","emoji":"\ud83e\uddd0"},"cursing":{"cn":"\u5492\u9a82","emoji":"\ud83e\udd2c"},"dagger":{"cn":"\u5315\u9996","emoji":"\ud83d\udde1"},"damnation":{"cn":"\u6253\u5165\u5730\u72f1","emoji":"\ud83d\udd25","gold":true},"damned":{"cn":"\u88ab\u8bc5\u5492\u4e0b\u5730\u72f1","emoji":"\ud83d\ude08"},"daydreaming":{"cn":"\u505a\u767d\u65e5\u68a6","emoji":"\ud83d\udcad","gold":true},"deceive":{"cn":"\u6b3a\u9a97","emoji":"\ud83c\udfad"},"decrees":{"cn":"\u6cd5\u4ee4","emoji":"\ud83d\udcdc"},"delicacy":{"cn":"\u7f8e\u5473\u4f73\u80b4","emoji":"\ud83c\udf47"},"delights":{"cn":"\u4e50\u8da3","emoji":"\ud83d\ude0a"},"despair":{"cn":"\u7edd\u671b","emoji":"\ud83d\ude2d"},"desperately":{"cn":"\u62fc\u547d\u5730","emoji":"\ud83d\ude2b"},"devils":{"cn":"\u9b54\u9b3c\u4eec","emoji":"\ud83d\ude08"},"devise":{"cn":"\u60f3\u51fa\u529e\u6cd5","emoji":"\ud83d\udca1"},"dine":{"cn":"\u7528\u9910","emoji":"\ud83c\udf7d"},"dipped":{"cn":"\u8638\u4e86\u4e00\u4e0b","emoji":"\ud83d\udd8b"},"discreet":{"cn":"\u6084\u6084\u7684","emoji":"\ud83e\udd2b"},"disguised":{"cn":"\u4f2a\u88c5\u7684","emoji":"\ud83e\udd78"},"distraction":{"cn":"\u6d88\u9063\u3001\u5206\u5fc3","emoji":"\ud83c\udfaa"},"divinity":{"cn":"\u795e\u5b66","emoji":"\u26ea"},"doubts":{"cn":"\u7591\u8651","emoji":"\u2753"},"dreadful":{"cn":"\u53ef\u6015\u7684","emoji":"\ud83d\ude31"},"dreaming":{"cn":"\u5e7b\u60f3","emoji":"\ud83d\udcad"},"dull":{"cn":"\u67af\u71e5\u7684","emoji":"\ud83d\ude34"},"eagerly":{"cn":"\u6025\u5207\u5730","emoji":"\ud83e\udd29"},"embraced":{"cn":"\u62e5\u62b1","emoji":"\ud83e\udd17"},"entertained":{"cn":"\u62db\u5f85\u53d6\u4e50","emoji":"\ud83c\udfad"},"excitedly":{"cn":"\u5174\u594b\u5730","emoji":"\ud83e\udd29"},"exotic":{"cn":"\u5f02\u56fd\u7684","emoji":"\ud83c\udf34"},"fable":{"cn":"\u865a\u6784\u7684\u6545\u4e8b","emoji":"\ud83d\udcd6"},"feast":{"cn":"\u76db\u5bb4","emoji":"\ud83c\udf56"},"fetch":{"cn":"\u53bb\u53d6\u6765","emoji":"\ud83c\udfc3"},"fiercely":{"cn":"\u51f6\u72e0\u5730","emoji":"\ud83d\ude21"},"firmly":{"cn":"\u575a\u5b9a\u5730","emoji":"\ud83d\udcaa"},"floated":{"cn":"\u6f02\u6d6e","emoji":"\ud83c\udf88"},"folded":{"cn":"\u6298\u53e0\u8d77\u6765","emoji":"\ud83d\udcc4"},"forgetting":{"cn":"\u5fd8\u8bb0","emoji":"\ud83e\udd37"},"forgiveness":{"cn":"\u5bbd\u6055","emoji":"\ud83d\ude4f"},"friar":{"cn":"\u4fee\u58eb","emoji":"\u26ea","gold":true},"frustration":{"cn":"\u632b\u8d25\u611f","emoji":"\ud83d\ude16"},"furious":{"cn":"\u72c2\u6012\u7684","emoji":"\ud83e\udd2c"},"gasped":{"cn":"\u5012\u5438\u4e00\u53e3\u6c14","emoji":"\ud83d\ude2e","gold":true},"gazed":{"cn":"\u51dd\u89c6","emoji":"\ud83d\udc40","gold":true},"glamour":{"cn":"\u9b45\u529b\u6d6e\u534e","emoji":"\u2728"},"glanced":{"cn":"\u77a5\u4e86\u4e00\u773c","emoji":"\ud83d\udc41"},"glaring":{"cn":"\u6012\u76ee\u800c\u89c6","emoji":"\ud83d\ude20"},"gleam":{"cn":"\u95ea\u5149","emoji":"\u2728","gold":true},"gloomy":{"cn":"\u5fe7\u90c1\u7684","emoji":"\ud83c\udf27"},"grapes":{"cn":"\u8461\u8404","emoji":"\ud83c\udf47"},"greeted":{"cn":"\u95ee\u5019","emoji":"\ud83d\udc4b"},"grim":{"cn":"\u9634\u6c89\u7684","emoji":"\ud83d\ude10"},"grinned":{"cn":"\u54a7\u5634\u7b11","emoji":"\ud83d\ude01","gold":true},"headache":{"cn":"\u5934\u75db","emoji":"\ud83e\udd15"},"hissed":{"cn":"\u5636\u58f0\u8bf4","emoji":"\ud83d\udc0d","gold":true},"horns":{"cn":"\u89d2","emoji":"\ud83d\udc10"},"horrified":{"cn":"\u60ca\u6050\u7684","emoji":"\ud83d\ude31"},"hospitality":{"cn":"\u6b3e\u5f85","emoji":"\ud83c\udfe0"},"hounds":{"cn":"\u730e\u72ac","emoji":"\ud83d\udc15"},"hurried":{"cn":"\u5306\u5fd9","emoji":"\ud83c\udfc3"},"hurriedly":{"cn":"\u5306\u5fd9\u5730","emoji":"\ud83c\udfc3","gold":true},"idly":{"cn":"\u65e0\u6240\u4e8b\u4e8b\u5730","emoji":"\ud83d\ude11","gold":true},"immortal":{"cn":"\u4e0d\u673d\u7684","emoji":"\u267e"},"impatience":{"cn":"\u4e0d\u8010\u70e6","emoji":"\ud83d\ude24","gold":true},"impatiently":{"cn":"\u4e0d\u8010\u70e6\u5730","emoji":"\ud83d\ude24","gold":true},"insists":{"cn":"\u575a\u6301\u8981\u6c42","emoji":"\u261d\ufe0f"},"instructed":{"cn":"\u5429\u5490","emoji":"\ud83d\udccb"},"insulted":{"cn":"\u4fae\u8fb1","emoji":"\ud83d\ude21"},"intervened":{"cn":"\u63d2\u8bdd\u5e72\u9884","emoji":"\u270b"},"inviting":{"cn":"\u9080\u8bf7","emoji":"\ud83d\udc8c"},"irritation":{"cn":"\u607c\u6012","emoji":"\ud83d\ude24"},"joked":{"cn":"\u5f00\u73a9\u7b11","emoji":"\ud83d\ude04"},"journeys":{"cn":"\u65c5\u7a0b","emoji":"\ud83e\uddf3"},"keenly":{"cn":"\u70ed\u5207\u5730","emoji":"\ud83e\udd29"},"kisses":{"cn":"\u543b","emoji":"\ud83d\udc8b"},"learnt":{"cn":"\u5b66\u4f1a\u4e86","emoji":"\ud83d\udcda"},"lengthy":{"cn":"\u6f2b\u957f\u7684","emoji":"\u23f3"},"lively":{"cn":"\u6d3b\u6cfc\u7684","emoji":"\ud83d\udc0e"},"longed":{"cn":"\u6e34\u671b","emoji":"\ud83d\udcad"},"magician":{"cn":"\u9b54\u6cd5\u5e08","emoji":"\ud83e\uddd9"},"misery":{"cn":"\u75db\u82e6\u60b2\u60e8","emoji":"\ud83d\ude22"},"mistress":{"cn":"\u60c5\u5987","emoji":"\ud83d\udc78"},"mocked":{"cn":"\u5632\u7b11","emoji":"\ud83d\ude0f"},"muttered":{"cn":"\u5495\u54dd","emoji":"\ud83d\udde3","gold":true},"necklace":{"cn":"\u9879\u94fe","emoji":"\ud83d\udcff"},"necks":{"cn":"\u8116\u5b50","emoji":"\ud83d\udc54"},"obey":{"cn":"\u670d\u4ece","emoji":"\ud83e\udee1"},"objected":{"cn":"\u53cd\u5bf9","emoji":"\ud83d\ude45"},"organise":{"cn":"\u7ec4\u7ec7\u5b89\u6392","emoji":"\ud83d\uddc2"},"outrage":{"cn":"\u6fc0\u6012","emoji":"\ud83d\ude21"},"overheard":{"cn":"\u65e0\u610f\u542c\u5230","emoji":"\ud83d\udc42"},"pains":{"cn":"\u75db\u82e6","emoji":"\ud83d\ude16"},"panicked":{"cn":"\u60ca\u614c","emoji":"\ud83d\ude28"},"papal":{"cn":"\u6559\u7687\u7684","emoji":"\u26ea"},"pleaded":{"cn":"\u6073\u6c42","emoji":"\ud83d\ude4f"},"pleasantly":{"cn":"\u6109\u5feb\u5730","emoji":"\ud83d\ude0a"},"pleasures":{"cn":"\u4e50\u8da3","emoji":"\ud83d\ude0c"},"politely":{"cn":"\u793c\u8c8c\u5730","emoji":"\ud83d\ude42"},"poured":{"cn":"\u6d8c\u51fa\u3001\u503e\u5012","emoji":"\ud83e\ude78"},"praying":{"cn":"\u7948\u7977","emoji":"\ud83d\ude4f"},"professors":{"cn":"\u6559\u6388\u4eec","emoji":"\ud83c\udf93"},"proudly":{"cn":"\u9a84\u50b2\u5730","emoji":"\ud83d\ude24"},"punish":{"cn":"\u60e9\u7f5a","emoji":"\u26a1"},"raged":{"cn":"\u5927\u53d1\u96f7\u9706","emoji":"\ud83d\ude21"},"rebelled":{"cn":"\u53cd\u53db","emoji":"\u270a","gold":true},"rector":{"cn":"\u6821\u957f","emoji":"\ud83c\udfdb"},"regretting":{"cn":"\u540e\u6094","emoji":"\ud83d\ude14","gold":true},"relieved":{"cn":"\u677e\u4e86\u53e3\u6c14","emoji":"\ud83d\ude0c"},"relished":{"cn":"\u6d25\u6d25\u6709\u5473","emoji":"\ud83d\ude0b","gold":true},"repent":{"cn":"\u5fcf\u6094","emoji":"\ud83d\ude4f"},"repentance":{"cn":"\u6094\u6539","emoji":"\ud83d\ude4f"},"rescuing":{"cn":"\u8425\u6551","emoji":"\ud83e\uddb8"},"richly":{"cn":"\u534e\u4e3d\u5730","emoji":"\ud83d\udc8e"},"rightful":{"cn":"\u5408\u6cd5\u7684","emoji":"\u2696\ufe0f"},"robbed":{"cn":"\u62a2\u8d70\u5265\u593a","emoji":"\ud83e\udd77"},"rode":{"cn":"\u9a91\u9a6c","emoji":"\ud83d\udc0e"},"rubbed":{"cn":"\u63c9\u6413","emoji":"\ud83e\udd32"},"rumoured":{"cn":"\u4f20\u8a00\u7684","emoji":"\ud83d\udde8","gold":true},"sarcastically":{"cn":"\u8bbd\u523a\u5730","emoji":"\ud83d\ude0f","gold":true},"satisfy":{"cn":"\u6ee1\u8db3","emoji":"\u2714\ufe0f"},"sceptical":{"cn":"\u6000\u7591\u7684","emoji":"\ud83e\udd28"},"scholar":{"cn":"\u5b66\u8005","emoji":"\ud83c\udf93"},"sensed":{"cn":"\u5bdf\u89c9\u5230","emoji":"\ud83e\udd14"},"shouted":{"cn":"\u558a\u53eb","emoji":"\ud83d\udce3"},"sickness":{"cn":"\u75be\u75c5","emoji":"\ud83e\udd12"},"sighed":{"cn":"\u53f9\u6c14","emoji":"\ud83d\ude2e\u200d\ud83d\udca8"},"sights":{"cn":"\u666f\u8c61\u666f\u70b9","emoji":"\ud83c\udfdb"},"signalled":{"cn":"\u793a\u610f","emoji":"\ud83e\udd1a","gold":true},"sinners":{"cn":"\u7f6a\u4eba","emoji":"\ud83d\ude14"},"smiled":{"cn":"\u5fae\u7b11","emoji":"\ud83d\ude0a"},"smuggled":{"cn":"\u5077\u5077\u5e26\u8d70","emoji":"\ud83d\udd75"},"sneering":{"cn":"\u51b7\u7b11","emoji":"\ud83d\ude0f","gold":true},"softly":{"cn":"\u8f7b\u58f0\u5730","emoji":"\ud83e\udd2b"},"solemnly":{"cn":"\u4e25\u8083\u5730","emoji":"\ud83d\ude10","gold":true},"somber":{"cn":"\u5fe7\u90c1\u7684","emoji":"\ud83c\udf11","gold":true},"spells":{"cn":"\u5492\u8bed","emoji":"\u2728"},"splendid":{"cn":"\u58ee\u89c2\u7684","emoji":"\ud83c\udf1f"},"stag":{"cn":"\u96c4\u9e7f","emoji":"\ud83e\udd8c"},"sternly":{"cn":"\u4e25\u5389\u5730","emoji":"\ud83d\ude20","gold":true},"straw":{"cn":"\u7a3b\u8349","emoji":"\ud83c\udf3e"},"summoned":{"cn":"\u53ec\u5524","emoji":"\ud83d\udcef"},"swearing":{"cn":"\u5492\u9a82","emoji":"\ud83e\udd2c"},"tasted":{"cn":"\u54c1\u5c1d","emoji":"\ud83d\udc45"},"tempting":{"cn":"\u8bf1\u60d1\u4eba\u7684","emoji":"\ud83d\ude08"},"terribly":{"cn":"\u975e\u5e38\u7cdf\u7cd5\u5730","emoji":"\ud83d\ude16"},"terrified":{"cn":"\u6781\u5ea6\u5bb3\u6015","emoji":"\ud83d\ude31"},"thanked":{"cn":"\u611f\u8c22","emoji":"\ud83d\ude4f"},"thrilled":{"cn":"\u6fc0\u52a8\u7684","emoji":"\ud83e\udd29"},"tortured":{"cn":"\u53d7\u6298\u78e8\u7684","emoji":"\ud83d\ude16"},"travelled":{"cn":"\u65c5\u884c","emoji":"\u2708\ufe0f"},"trembling":{"cn":"\u98a4\u6296","emoji":"\ud83d\ude30"},"triumphantly":{"cn":"\u5f97\u610f\u6d0b\u6d0b\u5730","emoji":"\ud83c\udfc6","gold":true},"unbearably":{"cn":"\u96be\u4ee5\u5fcd\u53d7\u5730","emoji":"\ud83d\ude29","gold":true},"warmed":{"cn":"\u52a0\u70ed","emoji":"\ud83d\udd25"},"waved":{"cn":"\u6325\u624b","emoji":"\ud83d\udc4b"},"welcoming":{"cn":"\u6b22\u8fce\u7684","emoji":"\ud83e\udd17"},"whispered":{"cn":"\u4f4e\u8bed","emoji":"\ud83e\udd2b"},"wicked":{"cn":"\u90aa\u6076\u7684","emoji":"\ud83d\ude08"}};
+const SECTIONS = {"\u4e0a\u90e8 \u00b7 \u4e0e\u9b54\u9b3c\u7b7e\u7ea6":{"cn":"\u4e0a\u90e8 \u00b7 \u4e0e\u9b54\u9b3c\u7b7e\u7ea6","icon":"\ud83d\udcdc"},"\u4e2d\u90e8 \u00b7 \u9b54\u6cd5\u4e0e\u6743\u52bf":{"cn":"\u4e2d\u90e8 \u00b7 \u9b54\u6cd5\u4e0e\u6743\u52bf","icon":"\ud83d\udd25"},"\u4e0b\u90e8 \u00b7 \u5815\u843d\u7ec8\u7ae0":{"cn":"\u4e0b\u90e8 \u00b7 \u5815\u843d\u7ec8\u7ae0","icon":"\ud83d\udc80"}};
+const META = {"title":"DR FAUSTUS","subtitle":"\u9605\u8bfb\u5927\u5192\u9669 \u00b7 \u4e00\u573a\u4e0e\u9b54\u9b3c\u7684\u5371\u9669\u4ea4\u6613","bolt":"\ud83d\udcdc\ud83d\udd25\ud83d\ude08","pageTitle":"Dr Faustus \u00b7 \u6d6e\u58eb\u5fb7\u7684\u60b2\u5267","saveKey":"faustus_game_v1","bookId":"faustus"};   // { title, subtitle, bolt, saveKey }
+const PREDICTIONS = [];   // 先猜后揭晓
+
+/* =====================================================
+   存档
+   ===================================================== */
+const SAVE_KEY = (META && META.saveKey) || "reading_game_v1";
+const BOOK_ID = (META && META.bookId) || SAVE_KEY;
+let save = { done:{}, stars:{}, words:{}, slow:false };
+try { const s = localStorage.getItem(SAVE_KEY); if (s) save = Object.assign(save, JSON.parse(s)); } catch(e){}
+function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){} }
+
+/* ===== 跨书成长数据(全站共享, 书架中枢也读它) ===== */
+const HUB_KEY = "reading_hub_v1";
+function hubLoad(){ try{ return JSON.parse(localStorage.getItem(HUB_KEY)) || {}; }catch(e){ return {}; } }
+function hubSave(h){ try{ localStorage.setItem(HUB_KEY, JSON.stringify(h)); }catch(e){} }
+function ymd(d){ return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+function todayStr(){ return ymd(new Date()); }
+function markStreak(){                       // 每天首次阅读活动记一次连读
+  const h = hubLoad(); const t = todayStr();
+  h.streak = h.streak || { last:null, count:0, best:0 };
+  if (h.streak.last !== t){
+    const y = new Date(); y.setDate(y.getDate()-1);
+    h.streak.count = (h.streak.last === ymd(y)) ? (h.streak.count+1) : 1;
+    h.streak.last = t; h.streak.best = Math.max(h.streak.best||0, h.streak.count);
+    hubSave(h);
+  }
+  return h.streak.count;
+}
+function recordWords(chId, words){           // 通关某章 → 累计跨书阅读词数(每章只计一次)
+  const h = hubLoad();
+  h.words = h.words || {}; h.words[BOOK_ID] = h.words[BOOK_ID] || {};
+  if (!h.words[BOOK_ID][chId]){ h.words[BOOK_ID][chId] = words; hubSave(h); }
+}
+function totalWordsRead(){
+  const h = hubLoad(); let n = 0;
+  for (const b in (h.words||{})) for (const c in h.words[b]) n += h.words[b][c] || 0;
+  return n;
+}
+function kidName(){ return (hubLoad().kidName) || ""; }
+
+let cur = 0, qIdx = 0, wrongCount = 0, quizLock = false;
+
+function $(id){ return document.getElementById(id); }
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._tm); t._tm = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+function stripMarks(s){ return s.replace(/\{([^}]*)\}/g, "$1"); }
+
+/* =====================================================
+   朗读引擎 TTS —— 三层保障:
+   1) 本地 speechSynthesis(优选英文音色, 分句排队, 防长文本被浏览器掐断)
+   2) 本地不出声 → 自动切换在线发音(有道 dictvoice, 需联网)
+   3) 都不行 → 提示换浏览器
+   ===================================================== */
+const TTS = {
+  voices: [], mode: "auto",    // auto | local | online | dead
+  player: null, queue: [], playing: false, keepAlive: null, curPara: -1, unlocked: false
+};
+const IN_WECHAT = /MicroMessenger/i.test(navigator.userAgent || "");
+function ttsInit(){
+  if (!("speechSynthesis" in window) || IN_WECHAT) { TTS.mode = "online"; }
+  if (!("speechSynthesis" in window)) return;
+  const load = ()=>{ try{ TTS.voices = speechSynthesis.getVoices() || []; }catch(e){} };
+  load();
+  try{ speechSynthesis.onvoiceschanged = load; }catch(e){}
+  setTimeout(load, 500); setTimeout(load, 2000);
+}
+/* 移动端/微信自动播放限制: 用户第一次触屏时"解锁"音频通道,
+   之后延迟触发的在线发音才允许出声 */
+const SILENT_WAV = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+function ensurePlayer(){
+  if (!TTS.player) TTS.player = new Audio();
+  return TTS.player;
+}
+function unlockAudio(){
+  if (TTS.unlocked) return;
+  TTS.unlocked = true;
+  try{ const p = ensurePlayer(); p.src = SILENT_WAV; p.play().catch(()=>{ TTS.unlocked = false; }); }catch(e){}
+  try{
+    if ("speechSynthesis" in window){
+      const u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u);
+    }
+  }catch(e){}
+}
+document.addEventListener("touchend", unlockAudio, true);
+document.addEventListener("click", unlockAudio, true);
+function pickVoice(){
+  const vs = TTS.voices;
+  return vs.find(v=>/en[-_]US/i.test(v.lang) && /google|natural|online/i.test(v.name))
+      || vs.find(v=>/en[-_]US/i.test(v.lang))
+      || vs.find(v=>/^en/i.test(v.lang)) || null;
+}
+function splitSentences(text){
+  const parts = (text.match(/[^.!?]+[.!?”"']*\s*/g) || [text]).map(s=>s.trim()).filter(Boolean);
+  // 合并过短的句子, 控制每段 ≤ 190 字符(在线接口和本地引擎都友好)
+  const out = [];
+  let buf = "";
+  for (const p of parts){
+    if ((buf + " " + p).length > 190 && buf) { out.push(buf.trim()); buf = p; }
+    else buf = buf ? buf + " " + p : p;
+  }
+  if (buf.trim()) out.push(buf.trim());
+  return out;
+}
+function rate(){ return save.slow ? 0.7 : 0.88; }
+/* 预录音频的播放倍速: 原速播放(语速不变); 句间停顿靠剪静音+预加载解决 */
+function playSpeed(){ return save.slow ? 0.8 : 1.0; }
+
+/* 把一段文本切成"自然句子"(与 gen_audio.py 完全一致的切法),不做合并 */
+function splitSents(text){
+  const raw = text.match(/[^.!?]+[.!?]*["'”’]*/g) || [text];
+  const out = [];
+  for (let s of raw){
+    s = s.trim(); if (!s) continue;
+    if (!/[A-Za-z0-9]/.test(s) && out.length) out[out.length - 1] += " " + s;
+    else out.push(s);
+  }
+  return out;
+}
+function stopAll(){
+  if (RS){ clearTimeout(RS._gap); }
+  RS = null;
+  TTS.playing = false; TTS.queue = [];
+  clearInterval(TTS.keepAlive);
+  try{ speechSynthesis.cancel(); }catch(e){}
+  if (TTS.player){ try{ TTS.player.pause(); TTS.player.onended = null; }catch(e){} }
+  highlightSent(null);
+  setPauseUI();
+}
+/* 高亮"正在读的那一句" */
+function highlightSent(it){
+  document.querySelectorAll(".story-card .sent.speaking").forEach(e=>e.classList.remove("speaking"));
+  if (!it) return;
+  const el = document.querySelector('.sent[data-pi="' + it.pi + '"][data-si="' + it.si + '"]');
+  if (el){ el.classList.add("speaking"); try{ el.scrollIntoView({behavior:"smooth", block:"center"}); }catch(e){} }
+}
+/* 记录某段"已听完",全部段落听完才解锁答题 */
+function markHeard(i){
+  if (i < 0 || cur == null) return;
+  const ch = BOOK[cur];
+  heardSet.add(i);
+  save.heard = save.heard || {};
+  save.heard[ch.id] = Array.from(heardSet);
+  bumpRead(i + 1);                 // 听完某段也算读过
+  persist();
+  updateQuizGate();
+}
+let heardSet = new Set();
+
+/* ===== 阅读进度: 记住读到第几段 + 标记已读段落 ===== */
+let readPos = 0;                   // 本章已读到的段落数(0..N), 段 i 已读 <=> i < readPos
+function saveReadPos(){
+  if (cur == null) return;
+  save.read = save.read || {};
+  save.read[BOOK[cur].id] = readPos;
+  persist();
+}
+function paintRead(){
+  document.querySelectorAll("#story-body p[data-pi]").forEach(p=>{
+    p.classList.toggle("read", (+p.dataset.pi) < readPos);
+  });
+}
+function bumpRead(n){
+  if (n > readPos){ readPos = n; saveReadPos(); paintRead(); updateQuizGate(); }
+}
+let _scrollT = 0;
+function onReadScroll(){
+  if (!$("scr-read").classList.contains("active")) return;
+  const now = Date.now();
+  if (now - _scrollT < 180) return; _scrollT = now;
+  const line = window.innerHeight * 0.5;    // 段落底部越过屏幕中线 = 读完这段
+  let fp = readPos;
+  document.querySelectorAll("#story-body p[data-pi]").forEach(p=>{
+    if (p.getBoundingClientRect().bottom < line){ const pi = (+p.dataset.pi) + 1; if (pi > fp) fp = pi; }
+  });
+  bumpRead(fp);
+}
+window.addEventListener("scroll", onReadScroll, { passive:true });
+/* 读过或听过都算"走过这一章": readPos 由滚动阅读和逐句朗读共同推进 */
+function goneThrough(){
+  if (!BOOK[cur]) return 0;
+  return Math.max(readPos, heardSet.size);   // 两者取大, 稳妥
+}
+function allHeard(){
+  return BOOK[cur] && goneThrough() >= BOOK[cur].paras.length;
+}
+function updateQuizGate(){
+  const btn = $("btn-quiz");
+  if (!btn || cur == null) return;
+  const ch = BOOK[cur];
+  const done = !!save.done[ch.id];       // 已通关章节不再限制
+  if (done || allHeard()){
+    btn.textContent = "✅ 我读完了，去答题";
+    btn.style.opacity = "1";
+  } else {
+    const left = Math.max(0, ch.paras.length - goneThrough());
+    btn.textContent = "🔒 读完/听完故事就能答题（还剩 " + left + " 段）";
+    btn.style.opacity = ".6";
+  }
+}
+
+/* 本地引擎播放; onFail 在完全没出声时触发 */
+function speakLocal(sentences, onFail, onDone){
+  try{ speechSynthesis.cancel(); }catch(e){ onFail && onFail(); return; }
+  let started = false, finished = 0;
+  const total = sentences.length;
+  sentences.forEach(s=>{
+    const u = new SpeechSynthesisUtterance(s);
+    u.lang = "en-US"; u.rate = rate();
+    const v = pickVoice(); if (v) u.voice = v;
+    u.onstart = ()=>{ started = true; TTS.mode = "local"; };
+    u.onend = ()=>{ finished++; if (finished >= total && onDone) onDone(); };
+    try{ speechSynthesis.speak(u); }catch(e){}
+  });
+  /* Chrome 桌面版 15 秒掐断长朗读的经典 bug: 周期性 resume 保活 */
+  clearInterval(TTS.keepAlive);
+  TTS.keepAlive = setInterval(()=>{
+    try{
+      if (!speechSynthesis.speaking){ clearInterval(TTS.keepAlive); }
+      else { speechSynthesis.resume(); }
+    }catch(e){}
+  }, 10000);
+  /* 3 秒还没出声 → 判定本地引擎不可用 */
+  setTimeout(()=>{
+    if (!started){
+      try{ speechSynthesis.cancel(); }catch(e){}
+      clearInterval(TTS.keepAlive);
+      onFail && onFail();
+    }
+  }, 3000);
+}
+
+/* 预录音频(与游戏同源托管的 mp3, 最稳的通道) */
+const AUDIO_BASE = "audio/";
+function slug(w){
+  const s = w.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  return s || "x";
+}
+function detectAudio(){
+  try{
+    fetch(AUDIO_BASE + "test.mp3", {method:"HEAD"})
+      .then(r=>{ TTS.hasAudio = !!r.ok; })
+      .catch(()=>{});
+  }catch(e){}
+}
+function playFile(url, onDone, onFail){
+  const p = ensurePlayer();
+  TTS.playing = true;
+  p.src = url;
+  p.playbackRate = playSpeed();
+  p.onended = ()=>{ TTS.playing = false; onDone && onDone(); };
+  p.onerror = ()=>{ TTS.playing = false; onFail && onFail(); };
+  p.play().then(()=>{ TTS.lastErr = ""; TTS.hasAudio = true; }).catch(err=>{
+    TTS.playing = false; TTS.lastErr = "play:" + (err && err.name || "blocked");
+    toast("请再点一次 🔊,并确认媒体音量已调大");
+  });
+}
+
+/* 在线发音(有道词典接口, 需联网; 复用同一个已解锁的 Audio 元素) */
+function speakOnline(sentences, onDone, onFail){
+  TTS.queue = sentences.slice(); TTS.playing = true;
+  const p = ensurePlayer();
+  p.playbackRate = playSpeed();
+  const next = ()=>{
+    if (!TTS.playing) return;
+    if (!TTS.queue.length){ TTS.playing = false; onDone && onDone(); return; }
+    const s = TTS.queue.shift();
+    p.src = "https://dict.youdao.com/dictvoice?type=2&audio=" + encodeURIComponent(s);
+    p.onended = next;
+    p.onerror = ()=>{ TTS.playing = false; TTS.lastErr = "online:loaderror";
+      if (onFail) onFail(); else toast("在线朗读失败:请检查网络;首页有[声音检测]可排查"); };
+    p.play().catch(err=>{ TTS.playing = false; TTS.lastErr = "play:" + (err && err.name || "blocked");
+      toast("请再点一次 🔊,并把媒体音量调大"); });
+  };
+  next();
+}
+
+/* 统一入口: 依次尝试 预录音频 → 本地引擎 → 在线发音;
+   用户在[声音检测]里手动固定过模式则只走该通道(音频模式保留在线兜底) */
+function speak(text, onDone, hint){
+  stopAll();
+  const forced = (save.ttsMode && save.ttsMode !== "auto") ? save.ttsMode : null;
+  const sentences = splitSentences(text || "");
+  /* 有预录音频就直接先试播,加载失败会自动落到下一通道,
+     不再依赖启动时的 hasAudio 探测(某些环境探测请求会被拦而播放正常) */
+  const url = hint
+    ? AUDIO_BASE + (hint.file ? hint.file : "w/" + slug(hint.word) + ".mp3")
+    : null;
+  const chain = [];
+  if (url && (!forced || forced === "recorded"))
+    chain.push(fail=>playFile(url, onDone, fail));
+  if (sentences.length && (!forced || forced === "local"))
+    chain.push(fail=>speakLocal(sentences, fail, onDone));
+  if (sentences.length && (!forced || forced === "online" || forced === "recorded"))
+    chain.push(fail=>speakOnline(sentences, onDone, fail));
+  if (!chain.length) return;
+  const step = i=>{
+    if (i >= chain.length){ toast("朗读失败:请到首页[声音检测]排查"); return; }
+    chain[i](()=>step(i + 1));
+  };
+  step(0);
+}
+
+/* ============ 逐句朗读引擎(支持暂停/继续) ============ */
+let RS = null;   // { items:[{pi,si,file,text}], pos, paused }
+function sentFile(ch, pi, si){ return "s/" + ch.id + "_" + pi + "_" + si + ".mp3"; }
+function buildItems(paraIdxs){
+  const ch = BOOK[cur]; const items = [];
+  paraIdxs.forEach(pi=>{
+    const sents = splitSents(ch.paras[pi]);
+    sents.forEach((s, si)=>items.push({ pi, si, file: sentFile(ch, pi, si), text: stripMarks(s) }));
+  });
+  return items;
+}
+function paraSentCount(pi){ return splitSents(BOOK[cur].paras[pi]).length; }
+function setPauseUI(){
+  const b = $("btn-pause"); if (!b) return;
+  b.textContent = (RS && RS.paused) ? "▶️ 继续" : "⏸ 暂停";
+}
+function readItems(items, startPos){
+  stopAll();
+  if (!items.length) return;
+  RS = { items: items, pos: startPos || 0, paused: false };
+  setPauseUI();
+  rsStep();
+}
+function rsStep(){
+  if (!RS || RS.paused) return;
+  if (RS.pos >= RS.items.length){ RS = null; highlightSent(null); setPauseUI(); return; }
+  const it = RS.items[RS.pos];
+  highlightSent(it);
+  prefetchNext();                        // 预加载下一句, 缩短句间加载停顿
+  speakSentence(it, ()=>{
+    if (it.si === paraSentCount(it.pi) - 1) markHeard(it.pi);   // 该段最后一句读完 → 记已听
+    if (!RS || RS.paused) return;
+    RS.pos++;
+    // 句间留一点换气停顿(慢速时更长), 高亮先跳到下一句让孩子准备
+    const gap = save.slow ? 620 : 380;
+    if (RS.pos < RS.items.length) highlightSent(RS.items[RS.pos]);
+    RS._gap = setTimeout(()=>{ if (RS && !RS.paused) rsStep(); }, gap);
+  });
+}
+function prefetchNext(){
+  const nx = RS && RS.items[RS.pos + 1];
+  if (!nx || !nx.file) return;
+  try{ const a = new Audio(); a.preload = "auto"; a.src = AUDIO_BASE + nx.file; TTS._pre = a; }catch(e){}
+}
+/* 播放单句:预录音频 → 本地引擎 → 在线,任一成功即止 */
+function speakSentence(it, onDone){
+  const forced = (save.ttsMode && save.ttsMode !== "auto") ? save.ttsMode : null;
+  const chain = [];
+  if (!forced || forced === "recorded") chain.push(fail=>playFile(AUDIO_BASE + it.file, onDone, fail));
+  if (!forced || forced === "local")    chain.push(fail=>speakLocal([it.text], fail, onDone));
+  if (!forced || forced === "online" || forced === "recorded") chain.push(fail=>speakOnline([it.text], onDone, fail));
+  const step = i=>{ if (i >= chain.length){ toast("朗读失败:请到首页[声音检测]排查"); return; } chain[i](()=>step(i + 1)); };
+  step(0);
+}
+function pauseToggle(){
+  if (!RS){ readAloud(); return; }        // 没在读 → 直接开始读
+  if (RS.paused) readResume(); else readPause();
+}
+function readPause(){
+  if (!RS) return;
+  RS.paused = true;
+  clearTimeout(RS._gap);
+  try{ if (TTS.player) TTS.player.pause(); }catch(e){}
+  try{ if ("speechSynthesis" in window) speechSynthesis.pause(); }catch(e){}
+  setPauseUI();
+}
+function readResume(){
+  if (!RS) return;
+  RS.paused = false;
+  clearTimeout(RS._gap);
+  setPauseUI();
+  let resumed = false;
+  try{ if (TTS.player && TTS.player.src && TTS.player.paused){ TTS.player.play(); resumed = true; } }catch(e){}
+  try{ if ("speechSynthesis" in window && speechSynthesis.paused){ speechSynthesis.resume(); resumed = true; } }catch(e){}
+  if (!resumed) rsStep();                  // 暂停恰好卡在两句之间 → 直接接着下一句
+}
+function readAloud(){
+  const items = buildItems(BOOK[cur].paras.map((_, i)=>i));
+  // 从上次读到的段落之后开始读(已读过的不再重复); 整章读完过则从头再读
+  let start = 0;
+  if (readPos > 0 && readPos < BOOK[cur].paras.length){
+    const idx = items.findIndex(it => it.pi >= readPos);
+    if (idx > 0){ start = idx; toast("▶️ 从上次读到的地方接着读"); }
+  }
+  readItems(items, start);
+}
+function readPara(i){ readItems(buildItems([i]), 0); }
+function stopAloud(){ stopAll(); }
+function toggleRate(){
+  save.slow = !save.slow; persist();
+  $("btn-rate").textContent = save.slow ? "🐇 正常速" : "🐢 慢速";
+  toast(save.slow ? "已切换为慢速朗读 🐢" : "已切换为正常语速 🐇");
+}
+
+/* =====================================================
+   首页
+   ===================================================== */
+function isUnlocked(i){ return i === 0 || !!save.done[BOOK[i-1].id]; }
+function firstUndone(){
+  for (let i = 0; i < BOOK.length; i++) if (!save.done[BOOK[i].id]) return i;
+  return BOOK.length - 1;
+}
+function renderHome(){
+  const doneN = BOOK.filter(c=>save.done[c.id]).length;
+  const starN = Object.values(save.stars).reduce((a,b)=>a+b, 0);
+  const wordN = Object.keys(save.words).length;
+  $("st-ch").textContent = doneN + "/" + BOOK.length;
+  $("st-star").textContent = starN;
+  $("st-word").textContent = wordN;
+  $("prog-bar").style.width = Math.round(doneN / BOOK.length * 100) + "%";
+  $("prog-label").textContent = doneN === BOOK.length
+    ? "🎉 全书通关!你读完了一整本英文小说!"
+    : "整本书进度 " + Math.round(doneN / BOOK.length * 100) + "%";
+  $("btn-continue").textContent = doneN === 0 ? "▶️ 开始冒险" :
+    (doneN === BOOK.length ? "🎉 再玩一遍喜欢的章节" : "▶️ 继续冒险:" + BOOK[firstUndone()].title_cn);
+  $("wb-count").textContent = wordN ? "(" + wordN + ")" : "";
+
+  // 跨书成长横幅: 已读词数 + 连读天数; 全书通关时给证书入口
+  const h = hubLoad();
+  const streak = (h.streak && h.streak.last === todayStr()) ? h.streak.count : (h.streak ? 0 : 0);
+  const twr = totalWordsRead();
+  let banner = `📚 累计已读 <b>${twr}</b> 词`;
+  if (h.streak && h.streak.count > 0) banner += ` · 🔥 连读 <b>${h.streak.count}</b> 天`;
+  banner += `<div class="g-sub">读得越多，数字越大——这是你自己读出来的成绩单！</div>`;
+  if (doneN === BOOK.length){
+    banner += `<div style="margin-top:8px"><a class="shelf-link" style="background:#ffb300;color:#2b1a00;border:none" href="javascript:showCert()">🏅 领取本书通关证书</a></div>`;
+  }
+  $("growth-banner").innerHTML = banner;
+
+  const map = $("map"); map.innerHTML = "";
+  let lastSection = null;
+  const nextIdx = firstUndone();
+  BOOK.forEach((ch, i)=>{
+    if (ch.section !== lastSection){
+      lastSection = ch.section;
+      const s = SECTIONS[ch.section] || {cn: ch.section, icon: "📖"};
+      const h = document.createElement("div");
+      h.className = "section-head";
+      h.innerHTML = `<span class="s-icon">${s.icon}</span><span class="s-name">${s.cn}</span><span class="s-en">${ch.section}</span>`;
+      map.appendChild(h);
+    }
+    const unlocked = isUnlocked(i);
+    const done = !!save.done[ch.id];
+    const node = document.createElement("div");
+    node.className = "map-node" + (unlocked ? "" : " locked") + (i === nextIdx && unlocked && !done ? " next" : "");
+    const stars = done ? "★".repeat(save.stars[ch.id] || 1) : "";
+    node.innerHTML = `
+      <div class="icon">${ch.icon}</div>
+      <div class="info">
+        <div class="name">${ch.title_en}</div>
+        <div class="place">${ch.title_cn} · ${ch.words}词 ${done ? "" : "· " + ch.teaser_cn}</div>
+      </div>
+      <div class="state">${ done ? `<span class="badge-done">${stars}</span>` : (unlocked ? "▶️" : "🔒") }</div>`;
+    node.onclick = unlocked ? (()=>openChapter(i)) : (()=>toast("先完成上一章才能解锁哦 🔒"));
+    map.appendChild(node);
+  });
+}
+function continueGame(){ openChapter(firstUndone()); }
+function goHome(){ stopAll(); renderHome(); show("scr-home"); }
+function resetProgress(){
+  if (!confirm("确定要清空所有进度和单词册,重新开始吗?")) return;
+  save = { done:{}, stars:{}, words:{}, heard:{}, read:{}, guesses:{}, review:{}, slow: save.slow, ttsMode: save.ttsMode, fontIdx: save.fontIdx }; persist(); renderHome(); toast("已重新开始 ✨");
+}
+
+/* =====================================================
+   阅读页
+   ===================================================== */
+function openChapter(i){
+  stopAll();
+  cur = i;
+  markStreak();                    // 打开章节 = 今天有阅读活动
+  const ch = BOOK[i];
+  $("read-tag").textContent = ch.tag;
+  $("read-title").textContent = ch.title_en;
+  $("read-title-cn").textContent = ch.title_cn + " · " + ch.words + " 词";
+  $("btn-rate").textContent = save.slow ? "🐇 正常速" : "🐢 慢速";
+  const gwHtml = (frag)=>frag.replace(/\{([^}]+)\}/g, (m, w)=>{
+    const key = w.trim().toLowerCase();
+    const cls = save.words[key] ? " learned" : ((GLOSSARY[key]||{}).gold ? " gold" : "");
+    return `<span class="gw${cls}" data-w="${w.replace(/"/g,'&quot;')}">${w}</span>`;
+  });
+  const body = $("story-body");
+  body.innerHTML = ch.paras.map((par, pi)=>{
+    // 把段落切成句子, 每句包一个 .sent(供逐句高亮), 生词 gw 仍在句内
+    const sents = splitSents(par).map((s, si)=>
+      `<span class="sent" data-pi="${pi}" data-si="${si}">${gwHtml(s)}</span>`).join(" ");
+    return `<p data-pi="${pi}">${sents} <span class="pspk" data-p="${pi}">🔊</span></p>`;
+  }).join("");
+  body.querySelectorAll(".gw").forEach(el=>{ el.onclick = (ev)=>{ ev.stopPropagation(); showWordCard(el.dataset.w, el); }; });
+  body.querySelectorAll(".pspk").forEach(el=>{ el.onclick = (ev)=>{ ev.stopPropagation(); readPara(+el.dataset.p); }; });
+  // 恢复本章已听进度(持久化,重进不用重听)
+  save.heard = save.heard || {};
+  heardSet = new Set(save.heard[ch.id] || []);
+  // 恢复本章"读到哪"进度
+  save.read = save.read || {};
+  readPos = save.read[ch.id] || 0;
+  paintRead();
+  updateQuizGate();
+  applyFont();
+  show("scr-read");
+  // 上次没读完 → 自动滚回上次位置继续
+  if (readPos > 0 && readPos < ch.paras.length){
+    setTimeout(()=>{
+      const t = $("story-body").querySelector('p[data-pi="' + readPos + '"]');
+      if (t){ t.scrollIntoView({block:"center"}); toast("⏱ 已回到上次读到的地方，接着读吧"); }
+    }, 220);
+  } else {
+    window.scrollTo(0, 0);
+  }
+}
+function backToRead(){ openChapter(cur); }
+
+/* ---------- 单词卡 ---------- */
+function sentenceOf(word){
+  const ch = BOOK[cur];
+  const low = word.toLowerCase();
+  for (const par of ch.paras){
+    if (par.toLowerCase().indexOf("{" + low) === -1 &&
+        par.toLowerCase().indexOf(low) === -1) continue;
+    const plain = stripMarks(par);
+    const ss = plain.match(/[^.!?]+[.!?”"']*/g) || [plain];
+    for (const s of ss) if (s.toLowerCase().includes(low)) return s.trim();
+  }
+  return "";
+}
+function showWordCard(word, el){
+  const key = word.trim().toLowerCase();
+  const g = GLOSSARY[key] || { cn: "(点🔊听发音)", emoji: "⭐" };
+  const firstTime = !save.words[key];
+  if (firstTime){
+    save.words[key] = { ch: BOOK[cur].id };
+    persist();
+    if (el) el.classList.add("learned");
+  }
+  const eg = sentenceOf(word);
+  const card = $("word-card");
+  card.className = "word-card" + (g.gold ? " goldcard" : "");
+  card.innerHTML = `
+    <div class="w-emoji">${g.emoji}</div>
+    <div class="w-word">${word}</div>
+    <div class="w-cn">${g.cn}</div>
+    ${g.gold ? `<div class="w-goldtag">✨ 金色稀有生词</div>` : ""}
+    ${eg ? `<div class="w-eg">“${eg}”</div>` : ""}
+    <div class="w-collect">${firstTime ? (g.gold ? "🏆 收集到一个金色生词!" : "🎉 新单词已收进单词册!") : "✅ 已在单词册里"}</div>
+    <button class="btn btn-primary btn-block" id="w-speak">🔊 听发音</button>`;
+  $("w-speak").onclick = ()=>speak(word + (eg ? ". " + eg : ""), null, {word: key});
+  $("word-overlay").classList.add("show");
+  speak(word, null, {word: key});
+}
+function closeWordCard(ev){
+  if (ev.target.id === "word-overlay"){ $("word-overlay").classList.remove("show"); stopAll(); }
+}
+
+/* =====================================================
+   答题
+   ===================================================== */
+function tryStartQuiz(){
+  const ch = BOOK[cur];
+  if (!save.done[ch.id] && !allHeard()){
+    const left = Math.max(0, ch.paras.length - goneThrough());
+    toast("把故事读完或听完就能答题啦(还剩 " + left + " 段)~");
+    return;
+  }
+  startQuiz();
+}
+function startQuiz(){
+  stopAll();
+  qIdx = 0; wrongCount = 0; quizLock = false;
+  $("quiz-tag").textContent = BOOK[cur].tag + " · QUIZ";
+  renderQuestion();
+  show("scr-quiz");
+}
+const KIND_LABEL = { choice:"🔤 选一选", tf:"⚖️ 判断对错", fill:"✏️ 选词填空", who:"💬 谁说的？", order:"🔢 按顺序排一排" };
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function renderQuestion(){
+  const q = BOOK[cur].quiz[qIdx];
+  const type = q.type || "choice";
+  $("quiz-progress").textContent = "第 " + (qIdx+1) + " / " + BOOK[cur].quiz.length + " 题";
+  $("quiz-feedback").textContent = "";
+  $("q-kind").textContent = KIND_LABEL[type] || KIND_LABEL.choice;
+  $("q-text").innerHTML = ""; $("q-cn").textContent = ""; $("q-options").innerHTML = "";
+  quizLock = false;
+  if (type === "tf") renderTF(q);
+  else if (type === "fill") renderFill(q);
+  else if (type === "who") renderWho(q);
+  else if (type === "order") renderOrder(q);
+  else renderChoice(q);
+}
+const PRAISE = ["Great job! 🎉","Excellent! ⭐","You got it! 💪","Amazing! 🌟","Perfect! 🏆"];
+function qPass(){
+  quizLock = true;
+  $("quiz-feedback").textContent = PRAISE[qIdx % PRAISE.length];
+  setTimeout(()=>{
+    qIdx++;
+    if (qIdx < BOOK[cur].quiz.length) renderQuestion();
+    else finishChapter();
+  }, 900);
+}
+function qFail(el, msg){
+  wrongCount++;
+  if (el){ el.classList.add("wrong"); setTimeout(()=>el.classList.remove("wrong"), 600); }
+  $("quiz-feedback").textContent = msg || "再想想～答案就藏在故事里 🔍(左上角可以回去再读)";
+}
+/* 兼容旧调用 */
+function answer(el, right){ if (!quizLock){ if (right){ el.classList.add("right"); qPass(); } else qFail(el); } }
+
+function renderChoice(q){
+  $("q-text").textContent = q.q;
+  $("q-cn").textContent = q.cn || "";
+  const box = $("q-options");
+  q.options.forEach((opt, i)=>{
+    const d = document.createElement("div");
+    d.className = "option"; d.textContent = String.fromCharCode(65+i) + ".  " + opt;
+    d.onclick = ()=>{ if (quizLock) return; if (i === q.answer){ d.classList.add("right"); qPass(); } else qFail(d); };
+    box.appendChild(d);
+  });
+}
+function renderTF(q){
+  $("q-text").textContent = q.q;
+  $("q-cn").textContent = q.cn || "这句话对不对？";
+  const box = $("q-options"); box.className = "options tf-row";
+  [{t:"✓ 对", v:true},{t:"✗ 错", v:false}].forEach(o=>{
+    const d = document.createElement("div");
+    d.className = "option tf-opt"; d.textContent = o.t;
+    d.onclick = ()=>{ if (quizLock) return; if (o.v === q.answer){ d.classList.add("right"); qPass(); } else qFail(d); };
+    box.appendChild(d);
+  });
+}
+function renderFill(q){
+  // q.q 里用 ___ 表示空格
+  $("q-text").innerHTML = (q.q || "").replace("___", '<span class="blank" id="the-blank">?</span>');
+  $("q-cn").textContent = q.cn || "把正确的词填进空格里";
+  const box = $("q-options"); box.className = "options chip-box";
+  q.options.forEach((opt, i)=>{
+    const d = document.createElement("div");
+    d.className = "chip"; d.textContent = opt;
+    d.onclick = ()=>{
+      if (quizLock) return;
+      if (i === q.answer){
+        d.classList.add("right");
+        const bl = $("the-blank"); if (bl){ bl.textContent = opt; bl.classList.add("filled"); }
+        qPass();
+      } else qFail(d);
+    };
+    box.appendChild(d);
+  });
+}
+function renderWho(q){
+  $("q-text").innerHTML = '<div class="quote-bubble">“' + q.q + '”</div><div style="margin-top:14px">这句话是谁说的？</div>';
+  $("q-cn").textContent = q.cn || "";
+  const box = $("q-options"); box.className = "options";
+  q.options.forEach((opt, i)=>{
+    const d = document.createElement("div");
+    d.className = "option"; d.textContent = String.fromCharCode(65+i) + ".  " + opt;
+    d.onclick = ()=>{ if (quizLock) return; if (i === q.answer){ d.classList.add("right"); qPass(); } else qFail(d); };
+    box.appendChild(d);
+  });
+}
+function renderOrder(q){
+  $("q-text").textContent = q.q || "按事情发生的先后，依次点一点：";
+  $("q-cn").textContent = q.cn || "";
+  const box = $("q-options"); box.className = "options";
+  // q.items 已按正确顺序; 打乱显示, 每项记住其正确序号
+  const shuffled = shuffle(q.items.map((t, idx)=>({ t, idx })));
+  let expect = 0;                       // 下一个应点的正确序号
+  shuffled.forEach(it=>{
+    const d = document.createElement("div");
+    d.className = "order-item";
+    d.innerHTML = '<span class="order-badge">•</span><span>' + it.t + '</span>';
+    d.onclick = ()=>{
+      if (quizLock || d.classList.contains("placed")) return;
+      if (it.idx === expect){
+        d.classList.add("placed");
+        d.querySelector(".order-badge").textContent = (expect + 1);
+        expect++;
+        if (expect === q.items.length) qPass();
+      } else {
+        qFail(d, "顺序不对哦，想想哪件事先发生 🤔");
+      }
+    };
+    box.appendChild(d);
+  });
+}
+function finishChapter(){
+  const ch = BOOK[cur];
+  const stars = wrongCount === 0 ? 3 : (wrongCount <= 2 ? 2 : 1);
+  const firstClear = !save.done[ch.id];
+  save.done[ch.id] = true;
+  save.stars[ch.id] = Math.max(save.stars[ch.id] || 0, stars);
+  save.read = save.read || {};
+  save.read[ch.id] = ch.paras.length;      // 通关 = 整章已读
+  persist();
+  recordWords(ch.id, ch.words);            // 累计跨书阅读词数
+  markStreak();
+  $("reward-part").textContent = ch.icon;
+  $("reward-title").textContent = (firstClear ? "获得纪念品:" : "纪念品已擦亮:") + ch.itemName + "!";
+  $("reward-stars").textContent = "⭐".repeat(stars);
+  const nx = cur + 1;
+  if (nx < BOOK.length){
+    const left = BOOK.length - 1 - cur;    // 章末悬念
+    const cliff = left <= 1 ? "🔥 就差最后一章，真相马上揭晓！"
+                : "🔎 距离结局还有 <b>" + left + "</b> 章，往下读揭开谜底！";
+    $("reward-sub").innerHTML = `已解锁下一章 <b>${BOOK[nx].title_en}</b><br>${BOOK[nx].teaser_cn}<br><span style="color:#ffd54f">${cliff}</span>`;
+  } else {
+    $("reward-sub").innerHTML = `🎉🎉🎉<br>你独立读完了一整本 ${BOOK.reduce((a,c)=>a+c.words,0)} 词的英文小说!<br>` +
+      `<a class="shelf-link" style="background:#ffb300;color:#2b1a00;border:none;margin-top:10px" href="javascript:showCert()">🏅 领取通关证书</a>`;
+  }
+  show("scr-reward");
+  maybePrediction(ch.id);
+}
+
+/* ===== 先猜后揭晓 ===== */
+function maybePrediction(chId){
+  save.guesses = save.guesses || {};
+  for (const p of PREDICTIONS){                 // 先看有没有要揭晓的
+    if (p.revealAt === chId && save.guesses[p.id] != null && !save.guesses[p.id + "_done"]){
+      setTimeout(()=>showReveal(p), 1100); return;
+    }
+  }
+  for (const p of PREDICTIONS){                 // 再看有没有要提问的
+    if (p.askAt === chId && save.guesses[p.id] == null){
+      setTimeout(()=>showPrediction(p), 1100); return;
+    }
+  }
+}
+function showPrediction(p){
+  const card = $("pred-card");
+  card.innerHTML = `<div class="p-icon">🔮</div><div class="p-q">${p.q}</div>` +
+    p.options.map((o,i)=>`<div class="p-opt" data-i="${i}">${o}</div>`).join("") +
+    `<div class="chapter-title-cn" style="margin-top:8px">先猜一个，读到后面揭晓——猜错也没关系！</div>`;
+  card.querySelectorAll(".p-opt").forEach(el=>{
+    el.onclick = ()=>{
+      save.guesses[p.id] = +el.dataset.i; persist();
+      $("pred-overlay").classList.remove("show");
+      toast("🔮 你的预测已记下，读到后面揭晓！");
+    };
+  });
+  $("pred-overlay").classList.add("show");
+}
+function showReveal(p){
+  const guess = save.guesses[p.id];
+  const right = guess === p.answer;
+  save.guesses[p.id + "_done"] = true; persist();
+  $("pred-card").innerHTML =
+    `<div class="p-icon">${right ? "🎯" : "💡"}</div>` +
+    `<div class="p-verdict ${right ? "right" : "wrong"}">${right ? "猜对啦！" : "没猜到吧~"}</div>` +
+    `<div class="chapter-title-cn">你当时猜的是：<b>${p.options[guess]}</b></div>` +
+    `<div class="p-reveal">${p.reveal}</div>` +
+    `<button class="btn btn-primary btn-block" onclick="document.getElementById('pred-overlay').classList.remove('show')">明白啦</button>`;
+  $("pred-overlay").classList.add("show");
+}
+
+/* ===== 生词复习小游戏(简易遗忘曲线) ===== */
+const RV_INTERVAL = [0, 1, 2, 4, 7, 15];       // box 越高, 隔越久(天)
+let rvQueue = [], rvIdx = 0, rvRight = 0;
+function dayNum(){ return Math.floor(Date.now() / 86400000); }
+function startReview(){
+  const words = Object.keys(save.words);
+  if (!words.length){ toast("先去故事里收集一些生词，再来复习哦 📖"); return; }
+  save.review = save.review || {};
+  const today = dayNum();
+  let due = words.filter(w=>{ const r = save.review[w]; return !r || r.due <= today; });
+  if (!due.length) due = words.slice();          // 没有到期的就全部提前复习
+  rvQueue = shuffle(due).slice(0, 12); rvIdx = 0; rvRight = 0;
+  renderReview();
+  show("scr-review");
+}
+function renderReview(){
+  if (rvIdx >= rvQueue.length){ return finishReview(); }
+  const w = rvQueue[rvIdx];
+  const g = GLOSSARY[w] || { cn:"", emoji:"⭐" };
+  $("rv-progress").textContent = "第 " + (rvIdx+1) + " / " + rvQueue.length + " 个";
+  $("rv-bar").style.width = Math.round(rvIdx / rvQueue.length * 100) + "%";
+  $("rv-feedback").textContent = "";
+  // 干扰项: 其他生词的中文
+  const others = Object.keys(GLOSSARY).filter(x=>x!==w && GLOSSARY[x].cn && GLOSSARY[x].cn !== g.cn);
+  const opts = shuffle([g.cn].concat(shuffle(others).slice(0,3).map(x=>GLOSSARY[x].cn)));
+  $("rv-body").innerHTML =
+    `<div class="rv-card">
+       <div class="rv-word${g.gold?" gold":""}">${w}</div>
+       <div class="rv-listen" id="rv-listen">🔊 听发音</div>
+       <div class="rv-opts">` +
+       opts.map(o=>`<div class="rv-opt">${o}</div>`).join("") +
+    `  </div>
+     </div>`;
+  $("rv-listen").onclick = ()=>speak(w, null, {word:w});
+  $("rv-body").querySelectorAll(".rv-opt").forEach(el=>{
+    el.onclick = ()=>{
+      if (el.classList.contains("right") || el.classList.contains("wrong")) return;
+      const ok = el.textContent === g.cn;
+      const today = dayNum();
+      const r = save.review[w] || { box:0 };
+      if (ok){
+        el.classList.add("right"); rvRight++;
+        r.box = Math.min(RV_INTERVAL.length-1, (r.box||0)+1);
+        $("rv-feedback").textContent = ["答对啦 🎉","太棒了 ⭐","记住咯 💪"][rvIdx%3];
+      } else {
+        el.classList.add("wrong");
+        r.box = 0;
+        $("rv-body").querySelectorAll(".rv-opt").forEach(o=>{ if(o.textContent===g.cn) o.classList.add("right"); });
+        $("rv-feedback").textContent = "正确意思是:" + g.cn;
+      }
+      r.due = today + RV_INTERVAL[r.box]; save.review[w] = r; persist();
+      setTimeout(()=>{ rvIdx++; renderReview(); }, ok ? 750 : 1500);
+    };
+  });
+  speak(w, null, {word:w});
+}
+function finishReview(){
+  $("rv-progress").textContent = "复习完成";
+  $("rv-bar").style.width = "100%";
+  $("rv-feedback").textContent = "";
+  $("rv-body").innerHTML =
+    `<div class="rv-done"><div class="big">${rvRight===rvQueue.length?"🏆":"👍"}</div>
+       <div class="reward-title" style="color:#ffd54f">复习完成！答对 ${rvRight}/${rvQueue.length}</div>
+       <div class="reward-sub">记住的词会隔几天再考你，忘了的明天再来~</div>
+       <button class="btn btn-primary btn-block" style="margin-top:22px" onclick="startReview()">再来一组</button>
+       <button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="showWordbook()">回单词册</button>
+     </div>`;
+}
+
+/* ===== 通关证书 ===== */
+function editKidName(){
+  const cur = kidName();
+  const n = prompt("写上你的名字，印在证书上：", cur || "");
+  if (n != null){ const h = hubLoad(); h.kidName = n.trim().slice(0, 16); hubSave(h); if ($("scr-cert").classList.contains("active")) showCert(); renderHome(); }
+}
+function showCert(){
+  let name = kidName();
+  if (!name){ editKidName(); name = kidName(); if (!name) name = "小读者"; }
+  $("cert-name").textContent = name || "小读者";
+  $("cert-book").textContent = "《" + META.title + "》 " + (META.pageTitle && META.pageTitle.indexOf("·")>=0 ? META.pageTitle.split("·").pop().trim() : "");
+  $("cert-words").textContent = BOOK.reduce((a,c)=>a+c.words,0);
+  $("cert-vocab").textContent = Object.keys(save.words).length;
+  $("cert-stars").textContent = Object.values(save.stars).reduce((a,b)=>a+b,0);
+  const d = new Date();
+  $("cert-date").textContent = "颁发于 " + d.getFullYear() + " 年 " + (d.getMonth()+1) + " 月 " + d.getDate() + " 日";
+  show("scr-cert");
+}
+
+/* =====================================================
+   单词册 & 收藏馆
+   ===================================================== */
+function showWordbook(){
+  const list = $("wordbook-list");
+  const byCh = {};
+  Object.entries(save.words).forEach(([w, info])=>{
+    (byCh[info.ch] = byCh[info.ch] || []).push(w);
+  });
+  const total = Object.keys(GLOSSARY).length;
+  const goldTotal = Object.values(GLOSSARY).filter(g=>g.gold).length;
+  const got = Object.keys(save.words).length;
+  const goldGot = Object.keys(save.words).filter(w=>(GLOSSARY[w]||{}).gold).length;
+  if (!got){
+    list.innerHTML = `<div class="wb-empty">单词册还是空的 📭<br>去故事里点一点紫色的单词吧!<br><span style="color:#ffd766">✨ 金色的是稀有生词，集齐更棒</span></div>`;
+  } else {
+    let html = `<div class="chapter-title-cn">已收集 ${got} / ${total} 个生词 · <span style="color:#ffd766">✨ 金色 ${goldGot}/${goldTotal}</span></div>`;
+    const wbItem = (w)=>{
+      const g = GLOSSARY[w] || {cn:"", emoji:"⭐"};
+      return `<div class="wb-item${g.gold?" gold":""}">
+        <div class="wb-emoji">${g.gold?"✨":g.emoji}</div>
+        <div class="wb-main"><div class="wb-word">${w}</div><div class="wb-cn">${g.cn}</div></div>
+        <div class="wb-sound" data-w="${w.replace(/"/g,'&quot;')}">🔊</div>
+      </div>`;
+    };
+    // 金色生词单独置顶一组
+    const goldWs = Object.keys(save.words).filter(w=>(GLOSSARY[w]||{}).gold).sort();
+    if (goldWs.length){
+      html += `<div class="wb-chapter gold-hd">✨ 金色稀有生词（${goldWs.length}）</div>` + goldWs.map(wbItem).join("");
+    }
+    BOOK.forEach(ch=>{
+      const ws = (byCh[ch.id]||[]).filter(w=>!(GLOSSARY[w]||{}).gold);
+      if (!ws.length) return;
+      html += `<div class="wb-chapter">${ch.icon} ${ch.title_cn}(${ws.length})</div>`;
+      html += ws.sort().map(wbItem).join("");
+    });
+    list.innerHTML = html;
+    list.querySelectorAll(".wb-sound").forEach(el=>{ el.onclick = ()=>speak(el.dataset.w, null, {word: el.dataset.w}); });
+  }
+  show("scr-wordbook");
+}
+function showShelf(){
+  const grid = $("shelf-grid");
+  grid.innerHTML = BOOK.map(ch=>{
+    const owned = !!save.done[ch.id];
+    return `<div class="shelf-cell${owned ? "" : " miss"}">
+      <div class="c-emoji">${owned ? ch.icon : "❓"}</div>
+      <div class="c-name">${owned ? ch.itemName : "???"}</div>
+    </div>`;
+  }).join("");
+  show("scr-shelf");
+}
+
+/* =====================================================
+   声音检测
+   ===================================================== */
+const TEST_TEXT = "Hello! Welcome to Frankenstein. Can you hear me?";
+function testFile(){
+  stopAll();
+  playFile(AUDIO_BASE + "test.mp3", ()=>toast("测试⓪播放完毕,听到了吗?"),
+    ()=>toast("音频文件加载失败 ❌(离线打开的单文件版没有音频包)"));
+}
+function testLocal(){
+  stopAll();
+  speakLocal(splitSentences(TEST_TEXT), ()=>toast("本地引擎没出声 ❌ 试试别的测试"));
+}
+function testOnline(){
+  stopAll();
+  speakOnline(splitSentences(TEST_TEXT));
+}
+const MODE_NAMES = {auto: "已设为自动选择 🤖", recorded: "已固定用音频文件 ⓪",
+  local: "已固定用本地发音 ①", online: "已固定用在线发音 ②"};
+function setMode(m){
+  save.ttsMode = m; persist();
+  paintMode();
+  toast(MODE_NAMES[m]);
+}
+function paintMode(){
+  const cur = save.ttsMode || "auto";
+  ["auto","recorded","local","online"].forEach(m=>{
+    const b = $("m-" + m);
+    b.style.borderColor = (m === cur) ? "#ffd54f" : "#4c4380";
+    b.style.color = (m === cur) ? "#ffd54f" : "#e8e2ff";
+  });
+}
+function showSound(){
+  paintMode();
+  let vn = 0;
+  try{ vn = ("speechSynthesis" in window) ? speechSynthesis.getVoices().length : -1; }catch(e){}
+  $("snd-diag").innerHTML = "诊断: 音频包" + (TTS.hasAudio ? "✓" : "✗")
+    + " | 本地引擎音色数 " + vn
+    + " | 微信环境 " + (IN_WECHAT ? "是" : "否")
+    + (TTS.lastErr ? " | 上次错误 " + TTS.lastErr : "")
+    + "<br>浏览器: " + (navigator.userAgent || "").slice(0, 90);
+  show("scr-sound");
+}
+
+/* 首页标题等文案由 META 注入 */
+document.title = (META && META.pageTitle) || "阅读大冒险";
+$("home-title").textContent = (META && META.title) || "READING ADVENTURE";
+$("home-subtitle").textContent = (META && META.subtitle) || "读完这本书，点亮所有成就";
+$("home-bolt").textContent = (META && META.bolt) || "📖";
+
+/* ===== 阅读字号(可调, 记忆) ===== */
+const FONT_STEPS = [17, 20, 23, 27, 31];
+const FONT_NAMES = ["小", "中", "大", "特大", "超大"];
+function applyFont(){
+  let i = (save.fontIdx == null) ? 1 : save.fontIdx;
+  i = Math.max(0, Math.min(FONT_STEPS.length - 1, i));
+  document.documentElement.style.setProperty("--story-fs", FONT_STEPS[i] + "px");
+  const lbl = document.getElementById("fs-label");
+  if (lbl) lbl.textContent = FONT_NAMES[i];
+}
+function changeFont(d){
+  let i = (save.fontIdx == null) ? 1 : save.fontIdx;
+  i = Math.max(0, Math.min(FONT_STEPS.length - 1, i + d));
+  save.fontIdx = i; persist(); applyFont();
+  toast("字号:" + FONT_NAMES[i]);
+}
+applyFont();
+ttsInit();
+detectAudio();
+renderHome();
+</script>
+</body>
+</html>

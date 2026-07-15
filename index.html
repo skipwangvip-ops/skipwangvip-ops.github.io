@@ -77,6 +77,8 @@ const BOOKS = [
     desc:"冒险 · 一个人的荒岛求生28年", saveKey:"robinson_game_v1", chapters:6, words:13844 },
   { id:"wuthering", path:"./wuthering/", cover:"🌩", title:"Wuthering Heights 呼啸山庄",
     desc:"哥特 · 荒原上的爱、恨与命运（题材较沉重）", saveKey:"wuthering_game_v1", chapters:18, words:25364 },
+  { id:"faustus", path:"./faustus/", cover:"📜", title:"Dr Faustus 浮士德的悲剧",
+    desc:"警世 · 为知识把灵魂卖给魔鬼（题材较沉重）", saveKey:"faustus_game_v1", chapters:9, words:8768 },
 ];
 const HUB_KEY="reading_hub_v1";
 function hub(){ try{return JSON.parse(localStorage.getItem(HUB_KEY))||{}}catch(e){return{}} }
