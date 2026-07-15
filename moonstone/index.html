@@ -615,7 +615,7 @@ function paintRead(){
   });
 }
 function bumpRead(n){
-  if (n > readPos){ readPos = n; saveReadPos(); paintRead(); }
+  if (n > readPos){ readPos = n; saveReadPos(); paintRead(); updateQuizGate(); }
 }
 let _scrollT = 0;
 function onReadScroll(){
@@ -630,8 +630,13 @@ function onReadScroll(){
   bumpRead(fp);
 }
 window.addEventListener("scroll", onReadScroll, { passive:true });
+/* 读过或听过都算"走过这一章": readPos 由滚动阅读和逐句朗读共同推进 */
+function goneThrough(){
+  if (!BOOK[cur]) return 0;
+  return Math.max(readPos, heardSet.size);   // 两者取大, 稳妥
+}
 function allHeard(){
-  return BOOK[cur] && heardSet.size >= BOOK[cur].paras.length;
+  return BOOK[cur] && goneThrough() >= BOOK[cur].paras.length;
 }
 function updateQuizGate(){
   const btn = $("btn-quiz");
@@ -642,8 +647,8 @@ function updateQuizGate(){
     btn.textContent = "✅ 我读完了，去答题";
     btn.style.opacity = "1";
   } else {
-    const left = ch.paras.length - heardSet.size;
-    btn.textContent = "🔒 先听完故事（还剩 " + left + " 段）";
+    const left = Math.max(0, ch.paras.length - goneThrough());
+    btn.textContent = "🔒 读完/听完故事就能答题（还剩 " + left + " 段）";
     btn.style.opacity = ".6";
   }
 }
@@ -1009,9 +1014,8 @@ function closeWordCard(ev){
 function tryStartQuiz(){
   const ch = BOOK[cur];
   if (!save.done[ch.id] && !allHeard()){
-    const left = ch.paras.length - heardSet.size;
-    toast("先点 🔊 把故事听完哦(还剩 " + left + " 段)~");
-    // 自动帮忙从第一段没听的地方开始读
+    const left = Math.max(0, ch.paras.length - goneThrough());
+    toast("把故事读完或听完就能答题啦(还剩 " + left + " 段)~");
     return;
   }
   startQuiz();
