@@ -71,6 +71,10 @@ const BOOKS = [
     desc:"科幻 · 造出生命的科学家与他的怪物", saveKey:"frankenstein_game_v2", chapters:26, words:13740 },
   { id:"moonstone", path:"./moonstone/", cover:"💎", title:"The Moonstone 月亮石",
     desc:"侦探 · 一颗印度圣钻在生日夜离奇失窃", saveKey:"moonstone_game_v1", chapters:9, words:11607 },
+  { id:"silasmarner", path:"./silasmarner/", cover:"🧶", title:"Silas Marner 织工马南",
+    desc:"温暖 · 织工丢了金子，却捡回一个金发女孩", saveKey:"silasmarner_game_v1", chapters:11, words:12800 },
+  { id:"robinson", path:"./robinson/", cover:"🏝", title:"Robinson Crusoe 鲁滨逊漂流记",
+    desc:"冒险 · 一个人的荒岛求生28年", saveKey:"robinson_game_v1", chapters:6, words:13844 },
 ];
 const HUB_KEY="reading_hub_v1";
 function hub(){ try{return JSON.parse(localStorage.getItem(HUB_KEY))||{}}catch(e){return{}} }

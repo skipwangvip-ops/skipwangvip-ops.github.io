@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Silas Marner · 织工马南</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: linear-gradient(180deg,#1a1f3c 0%,#2b2350 60%,#3a2c5e 100%);
+    color:#f3efe4; min-height:100%; overflow-x:hidden;
+  }
+  .screen { display:none; max-width:760px; margin:0 auto; padding:24px 20px 48px; min-height:100vh; }
+  .screen.active { display:block; animation:fadein .35s ease; }
+  @keyframes fadein { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+
+  /* ---------- 首页 ---------- */
+  .title-zone { text-align:center; margin:20px 0 8px; }
+  .title-zone .bolt { font-size:44px; }
+  h1.game-title { font-size:28px; letter-spacing:1px; margin-top:6px;
+    background:linear-gradient(90deg,#ffe082,#a5ffb0,#8ecfff);
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .subtitle { color:#bfb8d9; font-size:14px; margin-top:6px; }
+
+  .shelf-link { display:inline-block; margin:12px auto 0; padding:7px 16px; border-radius:20px;
+    background:#2e2856; border:1px solid #4c4380; color:#e8e2ff; font-size:14px; text-decoration:none; }
+  .growth-banner { margin:12px 0 0; padding:12px 14px; border-radius:14px;
+    background:linear-gradient(90deg,#33295c,#3a2c5e); border:1px solid #4c4380;
+    text-align:center; font-size:15px; color:#ffe082; font-weight:700; line-height:1.7; }
+  .growth-banner .g-sub { color:#a79fce; font-weight:400; font-size:12px; }
+  /* 通关证书 */
+  .cert-wrap { padding:18px 6px; }
+  .cert { background:linear-gradient(160deg,#fffdf5,#fff2cf); color:#3a2a10; border-radius:20px;
+    padding:30px 24px; text-align:center; border:3px solid #e0b84a;
+    box-shadow:0 10px 30px rgba(0,0,0,.4); position:relative; }
+  .cert .seal { font-size:52px; }
+  .cert h2 { font-size:22px; margin:8px 0 4px; color:#8a6d1a; letter-spacing:1px; }
+  .cert .cert-sub { font-size:13px; color:#9a7d2a; }
+  .cert .cert-name { font-size:30px; font-weight:900; margin:16px 0 6px; color:#5a4410;
+    border-bottom:2px dashed #e0b84a; display:inline-block; padding:0 18px 6px; }
+  .cert .cert-book { font-size:18px; font-weight:800; margin:14px 0 4px; }
+  .cert .cert-stats { display:flex; justify-content:center; gap:18px; margin:16px 0 6px; flex-wrap:wrap; }
+  .cert .cert-stat { text-align:center; }
+  .cert .cert-stat b { display:block; font-size:22px; color:#b8860b; }
+  .cert .cert-stat span { font-size:12px; color:#9a7d2a; }
+  .cert .cert-date { font-size:12px; color:#9a7d2a; margin-top:12px; }
+
+  .stat-row { display:flex; gap:10px; margin:18px 0 6px; }
+  .stat-box { flex:1; background:#262148; border:1px solid #443b74; border-radius:16px;
+    padding:12px 8px; text-align:center; }
+  .stat-box .num { font-size:22px; font-weight:800; color:#ffd54f; }
+  .stat-box .lbl { font-size:12px; color:#a79fce; margin-top:3px; }
+
+  .progress-wrap { background:#241f42; border-radius:10px; height:14px; margin:12px 0 4px; overflow:hidden; }
+  .progress-bar { height:100%; background:linear-gradient(90deg,#66bb6a,#ffd54f); border-radius:10px;
+    transition:width .5s; }
+  .progress-label { text-align:center; font-size:12px; color:#a79fce; margin-bottom:10px; }
+
+  .section-head { display:flex; align-items:center; gap:10px; margin:26px 0 4px; }
+  .section-head .s-icon { font-size:22px; }
+  .section-head .s-name { font-size:16px; font-weight:800; color:#ffd54f; }
+  .section-head .s-en { font-size:12px; color:#8d84b8; }
+
+  .map-node { display:flex; align-items:center; gap:14px; background:#262148;
+    border:1px solid #443b74; border-radius:18px; padding:14px 16px; margin:10px 0;
+    cursor:pointer; transition:transform .12s; }
+  .map-node:active { transform:scale(.98); }
+  .map-node.locked { opacity:.42; cursor:default; }
+  .map-node.next { border-color:#ffd54f; box-shadow:0 0 12px rgba(255,213,79,.25); }
+  .map-node .icon { font-size:30px; width:44px; text-align:center; }
+  .map-node .info { flex:1; min-width:0; }
+  .map-node .name { font-size:16px; font-weight:700; }
+  .map-node .place { font-size:12px; color:#a79fce; margin-top:3px; }
+  .map-node .state { font-size:18px; min-width:60px; text-align:right; }
+  .badge-done { color:#ffd54f; letter-spacing:1px; }
+
+  .toolbar { display:flex; gap:12px; margin-top:24px; }
+  .btn { border:none; border-radius:16px; padding:15px 20px; font-size:16px; font-weight:700;
+    cursor:pointer; font-family:inherit; color:#2b1a00; }
+  .btn:active { transform:scale(.97); }
+  .btn-primary { background:linear-gradient(90deg,#ffb300,#ff8f00); }
+  .btn-ghost { background:#2e2856; color:#e8e2ff; border:1px solid #4c4380; }
+  .btn-block { display:block; width:100%; }
+  .toolbar .btn { flex:1; }
+  .btn-continue { margin-top:16px; font-size:17px; }
+
+  /* ---------- 阅读页 ---------- */
+  .chapter-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap; }
+  .back-btn { background:#2e2856; border:1px solid #4c4380; color:#e8e2ff; border-radius:12px;
+    padding:8px 14px; font-size:15px; cursor:pointer; font-family:inherit; }
+  .chapter-tag { font-size:13px; color:#ffd54f; letter-spacing:2px; }
+  h2.chapter-title { font-size:23px; margin:10px 0 2px; }
+  .chapter-title-cn { color:#bfb8d9; font-size:14px; margin-bottom:14px; }
+
+  .story-card { background:#f7f1e1; color:#2d2a24; border-radius:20px; padding:22px 20px;
+    font-size:var(--story-fs, 20px); line-height:1.85; box-shadow:0 6px 24px rgba(0,0,0,.35); }
+  .story-card p { margin-bottom:14px; position:relative; padding-left:12px; border-left:4px solid transparent;
+    transition:border-color .3s, background .3s; }
+  .story-card p:last-child { margin-bottom:0; }
+  /* 已读过的段落: 绿色左条 + 淡绿底, 一眼看出读到哪 */
+  .story-card p.read { border-left-color:#66bb6a; background:rgba(102,187,106,.10); border-radius:0 8px 8px 0; }
+  .story-card p.read::after { content:"✓"; position:absolute; left:-2px; top:-2px; font-size:11px; color:#2e7d32; }
+  /* 句子级高亮:正在朗读的那一句变亮黄 */
+  .story-card .sent { border-radius:6px; transition:background .12s, box-shadow .12s; }
+  .story-card .sent.speaking { background:#ffe36b; box-shadow:0 0 0 4px #ffe36b; }
+  .gw { color:#8e24aa; font-weight:700; border-bottom:2px dotted #8e24aa; cursor:pointer; }
+  .gw.learned { color:#2e7d32; border-bottom-color:#2e7d32; }
+  .pspk { font-size:14px; opacity:.45; cursor:pointer; margin-left:6px; user-select:none; }
+
+  .read-tools { display:flex; gap:10px; margin:6px 0 10px; }
+  .read-tools .btn { flex:1; font-size:15px; padding:13px 8px; }
+  .fs-row { display:flex; align-items:center; justify-content:center; gap:8px; margin:0 0 14px;
+    color:#a79fce; font-size:14px; }
+  .fs-btn { background:#2e2856; border:1px solid #4c4380; color:#e8e2ff; border-radius:10px;
+    width:44px; height:38px; font-weight:800; cursor:pointer; font-family:inherit; }
+  .fs-btn:active { transform:scale(.95); }
+  .fs-btn.small { font-size:14px; }
+  .fs-btn.big { font-size:20px; }
+  .hint-line { text-align:center; font-size:13px; color:#a79fce; margin-top:10px; line-height:1.8; }
+
+  /* ---------- 单词卡弹窗 ---------- */
+  .overlay { position:fixed; inset:0; background:rgba(10,8,26,.72); display:none;
+    align-items:center; justify-content:center; z-index:50; padding:24px; }
+  .overlay.show { display:flex; }
+  .word-card { background:#fffef8; color:#2d2a24; border-radius:22px; padding:24px 22px;
+    width:100%; max-width:420px; text-align:center; animation:pop .22s ease; }
+  @keyframes pop { from{transform:scale(.85); opacity:0;} to{transform:none; opacity:1;} }
+  .word-card .w-emoji { font-size:38px; }
+  .word-card .w-word { font-size:29px; font-weight:800; color:#6a1b9a; margin-top:6px; word-break:break-word; }
+  .word-card .w-cn { font-size:20px; margin-top:8px; }
+  .word-card .w-eg { font-size:15px; color:#6d675c; margin-top:12px; line-height:1.6; font-style:italic; }
+  .word-card .w-collect { margin-top:10px; font-size:13px; color:#2e7d32; }
+  .word-card .btn { margin-top:14px; }
+
+  /* ---------- 答题页 ---------- */
+  .quiz-progress { font-size:14px; color:#ffd54f; margin:8px 0 14px; letter-spacing:1px; }
+  .question-card { background:#262148; border:1px solid #443b74; border-radius:20px; padding:20px; }
+  .question-text { font-size:19px; line-height:1.6; font-weight:700; }
+  .question-cn { font-size:13px; color:#a79fce; margin-top:6px; }
+  .options { margin-top:18px; }
+  .option { background:#312a5e; border:2px solid #4c4380; border-radius:16px; padding:15px;
+    font-size:16px; margin:10px 0; cursor:pointer; transition:all .15s; line-height:1.5; }
+  .option:active { transform:scale(.98); }
+  .option.right { background:#1b5e20; border-color:#66bb6a; }
+  .option.wrong { background:#7f1d1d; border-color:#ef5350; animation:shake .3s; }
+  @keyframes shake { 0%,100%{transform:none;} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+  .quiz-feedback { min-height:30px; text-align:center; font-size:16px; margin-top:12px; }
+  /* 题型小标签 */
+  .q-kind { display:inline-block; font-size:12px; font-weight:800; color:#2b1a00;
+    background:#ffd54f; border-radius:20px; padding:4px 12px; margin-bottom:12px; }
+  /* 判断对错 */
+  .tf-row { display:flex; gap:12px; margin-top:18px; }
+  .tf-row .option { flex:1; text-align:center; font-size:20px; font-weight:800; margin:0; }
+  /* 选词填空 */
+  .blank { display:inline-block; min-width:64px; border-bottom:3px solid #ffd54f; color:#ffd54f;
+    font-weight:800; text-align:center; margin:0 4px; }
+  .blank.filled { border-bottom-color:#66bb6a; color:#a5ffb0; }
+  .chip-box { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+  .chip { background:#312a5e; border:2px solid #4c4380; border-radius:14px; padding:12px 18px;
+    font-size:17px; cursor:pointer; transition:all .15s; }
+  .chip:active { transform:scale(.96); }
+  .chip.right { background:#1b5e20; border-color:#66bb6a; }
+  .chip.wrong { background:#7f1d1d; border-color:#ef5350; animation:shake .3s; }
+  /* 谁说的 */
+  .quote-bubble { background:#f7f1e1; color:#2d2a24; border-radius:16px; padding:16px 18px;
+    font-size:19px; font-style:italic; line-height:1.5; position:relative; margin:4px 0 4px; }
+  .quote-bubble::after { content:""; position:absolute; left:28px; bottom:-12px; border:8px solid transparent;
+    border-top-color:#f7f1e1; border-bottom:0; }
+  /* 排序 */
+  .order-item { display:flex; align-items:center; gap:12px; background:#312a5e; border:2px solid #4c4380;
+    border-radius:16px; padding:14px; margin:10px 0; font-size:16px; cursor:pointer; line-height:1.45; }
+  .order-item:active { transform:scale(.98); }
+  .order-item.placed { background:#1b5e20; border-color:#66bb6a; cursor:default; }
+  .order-item.wrong { animation:shake .3s; border-color:#ef5350; }
+  .order-badge { width:28px; height:28px; border-radius:50%; background:#4c4380; color:#e8e2ff;
+    font-weight:800; display:flex; align-items:center; justify-content:center; flex:0 0 auto; font-size:15px; }
+  .order-item.placed .order-badge { background:#ffd54f; color:#2b1a00; }
+
+  /* ---------- 奖励页 ---------- */
+  .reward-zone { text-align:center; padding-top:56px; }
+  .reward-part { font-size:92px; animation:drop .6s cubic-bezier(.2,1.4,.4,1); display:inline-block; }
+  @keyframes drop { from{transform:translateY(-80px) scale(.4); opacity:0;} to{transform:none; opacity:1;} }
+  .reward-title { font-size:24px; font-weight:800; margin-top:14px; color:#ffd54f; }
+  .reward-sub { color:#bfb8d9; margin-top:10px; font-size:16px; line-height:1.8; }
+  .reward-stars { font-size:30px; margin-top:12px; letter-spacing:6px; }
+  .reward-zone .btn { margin-top:26px; }
+
+  /* ---------- 单词册 & 收藏馆 ---------- */
+  .wb-chapter { font-size:14px; font-weight:800; color:#ffd54f; margin:18px 0 4px; }
+  .wb-item { background:#262148; border:1px solid #443b74; border-radius:16px; padding:12px 16px;
+    margin:8px 0; display:flex; align-items:center; gap:12px; }
+  .wb-item .wb-emoji { font-size:24px; }
+  .wb-item .wb-main { flex:1; min-width:0; }
+  .wb-item .wb-word { font-weight:800; font-size:17px; color:#ce93d8; word-break:break-word; }
+  .wb-item .wb-cn { font-size:14px; color:#cfc8ea; margin-top:2px; }
+  .wb-item .wb-sound { font-size:22px; cursor:pointer; padding:4px; }
+  .wb-empty { text-align:center; color:#a79fce; margin-top:60px; line-height:2; }
+  .shelf-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:10px; margin-top:16px; }
+  .shelf-cell { background:#262148; border:1px solid #443b74; border-radius:16px; padding:12px 6px;
+    text-align:center; }
+  .shelf-cell .c-emoji { font-size:30px; }
+  .shelf-cell .c-name { font-size:12px; color:#cfc8ea; margin-top:6px; }
+  .shelf-cell.miss { opacity:.32; filter:grayscale(1); }
+
+  /* 金色生词 */
+  .gw.gold { color:#c58a00; border-bottom-color:#e0a800; }
+  .word-card.goldcard { background:linear-gradient(160deg,#fffdf2,#fff0c4); border:2px solid #e0b84a; }
+  .w-goldtag { display:inline-block; margin-top:8px; font-size:12px; font-weight:800; color:#8a6d1a;
+    background:#ffe9a8; border-radius:20px; padding:3px 12px; }
+  .wb-item.gold { border-color:#e0b84a; background:linear-gradient(90deg,#2c2545,#3a3018); }
+  .wb-item.gold .wb-word { color:#ffd766; }
+  .wb-chapter.gold-hd { color:#ffd766; }
+
+  /* 预测/揭晓弹窗 */
+  .pred-card { background:#fffef8; color:#2d2a24; border-radius:22px; padding:24px 22px;
+    width:100%; max-width:440px; text-align:center; animation:pop .22s ease; }
+  .pred-card .p-icon { font-size:40px; }
+  .pred-card .p-q { font-size:18px; font-weight:800; margin:10px 0 4px; line-height:1.5; }
+  .pred-card .p-opt { background:#f0ebff; border:2px solid #d5c9f2; color:#3a2d5e; border-radius:14px;
+    padding:13px; margin:9px 0; font-size:16px; cursor:pointer; font-weight:700; }
+  .pred-card .p-opt:active { transform:scale(.98); }
+  .pred-card .p-reveal { font-size:16px; line-height:1.7; color:#3a2d1a; margin:10px 0; }
+  .pred-card .p-verdict { font-size:22px; font-weight:900; margin:6px 0; }
+  .pred-card .p-verdict.right { color:#2e7d32; }
+  .pred-card .p-verdict.wrong { color:#c56000; }
+
+  /* 生词复习小游戏 */
+  .rv-top { text-align:center; margin:8px 0 14px; }
+  .rv-progress { font-size:14px; color:#ffd54f; letter-spacing:1px; }
+  .rv-scorebar { background:#241f42; border-radius:8px; height:10px; margin:10px 0 0; overflow:hidden; }
+  .rv-scorebar .b { height:100%; background:linear-gradient(90deg,#66bb6a,#ffd54f); width:0; transition:width .3s; }
+  .rv-card { background:#262148; border:1px solid #443b74; border-radius:20px; padding:26px 20px; text-align:center; }
+  .rv-word { font-size:34px; font-weight:900; color:#ce93d8; word-break:break-word; }
+  .rv-word.gold { color:#ffd766; }
+  .rv-listen { margin-top:10px; font-size:24px; cursor:pointer; }
+  .rv-opts { margin-top:20px; }
+  .rv-opt { background:#312a5e; border:2px solid #4c4380; border-radius:16px; padding:15px; font-size:18px;
+    margin:10px 0; cursor:pointer; }
+  .rv-opt:active { transform:scale(.98); }
+  .rv-opt.right { background:#1b5e20; border-color:#66bb6a; }
+  .rv-opt.wrong { background:#7f1d1d; border-color:#ef5350; animation:shake .3s; }
+  .rv-feedback { text-align:center; min-height:26px; font-size:16px; margin-top:12px; }
+  .rv-done { text-align:center; padding-top:40px; }
+  .rv-done .big { font-size:70px; }
+
+  .toast { position:fixed; left:50%; bottom:34px; transform:translateX(-50%);
+    background:#ffd54f; color:#3a2a00; font-weight:700; padding:12px 22px; border-radius:30px;
+    font-size:15px; display:none; z-index:60; box-shadow:0 4px 18px rgba(0,0,0,.4);
+    max-width:86vw; text-align:center; }
+  .toast.show { display:block; animation:fadein .25s ease; }
+</style>
+</head>
+<body>
+
+<!-- ============ 首页 ============ -->
+<div class="screen active" id="scr-home">
+  <div class="title-zone">
+    <div class="bolt" id="home-bolt">📖</div>
+    <h1 class="game-title" id="home-title"></h1>
+    <div class="subtitle" id="home-subtitle"></div>
+  </div>
+
+  <a class="shelf-link" href="../">📚 我的书架</a>
+  <div class="growth-banner" id="growth-banner"></div>
+
+  <div class="stat-row">
+    <div class="stat-box"><div class="num" id="st-ch">0</div><div class="lbl">已通关章节</div></div>
+    <div class="stat-box"><div class="num" id="st-star">0</div><div class="lbl">获得星星</div></div>
+    <div class="stat-box"><div class="num" id="st-word">0</div><div class="lbl">收集单词</div></div>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="prog-bar" style="width:0%"></div></div>
+  <div class="progress-label" id="prog-label"></div>
+
+  <button class="btn btn-primary btn-block btn-continue" id="btn-continue" onclick="continueGame()">▶️ 继续冒险</button>
+
+  <div id="map"></div>
+
+  <div class="toolbar">
+    <button class="btn btn-ghost" onclick="showWordbook()">📖 单词册 <span id="wb-count"></span></button>
+    <button class="btn btn-ghost" onclick="showShelf()">🏆 收藏馆</button>
+    <button class="btn btn-ghost" onclick="resetProgress()">🔄 重置</button>
+  </div>
+  <div class="toolbar">
+    <button class="btn btn-ghost" onclick="showSound()">🔧 朗读没声音?点这里检测</button>
+  </div>
+</div>
+
+<!-- ============ 通关证书 ============ -->
+<div class="screen" id="scr-cert">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 返回</button>
+    <span class="chapter-tag">CERTIFICATE</span>
+  </div>
+  <div class="cert-wrap">
+    <div class="cert" id="cert-card">
+      <div class="seal">🏅</div>
+      <h2>阅读大冒险 · 通关证书</h2>
+      <div class="cert-sub">READING ADVENTURE · CERTIFICATE</div>
+      <div class="cert-name" id="cert-name">小读者</div>
+      <div class="cert-sub">独立读完了英文原著</div>
+      <div class="cert-book" id="cert-book"></div>
+      <div class="cert-stats">
+        <div class="cert-stat"><b id="cert-words">0</b><span>阅读词数</span></div>
+        <div class="cert-stat"><b id="cert-vocab">0</b><span>收集生词</span></div>
+        <div class="cert-stat"><b id="cert-stars">0</b><span>获得星星</span></div>
+      </div>
+      <div class="cert-date" id="cert-date"></div>
+    </div>
+  </div>
+  <button class="btn btn-ghost btn-block" style="margin-top:14px" onclick="editKidName()">✏️ 改名字</button>
+  <div class="hint-line">📸 截图保存，发给爸爸妈妈、爷爷奶奶看看吧！</div>
+</div>
+
+<!-- ============ 声音检测 ============ -->
+<div class="screen" id="scr-sound">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag">SOUND CHECK</span>
+  </div>
+  <h2 class="chapter-title">🔧 声音检测</h2>
+  <div class="chapter-title-cn">先把平板的<b>媒体音量</b>调大,再依次点下面的按钮</div>
+  <button class="btn btn-ghost btn-block" style="margin:10px 0" onclick="testFile()">▶️ 测试⓪ 音频文件(推荐)</button>
+  <button class="btn btn-ghost btn-block" style="margin:10px 0" onclick="testLocal()">▶️ 测试① 本地发音引擎</button>
+  <button class="btn btn-ghost btn-block" style="margin:10px 0" onclick="testOnline()">▶️ 测试② 在线发音(需联网)</button>
+  <div class="chapter-title-cn" style="margin-top:18px">哪个有声音,就选用哪个:</div>
+  <div class="toolbar" style="margin-top:8px">
+    <button class="btn btn-ghost" id="m-auto" onclick="setMode('auto')">🤖 自动</button>
+    <button class="btn btn-ghost" id="m-recorded" onclick="setMode('recorded')">⓪ 音频</button>
+    <button class="btn btn-ghost" id="m-local" onclick="setMode('local')">① 本地</button>
+    <button class="btn btn-ghost" id="m-online" onclick="setMode('online')">② 在线</button>
+  </div>
+  <div class="hint-line" style="margin-top:22px; text-align:left">
+    都没声音时请检查:<br>
+    · 平板<b>媒体音量</b>是否调大(和铃声音量是两回事)<br>
+    · 是否连着<b>蓝牙耳机/音箱</b>——声音可能被送去了别的设备<br>
+    · 微信里打开的话,点右上角 ⋯ 选择<b>"在浏览器打开"</b>再试<br>
+    · 先在浏览器里放一个视频:视频也没声就是平板设置问题
+  </div>
+  <div class="hint-line" style="margin-top:12px; text-align:left; opacity:.7" id="snd-diag"></div>
+</div>
+
+<!-- ============ 阅读页 ============ -->
+<div class="screen" id="scr-read">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag" id="read-tag"></span>
+  </div>
+  <h2 class="chapter-title" id="read-title"></h2>
+  <div class="chapter-title-cn" id="read-title-cn"></div>
+  <div class="read-tools">
+    <button class="btn btn-ghost" id="btn-readaloud" onclick="readAloud()">🔊 读给我听</button>
+    <button class="btn btn-ghost" id="btn-pause" onclick="pauseToggle()">⏸ 暂停</button>
+    <button class="btn btn-ghost" id="btn-rate" onclick="toggleRate()">🐢 慢速</button>
+  </div>
+  <div class="fs-row">
+    <span>字号</span>
+    <button class="fs-btn small" onclick="changeFont(-1)">A－</button>
+    <span id="fs-label" style="min-width:44px;text-align:center">中</span>
+    <button class="fs-btn big" onclick="changeFont(1)">A＋</button>
+  </div>
+  <div class="story-card" id="story-body"></div>
+  <button class="btn btn-primary btn-block" id="btn-quiz" onclick="tryStartQuiz()">✅ 我读完了，去答题</button>
+  <div class="hint-line">💡 点"🔊 读给我听"把整章听完就能解锁答题 · 每段末尾的 🔊 可单独听一段 · 紫色单词点一下有惊喜</div>
+</div>
+
+<!-- ============ 答题页 ============ -->
+<div class="screen" id="scr-quiz">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="backToRead()">← 回去再读读</button>
+    <span class="chapter-tag" id="quiz-tag"></span>
+  </div>
+  <div class="quiz-progress" id="quiz-progress"></div>
+  <div class="question-card">
+    <div class="q-kind" id="q-kind"></div>
+    <div class="question-text" id="q-text"></div>
+    <div class="question-cn" id="q-cn"></div>
+    <div class="options" id="q-options"></div>
+  </div>
+  <div class="quiz-feedback" id="quiz-feedback"></div>
+</div>
+
+<!-- ============ 奖励页 ============ -->
+<div class="screen" id="scr-reward">
+  <div class="reward-zone">
+    <div class="reward-part" id="reward-part"></div>
+    <div class="reward-title" id="reward-title"></div>
+    <div class="reward-stars" id="reward-stars"></div>
+    <div class="reward-sub" id="reward-sub"></div>
+    <button class="btn btn-primary btn-block" onclick="goHome()">🗺 回到地图，继续冒险</button>
+  </div>
+</div>
+
+<!-- ============ 单词册 ============ -->
+<div class="screen" id="scr-wordbook">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag">MY WORD BOOK</span>
+  </div>
+  <h2 class="chapter-title">📖 我的单词册</h2>
+  <button class="btn btn-primary btn-block" style="margin:6px 0 4px" onclick="startReview()">🎮 复习生词小游戏</button>
+  <div id="wordbook-list"></div>
+</div>
+
+<!-- ============ 生词复习小游戏 ============ -->
+<div class="screen" id="scr-review">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="showWordbook()">← 单词册</button>
+    <span class="chapter-tag">VOCAB REVIEW</span>
+  </div>
+  <div class="rv-top">
+    <div class="rv-progress" id="rv-progress"></div>
+    <div class="rv-scorebar"><div class="b" id="rv-bar"></div></div>
+  </div>
+  <div id="rv-body"></div>
+  <div class="rv-feedback" id="rv-feedback"></div>
+</div>
+
+<!-- ============ 收藏馆 ============ -->
+<div class="screen" id="scr-shelf">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag">COLLECTION</span>
+  </div>
+  <h2 class="chapter-title">🏆 我的收藏馆</h2>
+  <div class="chapter-title-cn">每通关一章，就能获得一件故事纪念品</div>
+  <div class="shelf-grid" id="shelf-grid"></div>
+</div>
+
+<!-- 单词卡弹窗 -->
+<div class="overlay" id="word-overlay" onclick="closeWordCard(event)">
+  <div class="word-card" id="word-card"></div>
+</div>
+
+<!-- 预测/揭晓弹窗 -->
+<div class="overlay" id="pred-overlay">
+  <div class="pred-card" id="pred-card"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ======== 数据(由构建脚本注入) ======== */
+const BOOK = [{"id":"u00","section":"PART 1","tag":"START","title_en":"The Lonely Weaver","title_cn":"\u5b64\u72ec\u7684\u7ec7\u5de5","teaser_cn":"\u6751\u91cc\u4eba\u90fd\u8bf4\u8fd9\u4e2a\u7ec7\u5de5\u5f88\u5947\u602a","icon":"\ud83e\uddf6","itemName":"\u7ec7\u5e03\u673a","words":810,"paras":["In the days when the {spinning wheels} {hummed} busily in the {farmhouses}, one often saw certain small pale men in the countryside. Among the big strong farm workers, these men looked like the remains of a {disinherited} race. The {shepherd}'s dog barked {fiercely} when one of them walked by, {bent} under the weight of a heavy pack and the {shepherd} himself looked at the pack {suspiciously}, even though he knew that it only contained {linen} cloth. 'I don't trust {weavers}!' thought the shepherd. 'Who knows? Perhaps the Devil helps them with their work!'","In that far off time, the country people were very {superstitious}. They did not like anything strange or new and strange men who passed through the village were always viewed with {suspicion}.","The {villagers} knew nothing of these men's origins. Where were their homes? Who were their fathers and mothers? And how can you trust someone if you do not know who his father and mother were?","To the {peasants} of old times, the world outside their own direct experience was a region of mystery. Even if someone from distant parts settled in the village and lived there for many years, he was still viewed with {distrust}. The villagers would not have been surprised if, after years of living {peacefully} among them, he had committed some terrible crime. The {linen-weavers}, who were {emigrants} from the town to the country, were {distrusted} even more than ordinary strangers because of their skill. Any kind of {cleverness} seemed to the villagers to be like {witchcraft}. They believed that honest people were not very clever. Whenever a linen-weaver settled in a village, the local people regarded him as an alien not to be trusted and so he lived in a state of {loneliness}.","In the early years of this century, a {linen-weaver} named Silas Marner lived and worked in a stone cottage close to an abandoned {quarry} near the village of Raveloe. The village boys were {fascinated} by the sound of Silas's {loom}. They would often look through the windows of his cottage and watch him working. They were a little afraid of him and so - to cover up their fear - they laughed at him, {imitating} the strange sound of the loom and the {bent} shape of his body as he worked. When he heard them laughing, Silas came to the door and the boys ran away. They thought perhaps he could harm them by magic, just by looking at them with his large brown {short-sighted} eyes. They had heard their parents say that Silas could cure {illnesses} with {herbs} and they thought that, if he could heal by magic, he could probably do harm by magic too.","Silas had lived in Raveloe for fifteen years. The villagers all thought that he was very strange: he never came to the Rainbow for {a pint of} beer; he never stopped to {gossip} in the village square; his only contact with men and women was that necessary for his work. At first the village girls thought he would want to find a wife and they declared that they would never marry a dead man come back to life again. They said this because Jem Rodney the {mole-catcher} had told them a strange tale. One evening, as he was walking home from {Squire} Cass's woods, where he had been shooting birds, he saw Silas Marner standing still in a field, staring before him with the eyes of a dead man. Jem spoke to him and shook his arm, but the {weaver} did not reply or move: he stood there {rigid}, as if he had died standing up. Then suddenly he was normal again; he looked at Jem, said 'Good-night' and walked off.","When the villagers heard Jem's story, some of them said that Silas must have had a fit. But old Mr Macey shook his head and said that no one could have a fit without falling down. He believed that Silas's soul had left his body that evening and, if a man's soul leaves his body, it might meet with other spirits or demons and learn things from them. Mr Macey was convinced that this explained Silas's knowledge of {herbs}. How had he been able to cure Sally Oates when she was ill? None of the doctors had been able to cure her, but Silas's herbs had worked like magic.","As the years went by, the villagers' opinion of Silas changed little, except that they began to wonder about his money. He worked all the time and was well paid for his cloth, yet he lived very simply and never spent much money. Where was all that money going? The thought that Master Marner had {a pile of} gold somewhere made him seem even more mysterious to the villagers, even more different from themselves."],"quiz":[{"q":"What is Silas Marner's job?","cn":"\u585e\u62c9\u65af\u00b7\u9a6c\u5357\u662f\u505a\u4ec0\u4e48\u5de5\u4f5c\u7684\uff1f","options":["He was a weaver who made cloth.","He was a farmer who grew crops.","He was a shepherd who kept sheep."],"answer":0},{"type":"tf","q":"The village boys were not afraid of Silas Marner.","cn":"\u6751\u91cc\u7684\u7537\u5b69\u4eec\u4e00\u70b9\u4e5f\u4e0d\u6015\u585e\u62c9\u65af\u00b7\u9a6c\u5357\u3002","answer":false},{"q":"What strange thing did Jem Rodney see Silas doing in a field?","cn":"\u6770\u59c6\u00b7\u7f57\u5fb7\u5c3c\u770b\u89c1\u585e\u62c9\u65af\u5728\u7530\u91ce\u91cc\u505a\u4e86\u4ec0\u4e48\u5947\u602a\u7684\u4e8b\uff1f","options":["He was digging a hole in the ground.","He was singing loudly to himself.","He was standing frozen and still, like a dead man."],"answer":2},{"type":"fill","q":"The shepherd's dog barked ___ when a weaver walked by.","cn":"\u7267\u7f8a\u4eba\u7684\u72d7\u770b\u5230\u7ec7\u5de5\u8d70\u8fc7\u65f6\u53eb\u5f97\u5f88___\u3002","options":["fiercely","quietly","happily"],"answer":0},{"q":"Why were the villagers afraid of Silas?","cn":"\u6751\u6c11\u4eec\u4e3a\u4ec0\u4e48\u5bb3\u6015\u585e\u62c9\u65af\uff1f","options":["Because he was rich and generous.","Because he was a stranger with strange skills they didn't understand.","Because he often shouted at children."],"answer":1}]},{"id":"u01","section":"PART 1","tag":"CHAPTER 1","title_en":"Betrayed and Alone","title_cn":"\u88ab\u51fa\u5356\u7684\u585e\u62c9\u65af","teaser_cn":"\u4ed6\u6700\u4fe1\u4efb\u7684\u4eba\uff0c\u505a\u4e86\u4ec0\u4e48\uff1f","icon":"\ud83d\udcb0","itemName":"\u91d1\u5e01\u888b","words":1255,"paras":["Although his {daily habits} - and his {neighbours'} opinion of him - had changed very little over the years, Silas's inner life had been a history and a {metamorphosis}. Before he came to Raveloe, his life had been full of {companionship} and mental activity. He had lived in the city and attended chapel at Lantern Yard.","The community at Lantern Yard was part of a narrow {religious sect} in which even the poorest member could {distinguish} himself if he could speak well.","The people at Lantern Yard had always considered Silas a very {pious} and {virtuous} young man. Like many honest and {fervent} men, Silas had a strong sense of mystery. If he had been better educated, he might have found the {explanations} he sought in inquiry and knowledge, but, since he had had little {schooling}, he turned to religion for {explanations}. His mother had taught him to {recognise} and prepare {medicinal herbs}, but, during his years at Lantern Yard, he began to think that {practising} his mother's skill might be {sinful}. He believed that the {herbs} would do no good without prayer and that prayer might {suffice} without the herbs. Therefore the pleasure of {wandering} through the fields in search of {dandelion} and {foxglove} began to seem like a {temptation}.","Silas had a close friend at Lantern Yard called William Dane. He too was considered a {pious} and {virtuous} young man. However, the community thought him too severe with those who were not as {virtuous} as himself and too proud of his own {virtue}, so that he considered himself {wiser} than his teachers. But Silas could see no {faults} in William. He looked at his friend with innocent {admiration} in his eyes. The expression of trusting {simplicity} on Marner's face was very different from the {complacent} expression in Dane's narrow {slanting} eyes and thin lips.","Silas and William often discussed {salvation}. Silas said that he hoped he was among those chosen by God, but he could never feel sure. William, by contrast, declared that he was absolutely certain that he would be saved, because he had once had a dream in which he saw the words 'election sure' standing alone on the white page of an open Bible.","Silas was engaged to a young woman named Sarah, who worked as a servant. She and Silas were saving their money so that they could get married. But one evening, something happened that changed Silas's future. In the middle of a prayer meeting, Silas became suddenly still, {rigid} and {unconscious}. At first, the people at the prayer meeting thought that he was dead, but after more than an hour, he returned to normal. The people were then convinced that his mysterious suspended state had a spiritual meaning. They thought that Silas had been chosen by God and they asked him if he had had a vision during the {trance}. A {less truthful} man might have invented a vision to please them and a {less sane} man might have believed his own invention, but Silas was both honest and {sane}, so he told them the truth: he had not had a vision.","William Dane said that Silas's {trance} seemed more like a {visitation} of Satan than a sign of God's favour. He told Silas to examine his soul and to {confess} any sin he had kept secret. Silas felt hurt that his friend {doubted} him and he noticed that Sarah too seemed to {withdraw from} him now.","A short time after these events, the senior {deacon} of the chapel fell ill. Silas and William took turns watching the old man by night. Silas would sit by the deacon's bed until two in the morning, then William would take over until six. One night, Silas noticed that the old man had stopped breathing. He touched his arm and found that it was {rigid}: the deacon must have been dead for some time. Silas looked at the clock: it was four in the morning. Did I fall asleep? Silas asked himself. And why did William not come as usual at two o'clock? Silas went to tell the others what had happened, then he went to work, but at six o'clock William and the minister of the church came to Silas's house.","'William!' said Silas. 'Why did you not come at two o'clock this morning as usual?'","'I felt ill, said William. 'But we came here to talk about something more important. There was a bag of money in a locked drawer in the deacon's {bedside} table. The bag has been stolen, Silas, and your knife was found in the drawer.'","'I swear before God that I am innocent!' cried Silas. 'I must have been asleep, or perhaps I had another {trance} like the one you witnessed at the prayer meeting and the thief must have come in while I was in the trance.'","They {searched} Silas's house and William found the empty bag which had contained the money hidden behind the {wardrobe} in Silas's bedroom! '{Confess}, Silas!' cried William in a {stern} voice.","Silas looked at him with {reproach} in his eyes and said, 'William, you have been my friend for nine years. When have you known me to lie? But God will prove my {innocence}.'","The people of Lantern Yard never called the police when a crime was committed in their community. They had their own ways of {discovering} innocence or guilt. They decided to draw lots: that way God could show them who was the guilty one. The lots declared that Silas Marner was guilty. The minister told Silas that he must confess, {repent} his sin and give the money back, otherwise he would be {expelled} from the community. Silas walked up to William Dane and said in an {agitated} voice, 'Now I remember! My knife was not in my pocket. You {borrowed} it. You stole the money and now you are trying to blame me! But your sin will not be discovered, because there is no just God who {governs} the earth; there is only a God of lies, who bears witness against the innocent!'","The community was shocked by these {blasphemous} words. William said, 'I leave our brothers and sisters to judge whether or not this is the voice of {Satan}. Silas, I will pray for you.'","Silas looked at Sarah, but she turned away from him with a look of {disgust} on her face. One month later, Sarah married William Dane and Silas left Lantern Yard.","It was in this unhappy state that Silas had come to Raveloe. He had lost his faith in God and his fellow man. All that remained for him was work. So he worked all day, every day, {mindlessly}, like a spider {spinning its web}. His customers paid him in coins of gold and silver and he kept them in an iron pot. As time went on, Silas began to love those coins. Every day he worked for sixteen hours, but at night he took his coins out of the pot and counted them. Their shapes and colours became familiar to him. He loved to look at them and touch them. He removed some {bricks} from the floor of his cottage, underneath the {loom}, and dug a hole there in which to hide the iron pot.","So, year after year, Silas lived in this solitude, with no human {companionship} and the only love in his life was the love he felt for the gold and silver coins in his iron pot."],"quiz":[{"q":"What was Silas accused of stealing?","cn":"\u585e\u62c9\u65af\u88ab\u6307\u63a7\u5077\u4e86\u4ec0\u4e48\uff1f","options":["A bag of money from a sick deacon's room.","A horse from the church stable.","A book from the minister's house."],"answer":0},{"type":"tf","q":"Silas was found guilty by the drawing of lots at Lantern Yard.","cn":"\u5728\u706f\u7b3c\u5df7,\u62bd\u7b7e\u7684\u7ed3\u679c\u8bc1\u660e\u585e\u62c9\u65af\u6709\u7f6a\u3002","answer":true},{"q":"What did Silas do after leaving Lantern Yard?","cn":"\u79bb\u5f00\u5170\u7279\u6069\u9662\u540e\uff0c\u585e\u62c9\u65af\u505a\u4e86\u4ec0\u4e48\uff1f","options":["He became a preacher in another town.","He worked endlessly and began to love his gold coins.","He searched for William Dane to take revenge."],"answer":1},{"type":"who","q":"William, you have been my friend for nine years. When have you known me to lie? But God will prove my innocence.","cn":"\u5a01\u5ec9,\u4f60\u505a\u4e86\u6211\u4e5d\u5e74\u7684\u670b\u53cb,\u4f60\u4ec0\u4e48\u65f6\u5019\u89c1\u8fc7\u6211\u8bf4\u8c0e?\u4f46\u4e0a\u5e1d\u4f1a\u8bc1\u660e\u6211\u662f\u6e05\u767d\u7684\u3002","options":["Silas \u7ec7\u5e03\u5320","William Dane","\u7267\u5e08"],"answer":0},{"q":"Why did Silas start loving his gold so much?","cn":"\u585e\u62c9\u65af\u4e3a\u4ec0\u4e48\u5f00\u59cb\u5982\u6b64\u559c\u7231\u4ed6\u7684\u91d1\u5b50\uff1f","options":["Because he wanted to buy a big house.","Because his friends told him to save money.","Because gold was the only thing that never betrayed him."],"answer":2}]},{"id":"u02","section":"PART 1","tag":"CHAPTER 2","title_en":"The Golden Secret","title_cn":"\u91d1\u5b50\u7684\u79d8\u5bc6","teaser_cn":"\u96fe\u591c\u91cc\uff0c\u8c01\u9760\u8fd1\u4e86\u90a3\u888b\u91d1\u5b50\uff1f","icon":"\ud83c\udfda","itemName":"\u77f3\u5c4b","words":946,"paras":["The greatest man in Raveloe was {Squire} Cass, who lived in the large red house by the church. Squire Cass's wife had died many years ago. He lived with his sons. The {villagers} thought that the {eldest} son Godfrey was a handsome pleasant young man. They hoped that soon he would marry Miss Nancy Lammeter, for it was well known that Godfrey and Nancy {were fond of} each other. But the villagers did not like Squire Cass's second son Dunstan: they considered him a {spiteful} fellow who laughed at other people's {misfortunes} and wasted all his money on gambling and drink. Recently, people had noticed that Godfrey was not as healthy and happy as usual. They {feared} that perhaps his younger brother was leading him {astray}, encouraging him to drink and to {gamble}.","One evening, Godfrey and Dunstan were alone in the living room of the great red house. Dunstan had been drinking {brandy}. His {plump} face was red and his eyes were bright. He looked at his brother's sad pale face with a {sneering} smile.","'Dunstan, you must pay me back that money I {lent} you,' said Godfrey. 'It was the rent I had collected for father and now he is asking me for it.'","'But I haven't got the money,' Dunstan replied. 'Why don't you find the money to pay father back? You know, dear brother, that if I told father your secret he would cut you off without a penny.'","'But I cannot find the money to pay him!' cried Godfrey.","'Oh, I'm sure you will. Otherwise I'll tell him that his handsome son was married in secret to Molly Farren. She was such a nice young woman until she started to drink too much and take {opium}!'","'Perhaps I will tell father everything. And after all he'll know some time. She has been threatening to come to the house and tell him herself. If I tell father, at least you won't be able to torture me anymore!'","'Don't be ridiculous. Godfrey. You can sell your horse Wildfire and pay father back. I'll help you to sell the horse. Do you know Bryce, the {horse dealer} in Raveloe? I know him very well and I'm sure he will pay one hundred and twenty pounds for Wildfire.\"","Godfrey covered his eyes with his hands and {sighed}. Wildfire was the best horse he had ever owned, but he had to get the money somehow. 'All right,' he said. 'Take Wildfire and sell him, but don't spend any of the money.'","The next morning, Dunstan mounted Wildfire and set off for the village. He rode past the deep pit of the abandoned {quarry} and past Silas Marner's cottage. Dunstan had often heard the villagers say that Silas had a lot of money. He thought he could probably {frighten} the weaver into giving him his money, but then Godfrey would not lose Wildfire. Dunstan preferred to sell the horse, because he knew it would pain Godfrey. Dunstan rode to the village, found Bryce, and agreed to sell Wildfire to him that afternoon. He could have sold the horse immediately and walked home with the money in his pocket, but he wanted to go riding first. He rode out to the fields to jump some {fences}. He enjoyed riding and jumping for a couple of hours, but, as he was jumping one last fence. Wildfire was {pierced} with a {hedge-stake} and fell down dead.","Dunstan {staggered to} his feet and drank from {the flask of} brandy he always carried with him. The horse was dead and the hundred and twenty pounds Bryce would have paid for him were lost. Now Dunstan would have to walk home and that seemed to him a {humiliating} thing: he always rode on {horseback} to and from the village. It was nearly four o'clock and a fog was gathering. Dunstan started walking home along the lonely lane, drinking his brandy and {swearing at} his {misfortune}.","The sky grew darker and the fog thicker as Dunstan walked along. Then suddenly he saw a light. Dunstan realised that it must be coming from the window of Silas Marner's cottage. He decided to knock on the door and ask the old weaver to lend him a {lantern}. Once he was inside the cottage, he would also ask Silas to {lend} him some money. He would promise to pay interest and, if Silas was still {unwilling} to part with the gold, he would {frighten} him a little. With this plan in mind, Dunstan knocked loudly on the door of the cottage. There was no answer, so Dunstan pushed the door and it opened.","A great fire was burning in the fireplace, but the cottage was empty. Dunstan wondered why Marner had left his cottage {unlocked}. Perhaps he had got lost in the fog and had fallen into the {abandoned quarry}. If so, he would certainly {drown}; the pit had been full of water for many years. Dunstan thought of taking the money. If the old weaver were dead, no one would ever know that it had been stolen. He looked around the cottage, searching for a hiding place. The brick floor was {sprinkled} with sand, but in one place the sand had been {smoothed} by a hand. Dunstan got down on his knees and pulled at the bricks. They came out easily and, in the hole beneath, he saw an iron pot full of coins. Quickly Dunstan replaced the bricks and {smoothed} the sand over them. He took the iron pot and left the cottage, closing the door behind him. Then he {hurried} out into the darkness."],"quiz":[{"q":"Why did Dunstan take Godfrey's horse Wildfire?","cn":"\u9093\u65af\u5766\u4e3a\u4ec0\u4e48\u7275\u8d70\u4e86\u6208\u5f17\u96f7\u7684\u9a6c\u201c\u91ce\u706b\u201d\uff1f","options":["To sell it and get money to pay their father.","To give it to Nancy Lammeter as a gift.","To ride it in a race for fun."],"answer":0},{"type":"fill","q":"Dunstan wanted to sell Godfrey's horse called ___.","cn":"\u9093\u65af\u5766\u60f3\u5356\u6389\u6208\u5f17\u96f7\u7684\u9a6c,\u8fd9\u5339\u9a6c\u53eb___\u3002","options":["Wildfire","Thunder","Blackie"],"answer":0},{"q":"What happened to Wildfire?","cn":"\u201c\u91ce\u706b\u201d\u540e\u6765\u600e\u4e48\u6837\u4e86\uff1f","options":["It ran away and was never found.","It was pierced by a hedge-stake and died while jumping a fence.","It was sold safely to Bryce the horse dealer."],"answer":1},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["Dunstan agrees to sell Wildfire to Bryce","Wildfire dies after jumping a fence","Dunstan steals Silas's gold from the cottage"]},{"q":"Why did Dunstan decide to take Silas's gold?","cn":"\u9093\u65af\u5766\u4e3a\u4ec0\u4e48\u51b3\u5b9a\u62ff\u8d70\u585e\u62c9\u65af\u7684\u91d1\u5b50\uff1f","options":["Silas asked him to look after it.","He wanted to return it to the church.","He thought Silas might be dead and no one would know."],"answer":2}]},{"id":"u03","section":"PART 1","tag":"CHAPTER 3","title_en":"The Gold Is Gone","title_cn":"\u91d1\u5b50\u4e0d\u89c1\u4e86","teaser_cn":"\u91d1\u5b50\u4e0d\u89c1\u4e86\uff0c\u585e\u62c9\u65af\u600e\u4e48\u529e\uff1f","icon":"\ud83d\udd25","itemName":"\u7089\u706b","words":749,"paras":["That evening, Silas had gone to take some {linen} to Mrs Lammeter's house. The fog was thick and it had started to rain as he was walking home. By the time he got back to his cottage, he was cold, wet and tired. Silas sat by the fire, glad of the {warmth}. The long hours of work were over and now was the best time of his day: the time when he ate his supper and counted his money. Silas removed the {bricks} from the floor, but the hole was empty! He began to {tremble} {violently}. {Desperately} he {searched} the hole again and again. He searched the entire cottage, but his gold was nowhere to be found. He ran out of his cottage and down the lane to the village in the rain. The village men would all be at the Rainbow now, drinking beer and laughing together. He would go to the Rainbow and tell them all that he had been {robbed}.","The company at the Rainbow that evening was very {merry}. A great fire {was blazing} in the {fireplace} and the air was warm and {smoky}. Jem Rodney was there and old Mr Macey, the {tailor} and {parish clerk}, too, Ben Winthrop the {wheelwright}, Oates the {cobbler}, Bryce the {horse dealer} and many others. They were drinking beer, telling jokes and laughing when the door {burst open} and there stood Silas Marner, {soaking} wet, trembling and as white as a ghost. 'I've been robbed!' cried Silas to the {astonished} crowd. 'My gold is gone! Someone has taken it! I need the policeman and the judge!'","'Calm down now, Master Marner,' said Mr Snell, the {landlord}, coming out from behind the bar to take Silas's arm. 'Come and sit by the fire and tell us what happened.'","Silas sat down and told his story. The company asked him many questions as the mysterious nature of the robbery became apparent. They shook their heads in sympathy at his {distress}. Some were of the opinion that the devil had stolen Silas's gold, but others said that it was just some stranger passing through. Finally they put on their coats and took Silas to find the policeman and to tell the judge all about it.","The next day the whole village was talking about the robbery. Everyone went up to Silas's cottage and searched the area for {clues}. The rain had {washed away} any footprints, but they found a {tinder-box} in the mud near the abandoned {quarry}. Mr Snell said that he had seen a {travelling pedlar} with a tinder-box passing through the village the day before. The pedlar must have stolen Silas's gold! But Mr Macey shook his head and said no, this was much more mysterious than an ordinary robbery.","Later, in the Rainbow, two camps of opinion formed: members of the {pedlar} and {tinder-box} camp, headed by Mr Snell, were convinced that the stranger was the thief; but members of the {supernatural} camp, headed by Mr Macey, argued that God had caused the gold to {vanish} in order to punish Silas for loving gold too much. The two camps were involved in an animated argument when Godfrey came into the Rainbow. He was worried about Dunstan and Wildfire.","Dunstan had not returned home the previous night and Godfrey was afraid that his brother had sold the horse and gone off to spend the money on gambling and drink. Looking around the faces in the Rainbow, Godfrey saw Bryce the {horse dealer}.","'Hello Mr Bryce. Have you seen my brother Dunstan?'","'Yes, indeed,' said Bryce. 'I saw him yesterday. What an unfortunate fellow he is!'","'What do you mean?' asked Godfrey.","'Did he not tell you?' Mr Bryce told Godfrey all about the accident and Wildfire's death. Godfrey left the Rainbow even more worried than he had been when he arrived. Now there was no way he could find a hundred pounds to pay his father. It seemed to him that he would have to {confess} everything. Now his father would be {furious} with him and Nancy Lammeter would never marry him. Before, he had hoped that one day his wife Molly would take too much {opium} and die, leaving him free to marry Nancy. Then no one would ever know about his secret past. But now he would have to tell his father and his father would tell Mr Lammeter and he - Godfrey - would lose everything."],"quiz":[{"q":"What did Silas do when he discovered his gold was missing?","cn":"\u585e\u62c9\u65af\u53d1\u73b0\u91d1\u5b50\u4e0d\u89c1\u540e\u505a\u4e86\u4ec0\u4e48\uff1f","options":["He quietly went to bed and said nothing.","He ran to the Rainbow inn to tell the villagers.","He immediately suspected Godfrey and confronted him."],"answer":1},{"type":"tf","q":"Silas ran to the Rainbow to tell the villagers he had been robbed.","cn":"\u8d5b\u62c9\u65af\u8dd1\u5230\u5f69\u8679\u9152\u9986\u544a\u8bc9\u6751\u6c11\u4eec\u4ed6\u88ab\u62a2\u52ab\u4e86\u3002","answer":true},{"q":"What clue did the villagers find near the quarry?","cn":"\u6751\u6c11\u4eec\u5728\u91c7\u77f3\u573a\u9644\u8fd1\u53d1\u73b0\u4e86\u4ec0\u4e48\u7ebf\u7d22\uff1f","options":["A gold coin.","A piece of clothing.","A tinder-box."],"answer":2},{"type":"who","q":"I've been robbed! My gold is gone!","cn":"\u6211\u88ab\u62a2\u52ab\u4e86!\u6211\u7684\u91d1\u5b50\u4e0d\u89c1\u4e86!","options":["Silas \u7ec7\u5e03\u5320","Mr Snell","Bryce"],"answer":0},{"q":"Why was Godfrey more worried after talking to Bryce?","cn":"\u6208\u5f17\u96f7\u548c\u5e03\u83b1\u65af\u8c08\u8fc7\u540e\uff0c\u4e3a\u4ec0\u4e48\u66f4\u62c5\u5fc3\u4e86\uff1f","options":["Because he learned Wildfire died and he now had no way to pay his father.","Because Bryce said Dunstan had been arrested.","Because Bryce told him Nancy was leaving town."],"answer":0}]},{"id":"u04","section":"PART 1","tag":"CHAPTER 4","title_en":"A New Year's Kindness","title_cn":"\u65b0\u5e74\u7684\u5584\u610f","teaser_cn":"\u5723\u8bde\u8282\uff0c\u8c01\u7ed9\u4e86\u585e\u62c9\u65af\u6e29\u6696\uff1f","icon":"\ud83d\udd73","itemName":"\u5931\u7a83\u4e4b\u8c1c","words":1249,"paras":["Time passed and no one {wondered about} Dunstan's continued absence. Once before he had disappeared after an argument with his father and had stayed away for six weeks. Godfrey had decided not to {confess} everything to his father. He had simply told him that he had lent the hundred pounds to Dunstan and that Dunstan had accidentally killed Wildfire. The old Squire had been {furious}. No one was surprised, therefore, that Dunstan had gone off somewhere to escape his father's {fury}.","Silas, meanwhile, {mourned for} his lost gold. He worked all day as before, but in the evening, instead of spending a happy hour counting his money, he sat by the fire with his head in his hands and {moaned}. The company at the Rainbow still {debated} the cause of the robbery. The police had been sent in search of the {travelling pedlar}, but they had not found him. Even so, Mr Snell believed that the pedlar had Silas's gold. Whenever he said so, old Mr Macey shook his head and said that some people did not understand the {mysteries} of the world.","Ever since the robbery, the villagers had felt more kindly towards Silas and, as Christmas drew near, they brought him presents of food. One of these visitors was Mrs Winthrop, the {wheelwright}'s wife. She was a very mild, patient, hard-working woman who liked to help her {neighbours}, especially those in trouble. Whenever anyone in the village was ill, she went to offer her help and Dr Kimble often asked her to come and help him, especially if somebody was dying.","One Sunday, after church, she went to Silas's cottage with her little boy Aaron and a plate of cakes. Silas was working on his {loom} when she arrived, but he opened the door and invited her in. Before the robbery, Silas would have felt {irritated} at any {interruption} of his work, but now he felt lonely and {bereft}, and he welcomed any kindness from his neighbours. Mrs Winthrop gave him the cakes and sat down by the fire. 'It's a {pity} you should work on Sunday,' she said. 'Everyone needs a rest from work. Why don't you come to church?'","'I've never been to church,' said Silas. 'Many years ago, when I lived in the city, I used to go to chapel.'","Dolly Winthrop had never heard the word 'chapel' before and was afraid to ask what it meant: she thought it might mean something evil. 'Well, if you've never been to church, you don't know whether you would like it or not. I think it would {cheer you up}. There is music and singing. I love going to church. Especially when I {have troubles}, it makes me feel as if I had hope.It makes me trust in God.'","Silas did not want to go to church, but he realised that she was being kind and friendly and he felt grateful. To show his {gratitude}, he offered a cake to her little boy Aaron.","'Have you ever seen such a lovely child?' asked Dolly, putting her arm around the boy. 'And he has a wonderful singing voice. Aaron, why don't you sing a {Christmas carol} for Master Marner?'","As soon as Aaron had finished his cake, he sang 'God rest ye, merry gentlemen' in a clear sweet voice. Dolly {glanced at} Silas and smiled, convinced that this would make him want to come to church.","Silas was rather {relieved} when they left. He did not go to church at Christmas. He had been moved by Mrs Winthrop's concern for his welfare, but all he wanted to do was to stay at home with his {sorrow}. Meanwhile, in Raveloe, the Christmas season was very {merry}. The church bells rang and the {villagers}, all dressed in their best clothes, laughed and talked in the streets on the way to church, but there was {frost} in the air, so after church they all {hurried home} to eat, drink and be {merry}.","There was a family party at {Squire} Cass's house on Christmas Day. Dunstan had still not returned, but no one missed him. 'Perhaps he'll be home for New Year's Eve,' said Godfrey. Every New Year's Eve, the Squire held a great party and invited all the ladies and gentlemen of the {neighbourhood}. Godfrey {was longing for} the party, so that he could sit next to Nancy at the dinner table and dance with her afterwards. It would be a fine party and perhaps Nancy would smile at him and look at him kindly. He tried to think about these pleasant things instead of {worrying about} money. Molly had been asking him for money for some time now and he had no money to give her. She had said that if he did not give her money she would come to the big red house and tell his father everything.","On New Year's Eve, the snow was falling as the {carriages} arrived outside the Red House for the party. Miss Nancy Lammeter looked very lovely as she walked up the steps to the front door. Godfrey was waiting for her. The sight of Godfrey made her nervous. She had told him quite clearly that she would not marry him, but still he sometimes looked at her with loving eyes. At other times, he hardly spoke to her and he would ignore her for weeks and weeks. How could he really love her if he acted so {strangely}? And then she had heard {gossip} about him in the village. She certainly was not going to marry a man who drank or {gambled} or wasted his money.","The Red House was full of music and light and conversation. Godfrey led Nancy to the {dining room} and {seated} her between himself and the old {Squire}. As she looked around the {splendid} table, she thought a little sadly what a fine thing it would have been to have married Godfrey and become the {mistress} of the Red House. She believed that a pure woman loved only one man in her life. She had certainly loved Godfrey before he had started acting so {strangely} and therefore she would never marry anyone else. But she would not marry a man she could not respect.","There was a lot of {lively} conversation over dinner. The older men {joked with} Godfrey about how pretty Nancy was and asked him if he had asked her to dance yet. Godfrey and Nancy both found these jokes embarrassing, but when Godfrey did ask her to dance, Nancy accepted quietly.","As they moved onto the dance floor, Godfrey said, 'Thank you. I thought you would refuse to dance with me. I know you are angry with me. You are quite right to be angry. I have {behaved} very badly. I have acted strangely towards you and I have wasted my money. But, if I changed, would you forgive me, Nancy?'","'I would be glad to see a change for the better in anyone, Mr Godfrey,' replied Nancy, 'but it would be better if no change were needed.'","'You are very cruel, Nancy,' said Godfrey. 'Why don't you encourage me to be a better man? I'm very miserable, but you have no feeling.'","I think the person without feeling is the one who behaves badly!' said Nancy, her eyes flashing. Godfrey was delighted with those flashing eyes. They proved that she still cared for him."],"quiz":[{"q":"What did Mrs Winthrop bring to Silas's cottage?","cn":"\u6e29\u601d\u7f57\u666e\u592a\u592a\u7ed9\u585e\u62c9\u65af\u7684\u5c0f\u5c4b\u5e26\u53bb\u4e86\u4ec0\u4e48\uff1f","options":["A plate of cakes.","A new coat.","A basket of vegetables."],"answer":0},{"type":"fill","q":"Aaron sang a ___ carol for Silas.","cn":"\u4e9a\u4f26\u4e3a\u8d5b\u62c9\u65af\u5531\u4e86\u4e00\u9996___\u9882\u6b4c\u3002","options":["Christmas","birthday","wedding"],"answer":0},{"q":"What did Silas decide about going to church at Christmas?","cn":"\u5723\u8bde\u8282\u65f6\u585e\u62c9\u65af\u6700\u7ec8\u51b3\u5b9a\u600e\u4e48\u505a\uff1f","options":["He went to the Rainbow inn instead.","He went to church with Dolly and Aaron.","He stayed home alone with his sorrow."],"answer":2},{"type":"tf","q":"Silas went to church with Dolly Winthrop at Christmas.","cn":"\u8d5b\u62c9\u65af\u5728\u5723\u8bde\u8282\u8ddf\u591a\u8389\u00b7\u6e29\u601d\u7f57\u666e\u4e00\u8d77\u53bb\u4e86\u6559\u5802\u3002","answer":false},{"q":"How did Nancy feel about Godfrey's apology at the party?","cn":"\u5357\u5e0c\u5bf9\u6208\u5f17\u96f7\u7684\u9053\u6b49\u662f\u4ec0\u4e48\u611f\u89c9\uff1f","options":["She forgave him completely and agreed to marry him at once.","She was still cautious, wanting to see real change before trusting him.","She was angry and refused to dance with him."],"answer":1}]},{"id":"u05","section":"PART 1","tag":"CHAPTER 5","title_en":"A Child in the Snow","title_cn":"\u96ea\u4e2d\u7684\u5973\u5b69","teaser_cn":"\u96ea\u591c\u4e2d\uff0c\u8c01\u8d70\u8fdb\u4e86\u4ed6\u7684\u5bb6\uff1f","icon":"\ud83d\udc63","itemName":"\u96ea\u5730\u811a\u5370","words":1488,"paras":["While Godfrey was forgetting the {sorrows} of his secret life in the sweet company of Nancy Lammeter, his wife Molly was walking with slow {uncertain} steps through the snow-covered Raveloe {lanes}, carrying her sleeping child in her arms.","She had decided to go to the red house on New Year's Eve to {humiliate} him in front of all his friends. Ever since he had told her that he would never acknowledge her as his wife, ' she had been planning this act of revenge. He would be at the Red House, smiling and dancing. She would go there and show herself - her {ragged} clothes and her {faded} face that had once been beautiful - and, with their child in her arms, she would tell the old Squire that she was his {eldest} son's wife!","She knew that her poverty was not Godfrey's fault - she had spent all the money he had given her on {opium} - yet she felt {bitterness} towards him. He lived in a fine house and wore fine clothes, while she lived in {misery}.","As she walked on, the snow fell more and more {thickly}. She needed comfort and the only comfort she knew was the {lump} of opium hidden in her dress, but she did not wish to take it, because she had to take care of her child. For a while she {struggled against} her desire for the opium, but finally she lost the struggle, {swallowed} the opium and walked on. The wind was freezing and Molly walked more and more slowly and {drowsily}. She {longed to} lie down and sleep. Finally, she lay down by a small bush on a bank of snow. She {leaned} her back against the bush, as if it were a {pillow}. At first she held her child {tightly} to her {bosom}, but slowly her hands relaxed and the child's blue eyes opened wide in the cold {starlight}.","'Mammy!' called the child, but there was no answer. There was {a gleam of} light nearby. The child {crawled} away from her mother to catch the bright thing, then she looked up and saw that the light was coming from a very bright place. Slowly she got up and walked through the snow to the open door of Silas Marner's cottage. There she saw a fire {blazing} in the fireplace. She went up to the fire and sat in front of it on the {hearth}, making little noises of pleasure. Then the warmth made her {sleepy} and she lay her golden head on the floor and fell asleep.","But where was Silas while this strange visitor had come to his {hearth}? He was in the cottage, but he did not see her. During the weeks since the robbery, he had developed the habit of opening his door and looking out, as if he thought his money might be coming back to him. On this evening he had looked out more {eagerly} than usual, because his {neighbours} had told him that it was good luck to sit up till midnight on New Year's Eve and that, if he did so, his money might come back. He had stood by the door, looking out at the wide {expanse of} snow and listening to the silence. Just as he was about to close the door, he fell into a {trance}. He stood there, still and {rigid}, with wide {sightless} eyes, holding open his door, {powerless} to resist either the good or the evil that might enter there.","When the {trance} was over, Silas continued the action of closing the door, {unaware} that any time had passed. He returned to his chair by the fire. The light from the fire was dim now and Silas's {eyesight} was poor. Looking down, he thought he saw gold on the floor. Gold! His own gold brought back to him as {mysteriously} as it had been taken away! His heart began to beat {violently}. He {stretched out} his hand to touch the gold, but, instead of hard coins, his fingers touched soft warm {curls}. Silas {fell on his knees} {in amazement}. It was a sleeping child! A lovely round child with golden {curls} all over her head.","At the touch of his fingers, the child {awoke} and {cried out}, 'Mammy!' Silas took her in his arms and {rocked} her to comfort her. Then he {warmed up} some soup and fed it to her with a spoon. After she had eaten, the child began to pull at her boots. They were wet and uncomfortable. As he took off her boots, Silas realised that she must have been walking in the snow. So she had not appeared by magic after all! She had wandered in off the road. With the child in his arms, Silas went to the door and looked out. He could see her small {footprints} in the snow. Silas followed the footprints. Finally, he came to a bank of snow with a small bush and a dark shadow on it, but only when the child cried out 'Mammy! Mammy!' did Silas realise that the shadow was a human body.","'I must find the doctor!' cried Silas. He remembered that all the ladies and gentlemen of the village were dancing at Squire Cass's house that evening, so he {hurried} along the lane towards the big red house with the child in his arms.","By this time the party at the Red House was very {merry} indeed. Ladies and gentlemen were dancing and drinking wine. The air was full of conversation and laughter. Godfrey was just about to ask Nancy to dance with him again when he heard a {disturbance} at the door. Looking up, he saw what seemed to him an {apparition} from the dead. Silas Marner stood there, wet with snow and holding Godfrey's own child in his arms. Godfrey had not seen the child for several months, but he recognised her immediately and his face turned pale.","I need the doctor!' cried Silas. 'There's a woman out there in the snow. I think she's dead!'","Godfrey's heart {leapt}. There was one terror in his mind at the moment: it was that the woman might not be dead. Generally Godfrey was a kind man, but anyone whose life depends on {secrecy} is bound to have evil wishes. Godfrey joined the crowd of people around the {weaver}.","'Whose child is that?' asked Nancy, appearing at his side.","'I don't know,' Godfrey replied. 'I think she {belongs to} some poor woman who has been found ill in the snow.'","Mrs Kimble the doctor's wife turned to Silas and said, 'Leave the child here. One of the servant-girls will take care of her. ''No!' cried Silas. 'She came to me! I have a right to keep her!'","'Come on!' said Dr Kimble, pulling on his coat. 'There's no time to lose.'","'I'll come with you,' said Godfrey.","Dr Kimble sent a servant into the village to find Mrs Winthrop, then he {hurried out} with Godfrey, Silas and the child. When they reached the cottage, Silas took the child in to warm her by the fire. Dr Kimble and Godfrey went straight to the snow bank and carried the woman's body back to the cottage. By the time they got there, Mrs Winthrop had arrived. They put the woman's body down on the floor, far from the fire, where Silas was {rocking} the child to sleep.","'It's too late,' said Dr Kimble. 'She's dead. She's probably been dead for hours.'","Godfrey looked down at the cold white face of his dead wife. He felt an enormous relief and he felt guilty about his evil wishes and his relief. He wished that he were a stronger man, that he could {confess} everything now and claim the child as his own and provide for her. But then he would lose Nancy. He looked over at the child by the fire. She was not asleep yet and her big blue eyes looked back at Godfrey with no sign of recognition, then she looked away from him and {gazed} up with loving interest at the weaver's face. Again Godfrey felt relief, though {mingled with} sadness, because his own child did not {recognise} him.","'Come on. Godfrey. There is nothing more we can do here,' said the doctor. 'Mrs Winthrop, please see that the body is prepared for {burial} and help Master Marner with the child. Goodbye Marner!'","Godfrey {lingered} a moment by Silas's chair. 'Do you really intend to keep the child, Marner?' he asked.","'Yes!' Silas replied. 'She is alone in the world now and so am I. I will take care of her.'","'Well, allow me to give you something to help buy her clothes,' said Godfrey. He placed a gold coin in Silas's hand and {hurried} out after the doctor."],"quiz":[{"q":"Why was Molly walking through the snow to the Red House?","cn":"\u83ab\u8389\u4e3a\u4ec0\u4e48\u8981\u5192\u96ea\u8d70\u53bb\u7ea2\u623f\u5b50\uff1f","options":["To surprise Godfrey and reveal she was his wife in front of everyone.","To ask the Squire for a job.","To deliver a letter for a friend."],"answer":0},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["Silas falls into a trance at his open door","Silas finds a sleeping child on the floor","Silas carries the child to the Red House to find a doctor"]},{"q":"What did Silas find on his floor when he returned to his chair?","cn":"\u585e\u62c9\u65af\u56de\u5230\u6905\u5b50\u4e0a\u65f6\uff0c\u5728\u5730\u4e0a\u53d1\u73b0\u4e86\u4ec0\u4e48\uff1f","options":["His lost gold coins.","A sleeping child with golden curls.","A letter from Godfrey."],"answer":1},{"type":"who","q":"She is alone in the world now and so am I. I will take care of her.","cn":"\u5979\u73b0\u5728\u5728\u8fd9\u4e16\u4e0a\u65e0\u4f9d\u65e0\u9760\u4e86,\u6211\u4e5f\u662f\u3002\u6211\u4f1a\u7167\u987e\u5979\u7684\u3002","options":["Silas \u7ec7\u5e03\u5320","Godfrey","Dr Kimble"],"answer":0},{"q":"Why did Godfrey stay silent instead of telling everyone the child was his?","cn":"\u6208\u5f17\u96f7\u4e3a\u4ec0\u4e48\u4fdd\u6301\u6c89\u9ed8\uff0c\u4e0d\u544a\u8bc9\u5927\u5bb6\u8fd9\u5b69\u5b50\u662f\u4ed6\u7684\uff1f","options":["He didn't believe the child was really his.","He thought Silas would be angry if he spoke up.","He didn't want to lose his chance with Nancy."],"answer":2}]},{"id":"u06","section":"PART 1","tag":"CHAPTER 6","title_en":"Eppie Is Christened","title_cn":"\u7ed9\u827e\u6bd4\u53d6\u540d\u53d7\u6d17","teaser_cn":"\u9a6c\u5357\u8981\u7ed9\u5c0f\u5973\u5b69\u53d6\u540d\u5b57\u5566","icon":"\ud83d\udc67","itemName":"\u91d1\u53d1\u5973\u5b69","words":1494,"paras":["That Silas had decided to keep the child was a subject of great interest among the {villagers}. The sympathy they had felt for him since the {robbery} was now increased, especially among the women.","They all wished to help him as much as possible.","The day after Molly Farren was buried, Dolly Winthrop brought some baby clothes to Silas's cottage. She laid them out by the fire to warm.","'It is all a mystery to me,' said Silas. 'One day the door was open and my gold {vanished}. Another day the door was open and the child came. I don't know where the child came from or where the gold went. It is all very strange.'","'Yes,' said Dolly. 'It's like the night and the morning, sleeping and waking, the rain and the harvest: one goes and the other comes and We don't know how or why. I think you are right to keep the child, Master Marner, though there are some who disagree with me. I'll be glad to come and help you take care of her whenever I can.'","'Thank you,' said Silas. 'But I want to take care of her myself. I would be grateful for your advice about how to take care of her properly, but I want to do it myself, so that she will grow {fond of} me. I am used to cooking and cleaning the house. I can learn to take care of the child too.'","So Dolly told Silas how to dress the child and he did it himself, and the child laughed and {gazed at} him and pulled his hair as he dressed her.","'There! You see?' said Dolly gently. 'She's {fond of} you already. But what are you going to do with her while you work at your {loom}?'","Silas thought for a while then said, 'I'll tie her to the {loom} with a long strip of {linen}. That way she can move about and play, but she cannot go too far.'","\"Well, maybe that will work,' said Dolly. She {hesitated} a moment then said something that had been on her mind all day. 'And you must take her to church. Master Marner. You should do that for the poor {orphan} child. She should go to church and learn to say her prayers like my little Aaron does. She probably hasn't even been {christened} yet.'","'What do you mean by \"{christened}\"?' asked Silas. At Lantern Yard, they had used the word '{baptism}', and only grown men and women were {baptised}.","'Oh dear, Master Marner!' cried Dolly. 'Did you have no father and mother to teach you how to say your prayers and that there are good words and good things that will keep us from harm?'","'Yes, yes,' replied Silas. 'I knew a lot about that once, but it was long ago and far away and our words and customs were different. But I want to do everything I can for the child. You tell me what to do and I'll do it.'","'Well, then,' began Dolly, smiling. 'I'll talk to the {parson} about it and arrange to have her {christened} and you must think of a name for her.'","'My mother's name was Hephzibah,' said Silas.","'That's a difficult name,' said Dolly {doubtfully}.","'It's from the Bible.'","'Oh, well, it must be all right, then, but it is so long and difficult to remember.'","'My mother was known as Eppie,' said Silas.","So the child was {christened} and, for the first time, Silas went to church in his best clothes to share in the religious {observances} of his {neighbours}. In this way, little Eppie created fresh links between the weaver and the community in which he lived. Unlike the gold, which had no needs, Eppie's needs were constantly changing. In order to {satisfy} them, Silas had to keep in contact with the {villagers} so that they could give him help and advice. The missing gold had demanded that he work more and more hours at his {loom}, but Eppie called him away from work, and in her company he was happy to leave his {loom} and {wander} through the woods and fields, picking flowers and listening to {birdsong}. She was a bright, happy, laughing child. Like the sunshine, she warmed him and brought joy into his life.","As she grew, Eppie became more {adventurous} and {disobedient}. 'You must {smack} her, Master Marner,' said Dolly, when Silas asked her advice. 'Either that or put her in the coal hole. That's what I did with my Aaron. When she's {naughty}, you must teach her a lesson.'","Silas was {horrified} at the idea of {punishing} Eppie. Not only did he hate the thought of causing her pain or {distress} but he {feared} that, if he did so, she would stop loving him.","A few days after this conversation, Silas was working at his {loom}, and Eppie was sitting on the floor, tied to the {loom} by a long strip of {linen}. Through the open door, she could see the flowers dancing in the wind. She reached up to the shelf, took Silas's {scissors}, cut the strip of {linen} and ran out into the sunshine. The {loom} made so much noise that Silas heard nothing. He only realised what had happened when he reached for his {scissors} and found them gone. 'Eppie!' he cried, {rushing} out of the cottage and up to the {abandoned quarry}. He was afraid she might have fallen in. Silas looked down into the deep pit of the {quarry} at the smooth red surface of the water that filled it. His heart was beating {violently} and cold sweat stood on his {brow}. 'Eppie! Eppie!' he cried, then he heard her laughter and, turning round, he saw her sitting on the ground, playing in the mud. Silas ran up to her and took her in his arms. He kissed her and held her tight all the way back to the cottage. But then he remembered Mrs Winthrop's advice. Eppie must be taught a lesson. She must be taught never to run away again. '{Naughty} Eppie!' said Silas {sternly}. 'You must never run away again! I must {punish} you! I must put you in the coal-hole, a nasty dark place!'","Silas had thought that the threat alone would {frighten} Eppie and perhaps make her cry, but Eppie just laughed, as if she thought going in the coal-hole would be fun. Clearly the threat was not enough. Silas put Eppie in the coal-hole and held the door shut. For a moment there was silence, then he heard a little voice crying, 'Open! Open!'","Silas immediately opened the door and look Eppie out. She was covered in black dust from the coal. Silas sat her on the table, washed her and changed her clothes, saying, 'Now Eppie will be a good girl. Now you've learnt your lesson and you will never run away again, or else I will have to put you in the coal-hole!'","As soon as she was clean, Silas put her down so that she could play. But Eppie ran back to the coal hole and shut herself in, laughing and shouting, 'Eppie in the coal-hole!'","This total failure to discipline Eppie {discouraged} Silas, so Eppie was raised without punishment and Silas was patient with her {naughtiness}. In the village, he became known as the {kindest} of fathers and none of the village children was afraid of him now. Whenever Silas and Eppie went into the village, people would stop and talk to them. The {weaver} would answer their questions and smile. He was holding Eppie's little hand and she was gradually leading him back from the narrow lonely life he had lived to a new life of joy and {companionship}.","One person watched Eppie's growth with particular interest. Godfrey took care not to show more interest than was natural: no one was surprised that the kind young {Squire} occasionally gave presents to the {weaver}'s little adopted daughter. Godfrey thought that perhaps one day he would be able to provide for her without {raising suspicion}.","He had been a much happier man since that fateful New Year's Eve. Dunstan had never come home. Everyone thought that he had gone to the colonies and would never return. Gradually Godfrey stopped worrying that any day Dunstan might come back and reveal the secrets of his past life. For the first time in years, he felt free again. Now he could marry Nancy and his life would be paradise. He imagined a future in which Nancy smiled at him as he played with their children by the {hearth} in the big red house.","But he would not forget his other child. That was a father's duty."],"quiz":[{"q":"Who helps Silas learn how to take care of the baby?","cn":"\u8c01\u5e2e\u9a6c\u5357\u5b66\u4f1a\u7167\u987e\u8fd9\u4e2a\u5a74\u513f\uff1f","options":["Dolly Winthrop","Godfrey Cass","Mr Paston"],"answer":0},{"type":"tf","q":"Silas named the baby girl Eppie, after his own mother.","cn":"\u8d5b\u62c9\u65af\u7528\u4ed6\u5988\u5988\u7684\u5c0f\u540d\"\u827e\u6bd4\"\u7ed9\u5b69\u5b50\u53d6\u4e86\u540d\u5b57\u3002","answer":true},{"q":"What does Silas name the child?","cn":"\u9a6c\u5357\u7ed9\u5b69\u5b50\u53d6\u4e86\u4ec0\u4e48\u540d\u5b57\uff1f","options":["Molly","Nancy","Eppie"],"answer":2},{"type":"fill","q":"Silas said, 'I'll tie her to the ___ with a long strip of linen. That way she can move about and play, but she cannot go too far.'","cn":"\u8d5b\u62c9\u65af\u8bf4\u8981\u7528\u4e00\u6761\u957f\u5e03\u6761\u628a\u827e\u6bd4\u7ed1\u5728___\u4e0a\uff0c\u8fd9\u6837\u5979\u80fd\u73a9\u800d\u4f46\u8dd1\u4e0d\u8fdc\u3002","options":["loom","door","chair"],"answer":0},{"q":"Why does Silas refuse to punish Eppie after the coal-hole fails to scare her?","cn":"\u7164\u6d1e\u5413\u552c\u65e0\u6548\u540e\uff0c\u9a6c\u5357\u4e3a\u4ec0\u4e48\u4e0d\u613f\u518d\u7f5a\u827e\u6bd4\uff1f","options":["He is afraid she will stop loving him","He thinks she did nothing wrong","Dolly told him never to punish her"],"answer":0}]},{"id":"u07","section":"PART 2","tag":"CHAPTER 7","title_en":"Sixteen Years Later","title_cn":"\u5341\u516d\u5e74\u540e\u7684\u827e\u6bd4","teaser_cn":"\u827e\u6bd4\u957f\u5927\u4e86\uff0c\u6709\u4eba\u5411\u5979\u6c42\u5a5a","icon":"\ud83d\udc9b","itemName":"\u9886\u517b\u8bc1","words":1146,"paras":["It was a bright autumn Sunday, sixteen years after Silas Marner found his new treasure on the {hearth}. The {church bells} were {ringing}. Morning service had just finished and the {villagers} were coming out of the church. Among them were Silas Marner and Eppie. Silas's hair was white now and his shoulders were {bent}. He looked like a very old man, though in fact he was just fifty- five. Eppie, walking beside him, was the {freshest} {blossom} of youth, a blonde {dimpled} girl of eighteen. A handsome young man was walking behind her.","'I wish we had a garden, father,' said Eppie, as they went out into the lane. 'But to make a garden, first you must do a lot of {digging} and you couldn't do that, could you, father?'","'Yes, I could do it, child, if you like. Why didn't you tell me before that you wanted a garden?'","'I'll dig the garden for you, Master Marner,' said the young man.","'And I'll bring you some good soil from Mr Cass's garden. He'd be glad to let you have some.'","'Ah! Thank you Aaron! That will make it much easier,' said Silas.","Eppie {blushed} and smiled. 'Mrs Winthrop told me that Aaron would be happy to help, otherwise I would not have asked. It will be so nice to have flowers and {sweet-smelling} {herbs}. I would love to have {lavender} too, but only fine ladies have {lavender} in their gardens.'","'I can get you some {lavender},' said Aaron {eagerly}. 'I can bring you anything you want from Mr Cass's garden. When I'm working there, I {trim} the plants and usually I just throw the {trimmings} away. But if you put them in water, they grow roots and then you can plant them in your garden.'","'Well, be careful not to take anything that they would miss at the red house,' said Silas. 'Mr Cass has been very good to us. I wouldn't want to {impose on} him.\"","'You wouldn't be {imposing on} him. There's so much waste in any garden. Why not give it to someone who could use it? I often think of that when I'm working. If the land were used properly, no one would go hungry. I must go home now, though. Mother will be waiting for me. I'll come to your cottage this afternoon and we can plan the garden, if you like.'","'Oh yes,' said Eppie, 'and bring Mrs Winthrop with you. I'm sure she would like to help us decide where the garden should be.'","'Yes, said Silas. 'She's a very wise woman. With her there to advise us, we will have a wonderful garden.'","Aaron turned back to the village, while Silas and Eppie walked up the lane.","'Oh daddy!' cried Eppie, kissing Silas on the {cheek}. 'I'll be so happy when we have a little garden. I knew Aaron would dig it for us - I knew that very well.'","'Oh did you indeed?' said Silas, smiling {affectionately}.","'Well, you'll owe Aaron a favour if he does all that work for you.'","'No I won't,' replied Eppie, laughing. 'He wants to do it.'","When they reached the cottage and Eppie {unlocked} the door, a small brown dog {leapt up} to {greet} them. A {kitten} was sleeping under the {loom}, while the mother cat lay in the sunshine by the window. This happy animal life was not the only change in Silas's cottage. Many improvements had been made. Once in a while Mr Godfrey Cass had sent fine pieces of furniture from the red house. The {villagers} thought it was very kind of him, but, after all, it was only right that he - a rich man - should help the poor {weaver} who was raising an {orphan} child.","After lunch, Silas and Eppie went out to walk around and plan the garden. As they passed the small bush where her mother had died. Eppie said, 'I would like to move the bush into our garden, daddy.'","Silas had told Eppie all about her mother and how he had found Eppie on the {hearth} and how her mother had died in the snow. Silas had given her the gold wedding ring her mother had worn. Eppie kept it in a box and looked at it often.","'That's a good idea,' Silas replied. 'That bush is very pretty in the spring, when it's covered with yellow flowers. We'll need a wall around the garden too. Otherwise the {donkeys} will get in and eat all your plants.'","'There are lots of big stones by the pit,' said Eppie, leading Silas towards the {abandoned quarry}. 'We can use those to build a wall.'","When they reached the edge of the pit, Eppie looked into it and cried, 'Look how much lower the water is than usual!'","\"Ah, yes,' said Silas. That's the {drainage}. Mr Cass is {draining} this whole area so that he can plant in the fields beyond the pit.'","'How strange it will seem to have the old {quarry} all dried up,' said Eppie.","She lifted a large stone from the ground. 'This is the kind of stone we need to build our wall,' she said.","'Put it down, Eppie. It's too heavy for you,' said Silas. 'You need someone strong to help you and I'm not strong enough now.'","He sat down on the {grassy} bank and looked {thoughtful}. Eppie dropped the stone and sat down beside him. 'Father,' she said, very gently, 'if I got married, would I wear my mother's ring?'","Silas looked surprised at her question. 'Why, Eppie, are you thinking of getting married?'","Eppie smiled and {blushed}. 'Yes, I have been, this past week,' she said. 'Ever since Aaron asked me to marry him.'","'And will you marry him, Eppie?' asked Silas a little sadly.","'Yes, some time,' said Eppie. 'I don't know when. But, if we do get married, we will all live together - you and Aaron and I - and you won't need to work any more. It is getting difficult to find {weaving work} these days. Besides, you deserve a rest. Aaron says he will be as good as a son to you.\"","'And would you like that, Eppie?' asked Silas, looking at her.","'Yes, but only if you would like it too, father.'","'Well, you're very young to be married. We'll ask Mrs Winthrop what she thinks. I'm getting old now and I like to think you will have someone to take care of you when I'm gone.'","'Then you would like me to get married, father?' asked Eppie in a {trembling} voice.","'I think I would,' said Silas."],"quiz":[{"q":"How old is Eppie now?","cn":"\u73b0\u5728\u827e\u6bd4\u591a\u5927\u4e86\uff1f","options":["Eight","Eighteen","Twenty-eight"],"answer":1},{"type":"who","q":"I'll dig the garden for you, Master Marner.","cn":"\"\u6211\u5e2e\u4f60\u6316\u82b1\u56ed\uff0c\u9a6c\u5357\u5148\u751f\u3002\"\u8fd9\u662f\u8c01\u8bf4\u7684\uff1f","options":["Aaron","Dolly Winthrop","Godfrey Cass"],"answer":0},{"q":"What does Eppie want Silas to make for her?","cn":"\u827e\u6bd4\u5e0c\u671b\u9a6c\u5357\u4e3a\u5979\u505a\u4ec0\u4e48\uff1f","options":["A new loom","A garden","A wedding dress"],"answer":1},{"type":"tf","q":"Eppie told Silas that Aaron had asked her to marry him.","cn":"\u827e\u6bd4\u544a\u8bc9\u8d5b\u62c9\u65af\uff0c\u4e9a\u4f26\u5411\u5979\u6c42\u5a5a\u4e86\u3002","answer":true},{"q":"Why does Silas feel a little sad when Eppie talks about marrying Aaron?","cn":"\u542c\u5230\u827e\u6bd4\u8981\u5ac1\u7ed9\u4e9a\u4f26\u65f6\uff0c\u9a6c\u5357\u4e3a\u4ec0\u4e48\u6709\u70b9\u96be\u8fc7\uff1f","options":["He does not like Aaron","He worries Eppie will leave him and change his quiet life","He wanted her to marry someone rich"],"answer":1}]},{"id":"u08","section":"PART 2","tag":"CHAPTER 8","title_en":"Godfrey's Secret","title_cn":"\u6208\u5f17\u96f7\u7684\u79d8\u5bc6","teaser_cn":"\u67af\u4e95\u91cc\u53d1\u73b0\u4e86\u4e00\u5177\u9ab8\u9aa8","icon":"\ud83c\udf37","itemName":"\u82b1\u56ed","words":939,"paras":["Godfrey Cass was now a handsome man of forty. His hair was still {blond} and his skin smooth, but he was heavier than he had been in his youth. His wife Nancy was still a good-looking woman, though a little pale. Her clear brown eyes expressed the patience and quiet strength of a woman who has had troubles in her life but has born them {bravely}.","Fifteen years ago, soon after their marriage, the old {Squire} had died and Godfrey had {inherited} the Red House. At first, Nancy had assumed that she and Godfrey would have children. She made the red house as clean and bright as possible,hoping that soon it would be filled with the sound of children's laughter. But the years passed and no children came. Slowly Nancy gave up hope of becoming a mother. It was a terrible disappointment to her, but she thought that it was God's will and that her duty, as a good Christian, was to accept it. Godfrey, however, could not accept it and this caused Nancy further pain and sadness. He felt that a life without children was empty and he could not {resign} himself to it as she could.","When, after ten years of marriage, it became clear that they would have no children of their own, Godfrey told Nancy that he would like to adopt a child. He said that they should adopt Eppie, because Eppie was an {orphan} and she was a very pretty, {pleasing} little girl. Godfrey was sure the {weaver} would not mind. Silas Marner would want what was best for the child and clearly Eppie's life would be better if she grew up in the red house and became a lady. Godfrey never imagined that Silas would rather die than part with Eppie.","Nancy, however, had refused to adopt a child. She said that it would be wrong to go against God's will. This {disagreement} had caused a lot of pain between Godfrey and Nancy. Two years later, he had raised the subject again, but Nancy still refused and there was more {bitterness} between them. But Godfrey had not mentioned the idea of {adopting} Eppie for four years now and Nancy hoped that he had finally resigned himself to their {childless} life.","One afternoon, Godfrey went to the {abandoned quarry} to see what progress was being made in the {drainage}. He said he would be home by tea-time. At four o'clock, Nancy was sitting by the fire, reading a book. Godfrey {rushed} into the room, pale and {trembling}.","'Why, Godfrey, what is the matter?' asked Nancy in surprise.","'I have had a terrible shock,' he replied, it's Dunstan \u2013 my brother Dunstan who disappeared sixteen years ago. They have found him - found his body - his {skeleton}. The {drainage} is finished and all the water is gone from the {abandoned quarry}. And there he is! He has been lying there for sixteen years at the bottom of the pit! They found his watch and his ring. There's no doubt that it is Dunstan.'","'Do you think he {drowned} himself?' asked Nancy.","'No. He fell in. Nancy. I'm sorry to have to tell you this.","Dunstan was the man who {robbed} Silas Marner. All the {weaver}'s money was there in the pit.'","Nancy {blushed} red. She felt it was a terrible {disgrace} to have a criminal in the family. Godfrey was silent. He was staring at the floor and Nancy knew that he had something more to say.","Finally he looked up at her and said, 'All our bad {deeds} come to light in the end. When God {wills} it, our secrets are revealed. I have had a secret for many years, but now I want to tell you, Nancy. You remember the woman Marner found in the snow? That {wretched} woman - Eppie's mother - was my wife. Eppie is my child.'","He {paused}, afraid of her reaction to his {confession}. Nancy was pale and still as a statue.","'Nancy? Can you still love me?'","She was silent.","'I know I should have {confessed} then, but I was afraid of losing you. It was a great mistake to marry her and I suffered for it.'","When Nancy finally spoke, there was no anger in her voice, only regret. 'Godfrey, if you had told me this sixteen years ago, we could have adopted Eppie. Do you think I would have refused to adopt her if I had known that she was yours? And, if you had told me sixteen years ago, we could have had her from the beginning and she would have loved me as her mother. Our lives would have been more like what we hoped for when we married.'","Nancy began to {weep}.","'But you wouldn't have married me if I had told you,' said Godfrey.","I don't know what I would have done, Godfrey. But nothing is worth doing wrong for - nothing in the world. {Nothing is as good as it seems beforehand}. Even our marriage has not been as good as we thought it was going to be.'","'Can you ever forgive me?' asked Godfrey.","'Yes, I forgive you, but the person you really {wronged} was Eppie.'","'We can take Eppie now,' said Godfrey. 'I don't mind everyone knowing the truth now.'","'She's grown up now,' said Nancy. 'But it's your duty to acknowledge her and provide for her. I will do my best for her and I hope that God will make her love me.'","'Then we'll go to Silas Marner's house tonight'"],"quiz":[{"q":"Whose skeleton is found at the bottom of the drained quarry?","cn":"\u6392\u6c34\u540e\u7684\u91c7\u77f3\u5751\u5e95\u53d1\u73b0\u4e86\u8c01\u7684\u9ab8\u9aa8\uff1f","options":["Silas Marner","Dunstan Cass","Mr Paston"],"answer":1},{"type":"tf","q":"Dunstan's skeleton was found at the bottom of the drained stone-pit.","cn":"\u9093\u65af\u5766\u7684\u9ab8\u9aa8\u5728\u88ab\u62bd\u5e72\u6c34\u7684\u91c7\u77f3\u5751\u5e95\u88ab\u53d1\u73b0\u3002","answer":true},{"q":"What secret does Godfrey finally tell Nancy?","cn":"\u6208\u5f17\u96f7\u7ec8\u4e8e\u5411\u5357\u5e0c\u5766\u767d\u4e86\u4ec0\u4e48\u79d8\u5bc6\uff1f","options":["He stole Silas's gold","Eppie is his own daughter","He wants to leave Raveloe"],"answer":1},{"type":"fill","q":"Godfrey confessed to Nancy that Eppie's mother had been his ___.","cn":"\u6208\u5f17\u96f7\u5411\u5357\u5e0c\u5766\u767d\uff0c\u827e\u6bd4\u7684\u5988\u5988\u66fe\u662f\u4ed6\u7684___\u3002","options":["wife","sister","servant"],"answer":0},{"q":"How does Nancy react to Godfrey's confession?","cn":"\u5357\u5e0c\u542c\u5230\u6208\u5f17\u96f7\u7684\u5766\u767d\u540e\u662f\u4ec0\u4e48\u53cd\u5e94\uff1f","options":["She is furious and leaves him","She feels sad but forgives him","She refuses to believe him"],"answer":1}]},{"id":"u09","section":"PART 2","tag":"CHAPTER 9","title_en":"Eppie's Choice","title_cn":"\u827e\u6bd4\u7684\u9009\u62e9","teaser_cn":"\u4eb2\u751f\u7236\u4eb2\u60f3\u63a5\u5979\u56de\u5bb6\uff0c\u5979\u4f1a\u600e\u4e48\u9009\uff1f","icon":"\ud83d\udc8d","itemName":"\u5a5a\u6212","words":1372,"paras":["That evening, Silas and Eppie sat alone in the cottage. On the table in front of them were the {piles} of gold - Silas's old gold come home at last. 'Sometimes,' said Silas, 'when you were first here, I used to think that you might turn back into the gold by magic. The gold had gone, you see, and you had come in its place. At first I thought that you might go and the gold come back. But after a little time. I knew I loved you more than the gold. I needed your voice and the touch of your little fingers. You were little then. You didn't know how much your old father loved you.'","'But I know now, father,' said Eppie. 'If you had not taken care of me. I would have been sent to the {workhouse}, I and there would have been no one to love me.'","'The blessing was mine, my precious child. If you hadn't been sent to save me, I would have lived the rest of my life in {misery}. The money was taken away from me to help save me and now it has come back just when it is needed for you. Our life is wonderful.'","At that moment there was a knock on the door.","'Why, good evening Mr and Mrs Cass,' said Eppie in surprise, as she let them in.","'We are disturbing you very late, my dear,' said Nancy, taking Eppie's hand and looking at her with interest and {admiration}.","'Good evening, Marner,' said Godfrey, as Eppie placed two chairs for them then went and sat beside Silas. 'I'm glad to hear you got your gold back after all these years. I am very sorry that it was one of my family who {robbed} you and I want to {compensate} you for it in any way I can. Whatever I can do for you will be nothing but paying a debt. And I owe you for more than the {robbery}.'","Godfrey {hesitated}. He and Nancy had agreed not to tell them that he was Eppie's father yet. He wanted to wait until Eppie knew him better.","Silas was always nervous when speaking to gentlemen like Mr Cass: big, powerful, red-faced men, usually seen on {horseback}. 'I have a lot to thank you for already, sir, and the {robbery} was not your fault,' he replied {shyly}.","'That may be the way you see it, Marner, but I see it differently. You have been working hard all your life. Now it's time for you to rest. How old are you?'","'I'm fifty-five,' said Silas.","'Well, you may live another thirty years, like old Mr Macey.","That gold on the table will not be enough to keep you {comfortably} for all that time.'","'For working people, that gold seems a lot of money \u2014 almost too much. And Eppie and I don't need very much.'","Godfrey was finding it surprisingly difficult to come to the point. It had all seemed so simple when he had thought about it at home. 'You have been very kind to Eppie for the past sixteen years. I'm sure you would like to see her well provided for. Mrs Cass and I have no children of our own. We would like to take care of Eppie and make her a lady. We would treat her in every way as if she were our own daughter. I'm sure you would be glad to see her fortune made in that way.'","As Godfrey spoke, Eppie put her arm around Silas. She could feel him {trembling} {violently}.","'Eppie, my child,' said Silas. 'What do you think? I won't stand in your way. Thank Mr and Mrs Cass.'","Eppie's {cheeks} were {flushed} with {distress}. She knew that her father was suffering. 'Thank you very much, madam, and you, sir. But I can't leave my father. I don't want to be a lady. I just want to stay with the people I know.'","Silas {grasped} her hand and {sobbed} with relief.","There were tears in Nancy's eyes. She felt sympathy for Eppie, but she also felt sadness for Godfrey.","Godfrey felt {irritated} at this unexpected opposition. It had taken him so long to do the right thing. He had been so eager to come to the cottage and make his offer. Now he found it difficult to understand other people's feelings, 'it is my duty to tell you, Marner, that Eppie is my own child,' he said. 'Her mother was my wife. I have a natural claim on her.'","Eppie went pale, but Silas {flushed} with anger, if you are her father, sir, why didn't you say so sixteen years ago, before I began to love her? If you take her from me now, it will be like taking the heart out of my body. God gave her to me because you did not want her and now He looks upon her as mine. You have no right to her! She has been calling me father for sixteen years!'","I thought you would be glad that we could give Eppie a better life,' said Godfrey, growing angry. 'She is now old enough to marry. If she stays with you, she will marry some low working man. I know I should have done my duty before and I am grateful for what you have done for Eppie. But now I want to do my duty. I {insist on} taking care of my own daughter.'","Silas was afraid that what Godfrey said was true. He certainly did not want to stand in Eppie's way, to deny her the chance of a better life. Eppie held his hand {tightly} in her own and said, 'Thank you, sir and madam, for your offers. But I would be miserable if I left my father. He has loved me and taken care of me all my life and I will love and take care of him for the rest of his life. No one shall ever come between us!'","'But Eppie,' said Silas. 'Perhaps one day you will be sorry if you choose to stay among poor people with small houses and poor clothes when you could have had the best of everything.'","'No, I won't be sorry,' Eppie replied, I don't want fine clothes or a {carriage} or a big house. I want a little home where my father can sit in the corner and I can do everything for him. I like working people and their way of life. And I've promised to marry a working man who will come and live with my father and help me take care of him.' At this point, Eppie {burst into tears}.","Nancy looked at Godfrey. His face was {flushed} and his lips were {trembling}.","'Let's go, Nancy,' he said.","Nancy took Eppie's hand and said, 'We'll come back and talk about it another time. Remember that we wish you well, my dear, and you too, Marner.' Then she followed her husband out of the door.","As they {rode} home in the {carriage}, Nancy held Godfrey's hand.","'Well, that's over!' he said after a while.","'Yes,' said Nancy. 'We can't force her to come to us if she doesn't want to.'","'I'll do all I can for her in the life she has chosen. We won't tell anyone that I am her real father. It can't do any good now. She's a pretty girl, isn't she?'","'Yes. Her hair and eyes are just like yours. I'm surprised I never noticed it before. Will you be very sad, Godfrey, because she won't come to us?'","'Perhaps, for a little while. But Marner was right. I didn't want her when she was little and now it's too late. But I have no right to be unhappy. I've got you.'","'If you could {resign} yourself to our {childless} state,' said Nancy, 'I think we could be happier than we have been.'","'Then I will. At least it is not too late to change that.'"],"quiz":[{"q":"What do Mr and Mrs Cass offer to do for Eppie?","cn":"\u5361\u65af\u592b\u5987\u63d0\u51fa\u8981\u4e3a\u827e\u6bd4\u505a\u4ec0\u4e48\uff1f","options":["Give her the gold back","Take her to live with them as a lady","Help her build a garden"],"answer":1},{"type":"tf","q":"Eppie decided to leave Silas and go to live with Mr and Mrs Cass.","cn":"\u827e\u6bd4\u51b3\u5b9a\u79bb\u5f00\u8d5b\u62c9\u65af\uff0c\u642c\u53bb\u548c\u5361\u65af\u592b\u5987\u4e00\u8d77\u4f4f\u3002","answer":false},{"q":"What does Eppie decide?","cn":"\u827e\u6bd4\u6700\u7ec8\u505a\u51fa\u4e86\u4ec0\u4e48\u51b3\u5b9a\uff1f","options":["To stay with Silas and marry Aaron","To go and live with the Casses","To leave Raveloe forever"],"answer":0},{"type":"who","q":"I want a little home where my father can sit in the corner and I can do everything for him.","cn":"\"\u6211\u60f3\u8981\u4e00\u4e2a\u5c0f\u5bb6\uff0c\u7236\u4eb2\u80fd\u5750\u5728\u89d2\u843d\u91cc\uff0c\u6211\u80fd\u4e3a\u4ed6\u505a\u4e00\u5207\u3002\"\u8fd9\u662f\u8c01\u8bf4\u7684\uff1f","options":["Eppie","Nancy","Dolly"],"answer":0},{"q":"Why do you think Eppie chooses to stay with Silas even though she could live in comfort?","cn":"\u4f60\u89c9\u5f97\u827e\u6bd4\u4e3a\u4ec0\u4e48\u5b81\u613f\u7559\u4e0b\u4e5f\u4e0d\u613f\u4eab\u53d7\u5bcc\u8d35\u751f\u6d3b\uff1f","options":["She does not believe Godfrey is really her father","She loves Silas deeply and values their life together more than riches","She is afraid of the Casses"],"answer":1}]},{"id":"u10","section":"PART 2","tag":"CHAPTER 10","title_en":"Home at Last","title_cn":"\u56e2\u5706\u7684\u5a5a\u793c","teaser_cn":"\u8001\u5bb6\u5bfb\u8bbf\u4e4b\u540e\uff0c\u6545\u4e8b\u8fce\u6765\u5927\u56e2\u5706","icon":"\ud83c\udf08","itemName":"\u56e2\u5706","words":1303,"paras":["The next morning, as Silas and Eppie were having breakfast, he said, 'Eppie, there's something I would like to do. I have been thinking about it for two years. Now that the gold has come back, we can do it.'","'Do what, father?' asked Eppie.","'Go and see the place where I used to live. I want to go to Lantern Yard and see Mr Paston the minister. Something may have happened to show them that I was innocent of the {robbery}. Mr Paston is a very {pious} man. I want to ask him about the drawing of the lots. And I want to tell him about the religion of the people here and ask him what he thinks of it.'","Long ago, Silas had told Dolly Winthrop the story of his time at Lantern Yard and Eppie had often heard Mrs Winthrop and her father discussing it. It had been a great relief to Silas to tell somebody, after all his years of silent {sorrow}. Dolly had listened with sympathy, but the religion of Lantern Yard was so different from the religion of Raveloe that Dolly found it all very strange indeed. She had asked him to explain about the drawing of the lots several times, but even then she did not fully understand.","Eppie was delighted with the idea of going on a journey with her father. When she came home, she would be able to tell Aaron all about it. Aaron seemed to know so much more than she did about many things. It would be pleasant to be able to tell him something for a change.","So the next day Silas and Eppie set out on their journey. When they arrived at the great industrial town, Silas was {amazed} at how different it was from the town he remembered! Many changes had taken place in thirty years.","'I don't think I can find my way to Lantern Yard, Eppie,' said Silas, it's all so changed.' Both of them felt ill at ease, standing in the busy noisy street, surrounded by strange {indifferent} faces.","'Well, ask someone the way, father,' said Eppie. 'Ask that gentleman over there.'","'He won't know,' Silas replied. 'Gentlemen never went to Lantern Yard. It was a place for simple working people. But I could ask him the way to Prison Street. I'm sure I'll be able to find Lantern Yard once I get to Prison Street.'","The gentleman told them how to get to Prison Street and Silas and Eppie set off in the direction he had indicated. They got lost several times and had to ask other people for directions before they found Prison Street. The dark walls of the great jail {cheered} Silas up: at least the jail had not changed and Silas now felt confident that he could find the Yard.","'What a dark ugly place!' cried Eppie. it {hides} the sky! It's worse than the {workhouse}. I am glad that you don't live here now. Father. Is Lantern Yard like this street?'","'My precious child,' said Silas, smiling, 'it isn't a big street like this. I never liked this street, but I was {fond of} Lantern Yard. Don't worry. We're nearly there.'","They turned onto a dark narrow road. 'Oh, father!' cried Eppie. 'I feel as if I were {suffocating}! I never imagined that people lived like this, so close together. How pretty Raveloe will look, when we get home!'","'You are right, Eppie. Now it looks strange to me too and it smells bad. I don't think it used to smell this bad.'","Here and there a pale dirty face looked out from a {doorway}. They made Eppie even more uncomfortable, so she felt {relieved} when they got to {Shoe Lane}, where she could see a little more of the sky.","'There it is!' said Silas. 'There's Lantern Yard. But how strange! People are coming out of the Yard, as if they had been to chapel. We never went to chapel at noon on a {weekday}.'","Suddenly he stopped walking and {stared} with a look of {distressed} {amazement}. They were standing in front of a large factory and men and women were coming out for their mid-day meal.","'Father,' said Eppie {in alarm}. 'What's the matter?'","'It's gone, child,' said Silas. 'Lantern Yard is gone! I know this is the right place, because I {recognise} that house across the road. That big factory is where Lantern Yard was! It's all gone - even the chapel and the little {graveyard}!'","'Come into that {brush shop}, father,' said Eppie. She was worried that he might have one of his attacks. 'Then you can sit down and rest and perhaps the people there can tell you what happened.'","But the man in the {brush shop} had only been in {Shoe Lane} for ten years. The factory was already there when he arrived. Neither he nor any of the other people in the shop knew anything about Silas's old friends at Lantern Yard. They had never heard of Mr Paston the minister.","'The old place has been {swept away}!'said Silas to Dolly Winthrop on the night of his return to Raveloe. 'My old home has gone. I've no home but this now. I will never know whether they discovered the truth about that {robbery}.'","'No, you won't. Master Marner,' said Dolly. 'There are many things we'll never know. It's God's will. We'll never know what happened, but He knows and we must trust Him.'","'Yes,' said Silas. 'Ever since the child was sent to me, I have been learning to {trust}. Now she says she will never leave me, so I think I will trust until I die.'","Conclusion In the {springtime}, when the flowers were {blooming}, the sun was shining and the fields were full of {calves} and {lambs}, Eppie and Aaron were married. Nancy had {insisted on} buying the wedding dress for Eppie. It was a very pretty white dress with little pink flowers on it.","The wedding {procession} went from the church to the Rainbow. In the lead was Eppie, with her white dress and her golden hair, looking like a {lily}. One of Eppie's hands was on her husband's arm and the other held the hand of her father Silas. After them came Ben and Dolly Winthrop.","Nancy saw them passing by as she stood at the window of the red house. Godfrey had gone away for the day, otherwise people would have expected him to go to the {wedding feast} he had ordered at the Rainbow.","Dolly Winthrop saw old Mr Macey sitting in his {doorway} as they passed. He was too old to go to the {wedding feast}. Dolly {guessed} that he would like them to stop and talk to him. 'We must go and say hello to Mr Macey,' said Dolly. 'He'll be {offended} if we don't'. So they stopped at Mr Macey's door and shook the old man's hand.","In the garden of the Rainbow, all the guests were gathered, talking about the strange history of Silas Marner. They had come to the conclusion that he had brought a blessing on himself by being a good father to a poor {orphan} child. When the wedding party appeared at the gate, the guests {cheered} and {applauded}.","Eppie, Aaron, Silas and Dolly left the {wedding feast} while the party was still very {merry}. As they walked back to Silas's cottage, they passed Eppie's new garden and the flowers seemed to smile at the four united people.","'Oh, father!' said Eppie, 'what a pretty home ours is! I think nobody could be happier than we are.'"],"quiz":[{"q":"What does Silas discover when he returns to Lantern Yard?","cn":"\u9a6c\u5357\u56de\u5230\u706f\u7b3c\u5df7\u65f6\u53d1\u73b0\u4e86\u4ec0\u4e48\uff1f","options":["It looks exactly the same as before","It is gone, replaced by a big factory","Mr Paston is waiting for him there"],"answer":1},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["Silas and Eppie travel to the big town to look for Lantern Yard","They find that Lantern Yard has become a factory","Eppie and Aaron get married in the springtime"]},{"q":"Who marries in the springtime at the end of the story?","cn":"\u6545\u4e8b\u7ed3\u5c3e\uff0c\u6625\u5929\u91cc\u8c01\u7ed3\u5a5a\u4e86\uff1f","options":["Godfrey and Nancy","Eppie and Aaron","Silas and Dolly"],"answer":1},{"type":"tf","q":"Silas found out exactly what had happened about the robbery he was accused of at Lantern Yard.","cn":"\u8d5b\u62c9\u65af\u6700\u7ec8\u67e5\u6e05\u4e86\u5f53\u5e74\u5728\u706f\u7b3c\u80e1\u540c\u88ab\u51a4\u6789\u5077\u7a83\u7684\u771f\u76f8\u3002","answer":false},{"q":"Why does Eppie say nobody could be happier than they are, even though their cottage is small and simple?","cn":"\u5c3d\u7ba1\u5c0f\u5c4b\u7b80\u6734\uff0c\u827e\u6bd4\u4e3a\u4ec0\u4e48\u8bf4\u6ca1\u4eba\u6bd4\u4ed6\u4eec\u66f4\u5e78\u798f\uff1f","options":["Because true happiness comes from love and family, not wealth","Because she does not know what a rich life is like","Because Silas promised to get rich again soon"],"answer":0}]}];
+const GLOSSARY = {"a gleam of":{"cn":"\u4e00\u4e1d\uff08\u5149\uff09","emoji":"\u2728","gold":true},"a pile of":{"cn":"\u4e00\u5806","emoji":"\ud83d\udcb0"},"a pint of":{"cn":"\u4e00\u54c1\u8131","emoji":"\ud83c\udf7a"},"abandoned quarry":{"cn":"\u5e9f\u5f03\u7684\u91c7\u77f3\u573a","emoji":"\ud83d\udd73\ufe0f"},"admiration":{"cn":"\u94a6\u4f69","emoji":"\ud83d\udc4f"},"adopting":{"cn":"\u9886\u517b","emoji":"\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67"},"adventurous":{"cn":"\u7231\u5192\u9669\u7684","emoji":"\ud83c\udfc3"},"affectionately":{"cn":"\u6df1\u60c5\u5730","emoji":"\ud83e\udd70"},"agitated":{"cn":"\u6fc0\u52a8\u4e0d\u5b89\u7684","emoji":"\ud83d\ude23"},"amazed":{"cn":"\u60ca\u8bb6\u7684","emoji":"\ud83d\ude32"},"amazement":{"cn":"\u60ca\u8bb6","emoji":"\ud83d\ude33","gold":true},"apparition":{"cn":"\u5e7d\u7075\u822c\u7684\u4e1c\u897f","emoji":"\ud83d\udc7b","gold":true},"applauded":{"cn":"\u9f13\u638c","emoji":"\ud83d\udc4f"},"astonished":{"cn":"\u9707\u60ca\u7684","emoji":"\ud83d\ude2e"},"astray":{"cn":"\u8d70\u4e0a\u6b67\u9014","emoji":"\ud83e\udded"},"awoke":{"cn":"\u9192\u6765","emoji":"\u23f0"},"baptised":{"cn":"\u53d7\u6d17\u7684","emoji":"\ud83d\udca7","gold":true},"baptism":{"cn":"\u6d17\u793c","emoji":"\u26ea"},"bedside":{"cn":"\u5e8a\u8fb9\u7684","emoji":"\ud83d\udecf\ufe0f"},"behaved":{"cn":"\u8868\u73b0\uff0c\u4e3e\u6b62","emoji":"\ud83d\ude47"},"belongs to":{"cn":"\u5c5e\u4e8e","emoji":"\ud83d\udd17"},"bent":{"cn":"\u5f2f\u8170\u7684","emoji":"\ud83e\uddce"},"bereft":{"cn":"\u5b64\u82e6\u65e0\u4f9d\u7684","emoji":"\ud83d\udc94","gold":true},"birdsong":{"cn":"\u9e1f\u9e23","emoji":"\ud83d\udc26","gold":true},"bitterness":{"cn":"\u6028\u6068","emoji":"\ud83d\ude16"},"blasphemous":{"cn":"\u4eb5\u6e0e\u795e\u660e\u7684","emoji":"\ud83d\ude31","gold":true},"blazing":{"cn":"\u718a\u718a\u71c3\u70e7\u7684","emoji":"\ud83d\udd25"},"blond":{"cn":"\u91d1\u53d1\u7684","emoji":"\ud83d\udc9b"},"blooming":{"cn":"\u76db\u5f00","emoji":"\ud83c\udf38"},"blossom":{"cn":"\u82b1\u6735\uff0c\u7efd\u653e","emoji":"\ud83c\udf3c"},"blushed":{"cn":"\u8138\u7ea2\u4e86","emoji":"\ud83d\ude33","gold":true},"borrowed":{"cn":"\u501f\u7528\u4e86","emoji":"\ud83e\udd1d"},"bosom":{"cn":"\u6000\u91cc\uff0c\u80f8\u53e3","emoji":"\ud83e\udd31"},"brandy":{"cn":"\u767d\u5170\u5730","emoji":"\ud83e\udd43"},"bravely":{"cn":"\u52c7\u6562\u5730","emoji":"\ud83d\udcaa"},"bricks":{"cn":"\u7816\u5757","emoji":"\ud83e\uddf1"},"brow":{"cn":"\u989d\u5934","emoji":"\ud83d\ude13"},"brush shop":{"cn":"\u5237\u5b50\u5e97","emoji":"\ud83e\uddf9"},"burial":{"cn":"\u5b89\u846c","emoji":"\u26b0\ufe0f"},"burst into tears":{"cn":"\u7a81\u7136\u5927\u54ed","emoji":"\ud83d\ude2d"},"burst open":{"cn":"\u731b\u5730\u88ab\u63a8\u5f00","emoji":"\ud83d\udca5"},"calves":{"cn":"\u5c0f\u725b","emoji":"\ud83d\udc04"},"carriage":{"cn":"\u9a6c\u8f66","emoji":"\ud83d\udc0e"},"carriages":{"cn":"\u9a6c\u8f66\uff08\u590d\u6570\uff09","emoji":"\ud83d\udc0e"},"cheek":{"cn":"\u8138\u988a","emoji":"\ud83d\ude17"},"cheeks":{"cn":"\u8138\u988a\uff08\u590d\u6570\uff09","emoji":"\ud83d\ude0a"},"cheer you up":{"cn":"\u8ba9\u4f60\u5f00\u5fc3","emoji":"\ud83d\ude0a"},"cheered":{"cn":"\u6b22\u547c\uff0c\u4f7f\u9ad8\u5174","emoji":"\ud83c\udf89"},"childless":{"cn":"\u6ca1\u6709\u5b69\u5b50\u7684","emoji":"\ud83d\udeab"},"christened":{"cn":"\u53d7\u6d17\u547d\u540d","emoji":"\u26ea","gold":true},"christmas carol":{"cn":"\u5723\u8bde\u9882\u6b4c","emoji":"\ud83c\udf84"},"church bells":{"cn":"\u6559\u5802\u949f\u58f0","emoji":"\ud83d\udd14"},"cleverness":{"cn":"\u806a\u660e","emoji":"\ud83e\udde0","gold":true},"clues":{"cn":"\u7ebf\u7d22","emoji":"\ud83d\udd0d"},"cobbler":{"cn":"\u978b\u5320","emoji":"\ud83d\udc5e","gold":true},"comfortably":{"cn":"\u8212\u9002\u5730","emoji":"\ud83d\ude0c"},"companionship":{"cn":"\u966a\u4f34","emoji":"\ud83e\udd1d"},"compensate":{"cn":"\u8865\u507f","emoji":"\ud83d\udcb0"},"complacent":{"cn":"\u81ea\u6ee1\u7684","emoji":"\ud83d\ude0f"},"confess":{"cn":"\u5766\u767d\uff0c\u8ba4\u7f6a","emoji":"\ud83d\ude4f"},"confessed":{"cn":"\u5766\u767d\u4e86","emoji":"\ud83d\ude4f"},"confession":{"cn":"\u5766\u767d\uff0c\u4f9b\u8bcd","emoji":"\ud83d\udde3\ufe0f"},"crawled":{"cn":"\u722c","emoji":"\ud83d\udc1b"},"cried out":{"cn":"\u558a\u53eb","emoji":"\ud83d\ude22"},"curls":{"cn":"\u5377\u53d1","emoji":"\ud83d\udc71"},"daily habits":{"cn":"\u65e5\u5e38\u4e60\u60ef","emoji":"\ud83d\udcc5"},"dandelion":{"cn":"\u84b2\u516c\u82f1","emoji":"\ud83c\udf3c","gold":true},"deacon":{"cn":"\u6559\u533a\u6267\u4e8b","emoji":"\u26ea"},"debated":{"cn":"\u4e89\u8bba","emoji":"\ud83d\udcac"},"deeds":{"cn":"\u6240\u4f5c\u6240\u4e3a","emoji":"\u270b"},"desperately":{"cn":"\u62fc\u547d\u5730","emoji":"\ud83d\ude30"},"digging":{"cn":"\u6316\u571f","emoji":"\u26cf\ufe0f"},"dimpled":{"cn":"\u6709\u9152\u7a9d\u7684","emoji":"\ud83d\ude0a","gold":true},"dining room":{"cn":"\u9910\u5385","emoji":"\ud83c\udf7d\ufe0f"},"disagreement":{"cn":"\u5206\u6b67\uff0c\u4e89\u6267","emoji":"\ud83d\ude45"},"discouraged":{"cn":"\u7070\u5fc3\u7684","emoji":"\ud83d\ude1e"},"discovering":{"cn":"\u53d1\u73b0\uff0c\u67e5\u660e","emoji":"\ud83d\udd0e"},"disgrace":{"cn":"\u803b\u8fb1","emoji":"\ud83d\ude33"},"disgust":{"cn":"\u538c\u6076","emoji":"\ud83e\udd22"},"disinherited":{"cn":"\u88ab\u5265\u593a\u7ee7\u627f\u6743\u7684","emoji":"\ud83d\udeab","gold":true},"disobedient":{"cn":"\u4e0d\u542c\u8bdd\u7684","emoji":"\ud83d\ude24","gold":true},"distinguish":{"cn":"\u4f7f\u81ea\u5df1\u51fa\u4f17","emoji":"\u2b50"},"distress":{"cn":"\u75db\u82e6\uff0c\u82e6\u607c","emoji":"\ud83d\ude1f"},"distressed":{"cn":"\u75db\u82e6\u7684\uff0c\u5fe7\u8651\u7684","emoji":"\ud83d\ude1f"},"distrust":{"cn":"\u4e0d\u4fe1\u4efb","emoji":"\ud83e\udd28"},"distrusted":{"cn":"\u4e0d\u88ab\u4fe1\u4efb\u7684","emoji":"\ud83e\udd28","gold":true},"disturbance":{"cn":"\u9a9a\u52a8","emoji":"\u2757"},"donkeys":{"cn":"\u9a74","emoji":"\ud83e\udecf"},"doorway":{"cn":"\u95e8\u53e3","emoji":"\ud83d\udeaa"},"doubted":{"cn":"\u6000\u7591","emoji":"\ud83e\udd14"},"doubtfully":{"cn":"\u7591\u60d1\u5730","emoji":"\ud83e\udd14","gold":true},"drainage":{"cn":"\u6392\u6c34","emoji":"\ud83d\udca7"},"draining":{"cn":"\u6b63\u5728\u6392\u6c34","emoji":"\ud83d\udca7"},"drown":{"cn":"\u6df9\u6b7b","emoji":"\ud83c\udf0a"},"drowned":{"cn":"\u6eba\u6b7b\u4e86","emoji":"\ud83c\udf0a"},"drowsily":{"cn":"\u660f\u660f\u6b32\u7761\u5730","emoji":"\ud83d\ude34","gold":true},"eagerly":{"cn":"\u6025\u5207\u5730","emoji":"\ud83e\udd29"},"eldest":{"cn":"\u6700\u5e74\u957f\u7684","emoji":"\ud83d\udc68"},"emigrants":{"cn":"\u79fb\u6c11\uff0c\u5916\u6765\u8005","emoji":"\ud83e\uddf3"},"expanse of":{"cn":"\u4e00\u5927\u7247","emoji":"\ud83c\udfd4\ufe0f"},"expelled":{"cn":"\u88ab\u9a71\u9010","emoji":"\ud83d\udeaa"},"explanations":{"cn":"\u89e3\u91ca","emoji":"\ud83d\udcad"},"eyesight":{"cn":"\u89c6\u529b","emoji":"\ud83d\udc40"},"faded":{"cn":"\u6194\u60b4\u7684","emoji":"\ud83e\udd40"},"farmhouses":{"cn":"\u519c\u820d","emoji":"\ud83c\udfe1","gold":true},"fascinated":{"cn":"\u7740\u8ff7\u7684","emoji":"\ud83d\ude0d"},"faults":{"cn":"\u7f3a\u70b9","emoji":"\u274c"},"feared":{"cn":"\u5bb3\u6015\uff0c\u62c5\u5fc3","emoji":"\ud83d\ude28"},"fell on his knees":{"cn":"\u8dea\u4e0b\u4e86","emoji":"\ud83d\ude47"},"fences":{"cn":"\u6805\u680f","emoji":"\ud83d\udea7"},"fervent":{"cn":"\u70ed\u5207\u7684","emoji":"\ud83d\udd25"},"fiercely":{"cn":"\u51f6\u731b\u5730","emoji":"\ud83d\ude20"},"fireplace":{"cn":"\u58c1\u7089","emoji":"\ud83d\udd25"},"flushed":{"cn":"\u8138\u6da8\u7ea2\u4e86","emoji":"\ud83d\ude33"},"fond of":{"cn":"\u559c\u6b22","emoji":"\u2764\ufe0f"},"footprints":{"cn":"\u811a\u5370","emoji":"\ud83d\udc63"},"foxglove":{"cn":"\u6bdb\u5730\u9ec4\uff08\u690d\u7269\uff09","emoji":"\ud83c\udf3a","gold":true},"freshest":{"cn":"\u6700\u65b0\u9c9c\u7684","emoji":"\ud83c\udf1f","gold":true},"frighten":{"cn":"\u6050\u5413","emoji":"\ud83d\ude31"},"frost":{"cn":"\u971c","emoji":"\u2744\ufe0f"},"furious":{"cn":"\u72c2\u6012\u7684","emoji":"\ud83d\ude21"},"fury":{"cn":"\u66b4\u6012","emoji":"\ud83d\ude21"},"gamble":{"cn":"\u8d4c\u535a","emoji":"\ud83c\udfb2"},"gambled":{"cn":"\u8d4c\u535a\u4e86","emoji":"\ud83c\udfb2","gold":true},"gazed":{"cn":"\u51dd\u89c6","emoji":"\ud83d\udc41\ufe0f","gold":true},"gazed at":{"cn":"\u51dd\u89c6\u7740","emoji":"\ud83d\udc41\ufe0f","gold":true},"glanced at":{"cn":"\u77a5\u4e86\u4e00\u773c","emoji":"\ud83d\udc40"},"gossip":{"cn":"\u95f2\u804a\uff0c\u8bf4\u95f2\u8bdd","emoji":"\ud83d\udde3\ufe0f"},"governs":{"cn":"\u7edf\u6cbb\uff0c\u652f\u914d","emoji":"\ud83d\udc51"},"grasped":{"cn":"\u7d27\u7d27\u6293\u4f4f","emoji":"\u270a"},"grassy":{"cn":"\u957f\u6ee1\u8349\u7684","emoji":"\ud83c\udf31"},"gratitude":{"cn":"\u611f\u6fc0","emoji":"\ud83d\ude4f"},"graveyard":{"cn":"\u5893\u5730","emoji":"\u26b0\ufe0f"},"greet":{"cn":"\u8fce\u63a5\uff0c\u95ee\u5019","emoji":"\ud83d\udc4b"},"guessed":{"cn":"\u731c\u6d4b","emoji":"\ud83e\udd14"},"have troubles":{"cn":"\u9047\u5230\u56f0\u96be","emoji":"\ud83d\ude1f"},"hearth":{"cn":"\u7089\u8fb9","emoji":"\ud83d\udd25"},"hedge-stake":{"cn":"\u7bf1\u7b06\u6728\u6869","emoji":"\ud83e\udeb5"},"herbs":{"cn":"\u8349\u836f","emoji":"\ud83c\udf3f"},"hesitated":{"cn":"\u72b9\u8c6b\u4e86","emoji":"\ud83e\udd14"},"hides":{"cn":"\u906e\u4f4f","emoji":"\ud83d\ude48"},"horrified":{"cn":"\u60ca\u6050\u7684","emoji":"\ud83d\ude31"},"horse dealer":{"cn":"\u9a6c\u8d29\u5b50","emoji":"\ud83d\udc34"},"horseback":{"cn":"\u9a91\u9a6c","emoji":"\ud83d\udc0e"},"humiliate":{"cn":"\u7f9e\u8fb1","emoji":"\ud83d\ude33"},"humiliating":{"cn":"\u4e22\u8138\u7684","emoji":"\ud83d\ude33"},"hummed":{"cn":"\u55e1\u55e1\u4f5c\u54cd","emoji":"\ud83c\udfb5","gold":true},"hurried":{"cn":"\u5306\u5fd9\u8d70","emoji":"\ud83c\udfc3"},"hurried home":{"cn":"\u5306\u5fd9\u56de\u5bb6","emoji":"\ud83c\udfe0"},"hurried out":{"cn":"\u5306\u5fd9\u51fa\u53bb","emoji":"\ud83c\udfc3\u200d\u2642\ufe0f"},"illnesses":{"cn":"\u75be\u75c5","emoji":"\ud83e\udd12"},"imitating":{"cn":"\u6a21\u4eff","emoji":"\ud83c\udfad"},"impose on":{"cn":"\u6253\u6270\uff0c\u5360\u4fbf\u5b9c","emoji":"\ud83d\ude45"},"imposing on":{"cn":"\u6253\u6270\uff0c\u5360\u4fbf\u5b9c","emoji":"\ud83d\ude45"},"in alarm":{"cn":"\u60ca\u6050\u5730","emoji":"\ud83d\ude28"},"in amazement":{"cn":"\u60ca\u8bb6\u5730","emoji":"\ud83d\ude32","gold":true},"indifferent":{"cn":"\u51b7\u6f20\u7684","emoji":"\ud83d\ude10"},"inherited":{"cn":"\u7ee7\u627f\u4e86","emoji":"\ud83c\udfe0"},"innocence":{"cn":"\u6e05\u767d","emoji":"\ud83d\ude07"},"insist on":{"cn":"\u575a\u6301\u8981","emoji":"\u270b"},"insisted on":{"cn":"\u575a\u6301\u4e86","emoji":"\u270b"},"interruption":{"cn":"\u6253\u65ad\uff0c\u6253\u6270","emoji":"\u26d4"},"irritated":{"cn":"\u607c\u6012\u7684","emoji":"\ud83d\ude24"},"joked with":{"cn":"\u5f00\u73a9\u7b11","emoji":"\ud83d\ude04"},"kindest":{"cn":"\u6700\u5584\u826f\u7684","emoji":"\ud83d\udc96","gold":true},"kitten":{"cn":"\u5c0f\u732b","emoji":"\ud83d\udc31"},"lambs":{"cn":"\u5c0f\u7f8a","emoji":"\ud83d\udc11"},"landlord":{"cn":"\u8001\u677f\uff08\u9152\u9986\uff09","emoji":"\ud83c\udf7a"},"lanes":{"cn":"\u5c0f\u8def","emoji":"\ud83d\udee4\ufe0f"},"lantern":{"cn":"\u706f\u7b3c","emoji":"\ud83c\udfee"},"lavender":{"cn":"\u85b0\u8863\u8349","emoji":"\ud83d\udc9c"},"leaned":{"cn":"\u9760\u7740","emoji":"\ud83e\uddcd"},"leapt":{"cn":"\uff08\u5fc3\uff09\u731b\u8df3","emoji":"\ud83d\udc93"},"leapt up":{"cn":"\u8df3\u8d77\u6765","emoji":"\ud83d\udc15"},"lend":{"cn":"\u501f\u7ed9","emoji":"\ud83e\udd1d"},"lent":{"cn":"\u501f\u51fa\u4e86","emoji":"\ud83d\udcb0"},"less sane":{"cn":"\u4e0d\u592a\u7406\u667a\u7684","emoji":"\ud83c\udf00"},"less truthful":{"cn":"\u4e0d\u592a\u8bda\u5b9e\u7684","emoji":"\ud83e\udd25"},"lily":{"cn":"\u767e\u5408\u82b1","emoji":"\ud83c\udf38"},"linen":{"cn":"\u4e9a\u9ebb\u5e03","emoji":"\ud83e\uddf5"},"linen-weaver":{"cn":"\u4e9a\u9ebb\u5e03\u7ec7\u5de5","emoji":"\ud83e\uddf6"},"linen-weavers":{"cn":"\u4e9a\u9ebb\u5e03\u7ec7\u5de5\u4eec","emoji":"\ud83e\uddf6","gold":true},"lingered":{"cn":"\u9017\u7559","emoji":"\ud83d\udeb6","gold":true},"lively":{"cn":"\u6d3b\u6cfc\u7684","emoji":"\ud83c\udf89"},"loneliness":{"cn":"\u5b64\u72ec","emoji":"\ud83d\ude14"},"longed to":{"cn":"\u6e34\u671b","emoji":"\ud83d\ude29"},"loom":{"cn":"\u7ec7\u5e03\u673a","emoji":"\ud83e\uddf6"},"lump":{"cn":"\u4e00\u5757","emoji":"\u26aa"},"medicinal herbs":{"cn":"\u836f\u7528\u8349\u836f","emoji":"\ud83c\udf3f"},"merry":{"cn":"\u6b22\u4e50\u7684","emoji":"\ud83c\udf89"},"metamorphosis":{"cn":"\u8f6c\u53d8","emoji":"\ud83e\udd8b"},"mindlessly":{"cn":"\u673a\u68b0\u5730","emoji":"\ud83d\udd78\ufe0f","gold":true},"mingled with":{"cn":"\u6df7\u5408\u7740","emoji":"\ud83d\udd00","gold":true},"misery":{"cn":"\u75db\u82e6","emoji":"\ud83d\ude22"},"misfortune":{"cn":"\u4e0d\u5e78","emoji":"\ud83d\ude1e"},"misfortunes":{"cn":"\u4e0d\u5e78","emoji":"\ud83d\ude1e","gold":true},"mistress":{"cn":"\u5973\u4e3b\u4eba","emoji":"\ud83d\udc51"},"moaned":{"cn":"\u547b\u541f","emoji":"\ud83d\ude29","gold":true},"mole-catcher":{"cn":"\u6355\u9f39\u9f20\u7684\u4eba","emoji":"\ud83d\udd73\ufe0f"},"mourned for":{"cn":"\u54c0\u60bc","emoji":"\ud83d\ude22","gold":true},"mysteries":{"cn":"\u5965\u79d8","emoji":"\u2753"},"mysteriously":{"cn":"\u795e\u79d8\u5730","emoji":"\u2753"},"naughtiness":{"cn":"\u8c03\u76ae","emoji":"\ud83d\ude1c","gold":true},"naughty":{"cn":"\u8c03\u76ae\u7684","emoji":"\ud83d\ude1c"},"neighbourhood":{"cn":"\u90bb\u91cc","emoji":"\ud83c\udfd8\ufe0f"},"neighbours":{"cn":"\u90bb\u5c45\u4eec","emoji":"\ud83c\udfd8\ufe0f"},"neighbours'":{"cn":"\u90bb\u5c45\u4eec\u7684","emoji":"\ud83c\udfd8\ufe0f"},"nothing is as good as it seems beforehand":{"cn":"\u51e1\u4e8b\u4e0d\u5982\u60f3\u8c61\u4e2d\u597d","emoji":"\ud83d\udcad"},"observances":{"cn":"\u5b97\u6559\u4eea\u5f0f","emoji":"\u26ea","gold":true},"offended":{"cn":"\u751f\u6c14\u7684","emoji":"\ud83d\ude20"},"opium":{"cn":"\u9e26\u7247","emoji":"\ud83d\udc8a"},"orphan":{"cn":"\u5b64\u513f","emoji":"\ud83d\udc67"},"parish clerk":{"cn":"\u6559\u533a\u6267\u4e8b","emoji":"\u26ea"},"parson":{"cn":"\u7267\u5e08","emoji":"\u26ea","gold":true},"paused":{"cn":"\u505c\u987f","emoji":"\u23f8\ufe0f"},"peacefully":{"cn":"\u5e73\u9759\u5730","emoji":"\ud83d\ude0c"},"peasants":{"cn":"\u519c\u6c11","emoji":"\ud83c\udf3e"},"pedlar":{"cn":"\u5c0f\u8d29","emoji":"\ud83c\udf92","gold":true},"pierced":{"cn":"\u523a\u7a7f","emoji":"\ud83d\udde1\ufe0f"},"piles":{"cn":"\u4e00\u5806\u5806","emoji":"\ud83d\udcb0"},"pillow":{"cn":"\u6795\u5934","emoji":"\ud83d\udecf\ufe0f"},"pious":{"cn":"\u8654\u8bda\u7684","emoji":"\ud83d\ude4f"},"pity":{"cn":"\u9057\u61be","emoji":"\ud83d\ude14"},"pleasing":{"cn":"\u8ba8\u4eba\u559c\u6b22\u7684","emoji":"\ud83d\ude0a"},"plump":{"cn":"\u5706\u80d6\u7684","emoji":"\u2b50"},"powerless":{"cn":"\u65e0\u529b\u7684","emoji":"\ud83d\ude14"},"practising":{"cn":"\u7ec3\u4e60","emoji":"\ud83d\udcd6"},"procession":{"cn":"\u961f\u4f0d","emoji":"\ud83d\udeb6\u200d\u2640\ufe0f"},"punish":{"cn":"\u60e9\u7f5a","emoji":"\ud83d\ude20"},"punishing":{"cn":"\u60e9\u7f5a","emoji":"\ud83d\ude20"},"quarry":{"cn":"\u91c7\u77f3\u573a","emoji":"\u26cf\ufe0f"},"ragged":{"cn":"\u7834\u65e7\u7684","emoji":"\ud83d\udc55"},"raising suspicion":{"cn":"\u5f15\u8d77\u6000\u7591","emoji":"\ud83e\udd28"},"recognise":{"cn":"\u8ba4\u51fa","emoji":"\ud83d\udc40"},"relieved":{"cn":"\u653e\u5fc3\u7684","emoji":"\ud83d\ude0c"},"religious sect":{"cn":"\u5b97\u6559\u6d3e\u522b","emoji":"\u26ea"},"repent":{"cn":"\u5fcf\u6094","emoji":"\ud83d\ude4f"},"reproach":{"cn":"\u8d23\u5907","emoji":"\ud83d\ude1e","gold":true},"resign":{"cn":"\u987a\u4ece\u63a5\u53d7","emoji":"\ud83d\ude14"},"rigid":{"cn":"\u50f5\u786c\u7684","emoji":"\ud83e\uddca"},"ringing":{"cn":"\u54cd\u7740","emoji":"\ud83d\udd14"},"robbed":{"cn":"\u88ab\u62a2\u7684","emoji":"\ud83d\udd75\ufe0f"},"robbery":{"cn":"\u62a2\u52ab\u6848","emoji":"\ud83d\udd75\ufe0f"},"rocked":{"cn":"\u6447\u54c4","emoji":"\ud83e\udd31"},"rocking":{"cn":"\u6447\u6643","emoji":"\ud83e\udd31"},"rode":{"cn":"\u9a91\u9a6c\u3001\u4e58\u8f66","emoji":"\ud83d\udc0e"},"rushed":{"cn":"\u51b2\u8fdb","emoji":"\ud83c\udfc3"},"rushing":{"cn":"\u51b2\u51fa","emoji":"\ud83c\udfc3"},"salvation":{"cn":"\u6551\u8d4e","emoji":"\u271d\ufe0f"},"sane":{"cn":"\u795e\u667a\u6b63\u5e38\u7684","emoji":"\ud83e\udde0"},"satan":{"cn":"\u6492\u65e6","emoji":"\ud83d\ude08"},"satisfy":{"cn":"\u6ee1\u8db3","emoji":"\u2705"},"schooling":{"cn":"\u6559\u80b2","emoji":"\ud83d\udcda"},"scissors":{"cn":"\u526a\u5200","emoji":"\u2702\ufe0f"},"searched":{"cn":"\u641c\u5bfb","emoji":"\ud83d\udd0d"},"seated":{"cn":"\u5b89\u6392\u5750\u4e0b","emoji":"\ud83e\ude91"},"secrecy":{"cn":"\u4fdd\u5bc6","emoji":"\ud83e\udd2b"},"shepherd":{"cn":"\u7267\u7f8a\u4eba","emoji":"\ud83d\udc11"},"shoe lane":{"cn":"\u978b\u5df7\uff08\u8857\u540d\uff09","emoji":"\ud83d\udee3\ufe0f"},"short-sighted":{"cn":"\u8fd1\u89c6\u7684","emoji":"\ud83d\udc53"},"shyly":{"cn":"\u5bb3\u7f9e\u5730","emoji":"\ud83d\ude33","gold":true},"sighed":{"cn":"\u53f9\u6c14","emoji":"\ud83d\ude2e\u200d\ud83d\udca8"},"sightless":{"cn":"\u5931\u660e\u7684","emoji":"\ud83d\udc41\ufe0f","gold":true},"simplicity":{"cn":"\u5355\u7eaf","emoji":"\ud83d\ude07"},"sinful":{"cn":"\u6709\u7f6a\u7684","emoji":"\ud83d\ude08"},"skeleton":{"cn":"\u9ab8\u9aa8","emoji":"\ud83d\udc80"},"slanting":{"cn":"\u659c\u7684","emoji":"\ud83d\udcd0","gold":true},"sleepy":{"cn":"\u56f0\u5026\u7684","emoji":"\ud83d\ude34"},"smack":{"cn":"\u6253\u5c41\u80a1","emoji":"\u270b"},"smoky":{"cn":"\u70df\u96fe\u5f25\u6f2b\u7684","emoji":"\ud83d\udca8"},"smoothed":{"cn":"\u62b9\u5e73","emoji":"\ud83d\udd90\ufe0f","gold":true},"sneering":{"cn":"\u5632\u8bbd\u7684","emoji":"\ud83d\ude0f","gold":true},"soaking":{"cn":"\u6e7f\u900f\u5730","emoji":"\ud83d\udca6"},"sobbed":{"cn":"\u62bd\u6ce3","emoji":"\ud83d\ude2d","gold":true},"sorrow":{"cn":"\u60b2\u4f24","emoji":"\ud83d\ude22"},"sorrows":{"cn":"\u60b2\u4f24","emoji":"\ud83d\ude22"},"spinning its web":{"cn":"\u7ec7\u7f51","emoji":"\ud83d\udd78\ufe0f"},"spinning wheels":{"cn":"\u7eba\u8f66","emoji":"\ud83e\uddf5"},"spiteful":{"cn":"\u6076\u610f\u7684","emoji":"\ud83d\ude12","gold":true},"splendid":{"cn":"\u534e\u4e3d\u7684","emoji":"\u2728"},"springtime":{"cn":"\u6625\u5929","emoji":"\ud83c\udf31"},"sprinkled":{"cn":"\u6492\u4e0a","emoji":"\ud83c\udfd6\ufe0f"},"squire":{"cn":"\u5927\u5730\u4e3b","emoji":"\ud83c\udfa9"},"staggered to":{"cn":"\u8e52\u8dda\u8d77\u8eab","emoji":"\ud83e\udd74"},"stared":{"cn":"\u77aa\u89c6","emoji":"\ud83d\udc40"},"starlight":{"cn":"\u661f\u5149","emoji":"\u2728"},"stern":{"cn":"\u4e25\u5389\u7684","emoji":"\ud83d\ude20"},"sternly":{"cn":"\u4e25\u5389\u5730","emoji":"\ud83d\ude20","gold":true},"strangely":{"cn":"\u5947\u602a\u5730","emoji":"\u2753"},"stretched out":{"cn":"\u4f38\u51fa","emoji":"\ud83e\udd1a"},"struggled against":{"cn":"\u4e0e\u2026\u4f5c\u6597\u4e89","emoji":"\ud83d\udcaa"},"suffice":{"cn":"\u8db3\u591f","emoji":"\u2705"},"suffocating":{"cn":"\u4ee4\u4eba\u7a92\u606f\u7684","emoji":"\ud83d\ude16"},"supernatural":{"cn":"\u8d85\u81ea\u7136\u7684","emoji":"\ud83d\udc7b"},"superstitious":{"cn":"\u8ff7\u4fe1\u7684","emoji":"\ud83d\udd2e"},"suspicion":{"cn":"\u6000\u7591","emoji":"\ud83e\udd28"},"suspiciously":{"cn":"\u6000\u7591\u5730","emoji":"\ud83e\udd28"},"swallowed":{"cn":"\u541e\u4e0b","emoji":"\ud83d\udc8a"},"swearing at":{"cn":"\u5492\u9a82","emoji":"\ud83e\udd2c"},"sweet-smelling":{"cn":"\u82b3\u9999\u7684","emoji":"\ud83c\udf38"},"swept away":{"cn":"\u88ab\u5937\u5e73\u6d88\u5931","emoji":"\ud83e\uddf9"},"tailor":{"cn":"\u88c1\u7f1d","emoji":"\u2702\ufe0f"},"temptation":{"cn":"\u8bf1\u60d1","emoji":"\ud83d\ude08"},"the flask of":{"cn":"\u4e00\u74f6\uff08\u9152\uff09","emoji":"\ud83c\udf76"},"thickly":{"cn":"\u539a\u539a\u5730","emoji":"\u2744\ufe0f","gold":true},"thoughtful":{"cn":"\u6c89\u601d\u7684","emoji":"\ud83e\udd14"},"tightly":{"cn":"\u7d27\u7d27\u5730","emoji":"\ud83e\udd1d"},"tinder-box":{"cn":"\u6253\u706b\u5323","emoji":"\ud83d\udd25"},"trance":{"cn":"\u51fa\u795e\u72b6\u6001","emoji":"\ud83d\ude35"},"travelling pedlar":{"cn":"\u6d41\u52a8\u5c0f\u8d29","emoji":"\ud83c\udf92","gold":true},"tremble":{"cn":"\u98a4\u6296","emoji":"\ud83d\ude30"},"trembling":{"cn":"\u98a4\u6296\u7684","emoji":"\ud83d\ude30"},"trim":{"cn":"\u4fee\u526a","emoji":"\u2702\ufe0f"},"trimmings":{"cn":"\u4fee\u526a\u4e0b\u7684\u679d\u53f6","emoji":"\ud83c\udf3f","gold":true},"unaware":{"cn":"\u6ca1\u610f\u8bc6\u5230","emoji":"\ud83d\ude36"},"uncertain":{"cn":"\u4e0d\u786e\u5b9a\u7684","emoji":"\u2753"},"unconscious":{"cn":"\u5931\u53bb\u77e5\u89c9\u7684","emoji":"\ud83d\ude35"},"unlocked":{"cn":"\u6253\u5f00\u9501","emoji":"\ud83d\udd13"},"unwilling":{"cn":"\u4e0d\u60c5\u613f\u7684","emoji":"\ud83d\ude45"},"vanish":{"cn":"\u6d88\u5931","emoji":"\ud83d\udca8"},"vanished":{"cn":"\u6d88\u5931\u4e86","emoji":"\ud83d\udca8"},"villagers":{"cn":"\u6751\u6c11\u4eec","emoji":"\ud83e\uddd1\u200d\ud83c\udf3e"},"violently":{"cn":"\u731b\u70c8\u5730","emoji":"\ud83d\udca5"},"virtue":{"cn":"\u7f8e\u5fb7","emoji":"\ud83d\ude07"},"virtuous":{"cn":"\u6b63\u76f4\u7684","emoji":"\ud83d\ude07"},"visitation":{"cn":"\u964d\u4e34","emoji":"\ud83d\udc7b"},"wander":{"cn":"\u6f2b\u6b65","emoji":"\ud83d\udeb6"},"wandering":{"cn":"\u95f2\u901b","emoji":"\ud83d\udeb6"},"wardrobe":{"cn":"\u8863\u67dc","emoji":"\ud83d\udeaa"},"warmed up":{"cn":"\u52a0\u70ed","emoji":"\ud83d\udd25"},"warmth":{"cn":"\u6e29\u6696","emoji":"\ud83d\udd25"},"was blazing":{"cn":"\u718a\u718a\u71c3\u70e7","emoji":"\ud83d\udd25"},"was longing for":{"cn":"\u6e34\u671b\u7740","emoji":"\ud83d\ude0d"},"washed away":{"cn":"\u51b2\u8d70\u4e86","emoji":"\ud83c\udf0a"},"weaver":{"cn":"\u7ec7\u5de5","emoji":"\ud83e\uddf6"},"weavers":{"cn":"\u7ec7\u5de5\u4eec","emoji":"\ud83e\uddf6"},"weaving work":{"cn":"\u7ec7\u5e03\u6d3b","emoji":"\ud83e\uddf6"},"wedding feast":{"cn":"\u5a5a\u5bb4","emoji":"\ud83c\udf89"},"weekday":{"cn":"\u5de5\u4f5c\u65e5","emoji":"\ud83d\udcc5"},"weep":{"cn":"\u54ed\u6ce3","emoji":"\ud83d\ude22"},"were fond of":{"cn":"\u559c\u6b22","emoji":"\u2764\ufe0f"},"wheelwright":{"cn":"\u8f6e\u5320","emoji":"\ud83d\udede","gold":true},"wills":{"cn":"\u65e8\u610f","emoji":"\ud83d\ude4f"},"wiser":{"cn":"\u66f4\u806a\u660e","emoji":"\ud83e\udde0"},"witchcraft":{"cn":"\u5deb\u672f","emoji":"\ud83d\udd2e"},"withdraw from":{"cn":"\u56de\u907f\u3001\u758f\u8fdc","emoji":"\ud83d\udeb6"},"wondered about":{"cn":"\u611f\u5230\u597d\u5947","emoji":"\ud83e\udd14"},"workhouse":{"cn":"\u6d4e\u8d2b\u9662","emoji":"\ud83c\udfda\ufe0f","gold":true},"worrying about":{"cn":"\u62c5\u5fc3","emoji":"\ud83d\ude1f"},"wretched":{"cn":"\u53ef\u601c\u7684","emoji":"\ud83d\ude22"},"wronged":{"cn":"\u4e8f\u5f85\u7684\u4eba","emoji":"\ud83d\ude14"},"trust":{"cn":"\u4fe1\u4efb","emoji":"\ud83e\udd1d"}};
+const SECTIONS = {"PART 1":{"cn":"\u4e0a\u90e8 \u00b7 \u9ec4\u91d1\u4e0e\u5b64\u72ec","icon":"\ud83d\udcb0"},"PART 2":{"cn":"\u4e0b\u90e8 \u00b7 \u91d1\u53d1\u7684\u5b69\u5b50","icon":"\ud83d\udc67"}};
+const META = {"title":"SILAS MARNER","subtitle":"\u9605\u8bfb\u5927\u5192\u9669 \u00b7 \u7ec7\u5de5\u7684\u91d1\u5b50\u4e22\u4e86\uff0c\u5374\u6361\u56de\u4e00\u4e2a\u91d1\u53d1\u5973\u5b69","bolt":"\ud83e\uddf6\ud83d\udcb0\ud83d\udc67","pageTitle":"Silas Marner \u00b7 \u7ec7\u5de5\u9a6c\u5357","saveKey":"silasmarner_game_v1","bookId":"silasmarner"};   // { title, subtitle, bolt, saveKey }
+const PREDICTIONS = [];   // 先猜后揭晓
+
+/* =====================================================
+   存档
+   ===================================================== */
+const SAVE_KEY = (META && META.saveKey) || "reading_game_v1";
+const BOOK_ID = (META && META.bookId) || SAVE_KEY;
+let save = { done:{}, stars:{}, words:{}, slow:false };
+try { const s = localStorage.getItem(SAVE_KEY); if (s) save = Object.assign(save, JSON.parse(s)); } catch(e){}
+function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){} }
+
+/* ===== 跨书成长数据(全站共享, 书架中枢也读它) ===== */
+const HUB_KEY = "reading_hub_v1";
+function hubLoad(){ try{ return JSON.parse(localStorage.getItem(HUB_KEY)) || {}; }catch(e){ return {}; } }
+function hubSave(h){ try{ localStorage.setItem(HUB_KEY, JSON.stringify(h)); }catch(e){} }
+function ymd(d){ return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+function todayStr(){ return ymd(new Date()); }
+function markStreak(){                       // 每天首次阅读活动记一次连读
+  const h = hubLoad(); const t = todayStr();
+  h.streak = h.streak || { last:null, count:0, best:0 };
+  if (h.streak.last !== t){
+    const y = new Date(); y.setDate(y.getDate()-1);
+    h.streak.count = (h.streak.last === ymd(y)) ? (h.streak.count+1) : 1;
+    h.streak.last = t; h.streak.best = Math.max(h.streak.best||0, h.streak.count);
+    hubSave(h);
+  }
+  return h.streak.count;
+}
+function recordWords(chId, words){           // 通关某章 → 累计跨书阅读词数(每章只计一次)
+  const h = hubLoad();
+  h.words = h.words || {}; h.words[BOOK_ID] = h.words[BOOK_ID] || {};
+  if (!h.words[BOOK_ID][chId]){ h.words[BOOK_ID][chId] = words; hubSave(h); }
+}
+function totalWordsRead(){
+  const h = hubLoad(); let n = 0;
+  for (const b in (h.words||{})) for (const c in h.words[b]) n += h.words[b][c] || 0;
+  return n;
+}
+function kidName(){ return (hubLoad().kidName) || ""; }
+
+let cur = 0, qIdx = 0, wrongCount = 0, quizLock = false;
+
+function $(id){ return document.getElementById(id); }
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._tm); t._tm = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+function stripMarks(s){ return s.replace(/\{([^}]*)\}/g, "$1"); }
+
+/* =====================================================
+   朗读引擎 TTS —— 三层保障:
+   1) 本地 speechSynthesis(优选英文音色, 分句排队, 防长文本被浏览器掐断)
+   2) 本地不出声 → 自动切换在线发音(有道 dictvoice, 需联网)
+   3) 都不行 → 提示换浏览器
+   ===================================================== */
+const TTS = {
+  voices: [], mode: "auto",    // auto | local | online | dead
+  player: null, queue: [], playing: false, keepAlive: null, curPara: -1, unlocked: false
+};
+const IN_WECHAT = /MicroMessenger/i.test(navigator.userAgent || "");
+function ttsInit(){
+  if (!("speechSynthesis" in window) || IN_WECHAT) { TTS.mode = "online"; }
+  if (!("speechSynthesis" in window)) return;
+  const load = ()=>{ try{ TTS.voices = speechSynthesis.getVoices() || []; }catch(e){} };
+  load();
+  try{ speechSynthesis.onvoiceschanged = load; }catch(e){}
+  setTimeout(load, 500); setTimeout(load, 2000);
+}
+/* 移动端/微信自动播放限制: 用户第一次触屏时"解锁"音频通道,
+   之后延迟触发的在线发音才允许出声 */
+const SILENT_WAV = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+function ensurePlayer(){
+  if (!TTS.player) TTS.player = new Audio();
+  return TTS.player;
+}
+function unlockAudio(){
+  if (TTS.unlocked) return;
+  TTS.unlocked = true;
+  try{ const p = ensurePlayer(); p.src = SILENT_WAV; p.play().catch(()=>{ TTS.unlocked = false; }); }catch(e){}
+  try{
+    if ("speechSynthesis" in window){
+      const u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u);
+    }
+  }catch(e){}
+}
+document.addEventListener("touchend", unlockAudio, true);
+document.addEventListener("click", unlockAudio, true);
+function pickVoice(){
+  const vs = TTS.voices;
+  return vs.find(v=>/en[-_]US/i.test(v.lang) && /google|natural|online/i.test(v.name))
+      || vs.find(v=>/en[-_]US/i.test(v.lang))
+      || vs.find(v=>/^en/i.test(v.lang)) || null;
+}
+function splitSentences(text){
+  const parts = (text.match(/[^.!?]+[.!?”"']*\s*/g) || [text]).map(s=>s.trim()).filter(Boolean);
+  // 合并过短的句子, 控制每段 ≤ 190 字符(在线接口和本地引擎都友好)
+  const out = [];
+  let buf = "";
+  for (const p of parts){
+    if ((buf + " " + p).length > 190 && buf) { out.push(buf.trim()); buf = p; }
+    else buf = buf ? buf + " " + p : p;
+  }
+  if (buf.trim()) out.push(buf.trim());
+  return out;
+}
+function rate(){ return save.slow ? 0.7 : 0.88; }
+/* 预录音频的播放倍速: 原速播放(语速不变); 句间停顿靠剪静音+预加载解决 */
+function playSpeed(){ return save.slow ? 0.8 : 1.0; }
+
+/* 把一段文本切成"自然句子"(与 gen_audio.py 完全一致的切法),不做合并 */
+function splitSents(text){
+  const raw = text.match(/[^.!?]+[.!?]*["'”’]*/g) || [text];
+  const out = [];
+  for (let s of raw){
+    s = s.trim(); if (!s) continue;
+    if (!/[A-Za-z0-9]/.test(s) && out.length) out[out.length - 1] += " " + s;
+    else out.push(s);
+  }
+  return out;
+}
+function stopAll(){
+  if (RS){ clearTimeout(RS._gap); }
+  RS = null;
+  TTS.playing = false; TTS.queue = [];
+  clearInterval(TTS.keepAlive);
+  try{ speechSynthesis.cancel(); }catch(e){}
+  if (TTS.player){ try{ TTS.player.pause(); TTS.player.onended = null; }catch(e){} }
+  highlightSent(null);
+  setPauseUI();
+}
+/* 高亮"正在读的那一句" */
+function highlightSent(it){
+  document.querySelectorAll(".story-card .sent.speaking").forEach(e=>e.classList.remove("speaking"));
+  if (!it) return;
+  const el = document.querySelector('.sent[data-pi="' + it.pi + '"][data-si="' + it.si + '"]');
+  if (el){ el.classList.add("speaking"); try{ el.scrollIntoView({behavior:"smooth", block:"center"}); }catch(e){} }
+}
+/* 记录某段"已听完",全部段落听完才解锁答题 */
+function markHeard(i){
+  if (i < 0 || cur == null) return;
+  const ch = BOOK[cur];
+  heardSet.add(i);
+  save.heard = save.heard || {};
+  save.heard[ch.id] = Array.from(heardSet);
+  bumpRead(i + 1);                 // 听完某段也算读过
+  persist();
+  updateQuizGate();
+}
+let heardSet = new Set();
+
+/* ===== 阅读进度: 记住读到第几段 + 标记已读段落 ===== */
+let readPos = 0;                   // 本章已读到的段落数(0..N), 段 i 已读 <=> i < readPos
+function saveReadPos(){
+  if (cur == null) return;
+  save.read = save.read || {};
+  save.read[BOOK[cur].id] = readPos;
+  persist();
+}
+function paintRead(){
+  document.querySelectorAll("#story-body p[data-pi]").forEach(p=>{
+    p.classList.toggle("read", (+p.dataset.pi) < readPos);
+  });
+}
+function bumpRead(n){
+  if (n > readPos){ readPos = n; saveReadPos(); paintRead(); updateQuizGate(); }
+}
+let _scrollT = 0;
+function onReadScroll(){
+  if (!$("scr-read").classList.contains("active")) return;
+  const now = Date.now();
+  if (now - _scrollT < 180) return; _scrollT = now;
+  const line = window.innerHeight * 0.5;    // 段落底部越过屏幕中线 = 读完这段
+  let fp = readPos;
+  document.querySelectorAll("#story-body p[data-pi]").forEach(p=>{
+    if (p.getBoundingClientRect().bottom < line){ const pi = (+p.dataset.pi) + 1; if (pi > fp) fp = pi; }
+  });
+  bumpRead(fp);
+}
+window.addEventListener("scroll", onReadScroll, { passive:true });
+/* 读过或听过都算"走过这一章": readPos 由滚动阅读和逐句朗读共同推进 */
+function goneThrough(){
+  if (!BOOK[cur]) return 0;
+  return Math.max(readPos, heardSet.size);   // 两者取大, 稳妥
+}
+function allHeard(){
+  return BOOK[cur] && goneThrough() >= BOOK[cur].paras.length;
+}
+function updateQuizGate(){
+  const btn = $("btn-quiz");
+  if (!btn || cur == null) return;
+  const ch = BOOK[cur];
+  const done = !!save.done[ch.id];       // 已通关章节不再限制
+  if (done || allHeard()){
+    btn.textContent = "✅ 我读完了，去答题";
+    btn.style.opacity = "1";
+  } else {
+    const left = Math.max(0, ch.paras.length - goneThrough());
+    btn.textContent = "🔒 读完/听完故事就能答题（还剩 " + left + " 段）";
+    btn.style.opacity = ".6";
+  }
+}
+
+/* 本地引擎播放; onFail 在完全没出声时触发 */
+function speakLocal(sentences, onFail, onDone){
+  try{ speechSynthesis.cancel(); }catch(e){ onFail && onFail(); return; }
+  let started = false, finished = 0;
+  const total = sentences.length;
+  sentences.forEach(s=>{
+    const u = new SpeechSynthesisUtterance(s);
+    u.lang = "en-US"; u.rate = rate();
+    const v = pickVoice(); if (v) u.voice = v;
+    u.onstart = ()=>{ started = true; TTS.mode = "local"; };
+    u.onend = ()=>{ finished++; if (finished >= total && onDone) onDone(); };
+    try{ speechSynthesis.speak(u); }catch(e){}
+  });
+  /* Chrome 桌面版 15 秒掐断长朗读的经典 bug: 周期性 resume 保活 */
+  clearInterval(TTS.keepAlive);
+  TTS.keepAlive = setInterval(()=>{
+    try{
+      if (!speechSynthesis.speaking){ clearInterval(TTS.keepAlive); }
+      else { speechSynthesis.resume(); }
+    }catch(e){}
+  }, 10000);
+  /* 3 秒还没出声 → 判定本地引擎不可用 */
+  setTimeout(()=>{
+    if (!started){
+      try{ speechSynthesis.cancel(); }catch(e){}
+      clearInterval(TTS.keepAlive);
+      onFail && onFail();
+    }
+  }, 3000);
+}
+
+/* 预录音频(与游戏同源托管的 mp3, 最稳的通道) */
+const AUDIO_BASE = "audio/";
+function slug(w){
+  const s = w.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  return s || "x";
+}
+function detectAudio(){
+  try{
+    fetch(AUDIO_BASE + "test.mp3", {method:"HEAD"})
+      .then(r=>{ TTS.hasAudio = !!r.ok; })
+      .catch(()=>{});
+  }catch(e){}
+}
+function playFile(url, onDone, onFail){
+  const p = ensurePlayer();
+  TTS.playing = true;
+  p.src = url;
+  p.playbackRate = playSpeed();
+  p.onended = ()=>{ TTS.playing = false; onDone && onDone(); };
+  p.onerror = ()=>{ TTS.playing = false; onFail && onFail(); };
+  p.play().then(()=>{ TTS.lastErr = ""; TTS.hasAudio = true; }).catch(err=>{
+    TTS.playing = false; TTS.lastErr = "play:" + (err && err.name || "blocked");
+    toast("请再点一次 🔊,并确认媒体音量已调大");
+  });
+}
+
+/* 在线发音(有道词典接口, 需联网; 复用同一个已解锁的 Audio 元素) */
+function speakOnline(sentences, onDone, onFail){
+  TTS.queue = sentences.slice(); TTS.playing = true;
+  const p = ensurePlayer();
+  p.playbackRate = playSpeed();
+  const next = ()=>{
+    if (!TTS.playing) return;
+    if (!TTS.queue.length){ TTS.playing = false; onDone && onDone(); return; }
+    const s = TTS.queue.shift();
+    p.src = "https://dict.youdao.com/dictvoice?type=2&audio=" + encodeURIComponent(s);
+    p.onended = next;
+    p.onerror = ()=>{ TTS.playing = false; TTS.lastErr = "online:loaderror";
+      if (onFail) onFail(); else toast("在线朗读失败:请检查网络;首页有[声音检测]可排查"); };
+    p.play().catch(err=>{ TTS.playing = false; TTS.lastErr = "play:" + (err && err.name || "blocked");
+      toast("请再点一次 🔊,并把媒体音量调大"); });
+  };
+  next();
+}
+
+/* 统一入口: 依次尝试 预录音频 → 本地引擎 → 在线发音;
+   用户在[声音检测]里手动固定过模式则只走该通道(音频模式保留在线兜底) */
+function speak(text, onDone, hint){
+  stopAll();
+  const forced = (save.ttsMode && save.ttsMode !== "auto") ? save.ttsMode : null;
+  const sentences = splitSentences(text || "");
+  /* 有预录音频就直接先试播,加载失败会自动落到下一通道,
+     不再依赖启动时的 hasAudio 探测(某些环境探测请求会被拦而播放正常) */
+  const url = hint
+    ? AUDIO_BASE + (hint.file ? hint.file : "w/" + slug(hint.word) + ".mp3")
+    : null;
+  const chain = [];
+  if (url && (!forced || forced === "recorded"))
+    chain.push(fail=>playFile(url, onDone, fail));
+  if (sentences.length && (!forced || forced === "local"))
+    chain.push(fail=>speakLocal(sentences, fail, onDone));
+  if (sentences.length && (!forced || forced === "online" || forced === "recorded"))
+    chain.push(fail=>speakOnline(sentences, onDone, fail));
+  if (!chain.length) return;
+  const step = i=>{
+    if (i >= chain.length){ toast("朗读失败:请到首页[声音检测]排查"); return; }
+    chain[i](()=>step(i + 1));
+  };
+  step(0);
+}
+
+/* ============ 逐句朗读引擎(支持暂停/继续) ============ */
+let RS = null;   // { items:[{pi,si,file,text}], pos, paused }
+function sentFile(ch, pi, si){ return "s/" + ch.id + "_" + pi + "_" + si + ".mp3"; }
+function buildItems(paraIdxs){
+  const ch = BOOK[cur]; const items = [];
+  paraIdxs.forEach(pi=>{
+    const sents = splitSents(ch.paras[pi]);
+    sents.forEach((s, si)=>items.push({ pi, si, file: sentFile(ch, pi, si), text: stripMarks(s) }));
+  });
+  return items;
+}
+function paraSentCount(pi){ return splitSents(BOOK[cur].paras[pi]).length; }
+function setPauseUI(){
+  const b = $("btn-pause"); if (!b) return;
+  b.textContent = (RS && RS.paused) ? "▶️ 继续" : "⏸ 暂停";
+}
+function readItems(items, startPos){
+  stopAll();
+  if (!items.length) return;
+  RS = { items: items, pos: startPos || 0, paused: false };
+  setPauseUI();
+  rsStep();
+}
+function rsStep(){
+  if (!RS || RS.paused) return;
+  if (RS.pos >= RS.items.length){ RS = null; highlightSent(null); setPauseUI(); return; }
+  const it = RS.items[RS.pos];
+  highlightSent(it);
+  prefetchNext();                        // 预加载下一句, 缩短句间加载停顿
+  speakSentence(it, ()=>{
+    if (it.si === paraSentCount(it.pi) - 1) markHeard(it.pi);   // 该段最后一句读完 → 记已听
+    if (!RS || RS.paused) return;
+    RS.pos++;
+    // 句间留一点换气停顿(慢速时更长), 高亮先跳到下一句让孩子准备
+    const gap = save.slow ? 620 : 380;
+    if (RS.pos < RS.items.length) highlightSent(RS.items[RS.pos]);
+    RS._gap = setTimeout(()=>{ if (RS && !RS.paused) rsStep(); }, gap);
+  });
+}
+function prefetchNext(){
+  const nx = RS && RS.items[RS.pos + 1];
+  if (!nx || !nx.file) return;
+  try{ const a = new Audio(); a.preload = "auto"; a.src = AUDIO_BASE + nx.file; TTS._pre = a; }catch(e){}
+}
+/* 播放单句:预录音频 → 本地引擎 → 在线,任一成功即止 */
+function speakSentence(it, onDone){
+  const forced = (save.ttsMode && save.ttsMode !== "auto") ? save.ttsMode : null;
+  const chain = [];
+  if (!forced || forced === "recorded") chain.push(fail=>playFile(AUDIO_BASE + it.file, onDone, fail));
+  if (!forced || forced === "local")    chain.push(fail=>speakLocal([it.text], fail, onDone));
+  if (!forced || forced === "online" || forced === "recorded") chain.push(fail=>speakOnline([it.text], onDone, fail));
+  const step = i=>{ if (i >= chain.length){ toast("朗读失败:请到首页[声音检测]排查"); return; } chain[i](()=>step(i + 1)); };
+  step(0);
+}
+function pauseToggle(){
+  if (!RS){ readAloud(); return; }        // 没在读 → 直接开始读
+  if (RS.paused) readResume(); else readPause();
+}
+function readPause(){
+  if (!RS) return;
+  RS.paused = true;
+  clearTimeout(RS._gap);
+  try{ if (TTS.player) TTS.player.pause(); }catch(e){}
+  try{ if ("speechSynthesis" in window) speechSynthesis.pause(); }catch(e){}
+  setPauseUI();
+}
+function readResume(){
+  if (!RS) return;
+  RS.paused = false;
+  clearTimeout(RS._gap);
+  setPauseUI();
+  let resumed = false;
+  try{ if (TTS.player && TTS.player.src && TTS.player.paused){ TTS.player.play(); resumed = true; } }catch(e){}
+  try{ if ("speechSynthesis" in window && speechSynthesis.paused){ speechSynthesis.resume(); resumed = true; } }catch(e){}
+  if (!resumed) rsStep();                  // 暂停恰好卡在两句之间 → 直接接着下一句
+}
+function readAloud(){
+  const items = buildItems(BOOK[cur].paras.map((_, i)=>i));
+  // 从上次读到的段落之后开始读(已读过的不再重复); 整章读完过则从头再读
+  let start = 0;
+  if (readPos > 0 && readPos < BOOK[cur].paras.length){
+    const idx = items.findIndex(it => it.pi >= readPos);
+    if (idx > 0){ start = idx; toast("▶️ 从上次读到的地方接着读"); }
+  }
+  readItems(items, start);
+}
+function readPara(i){ readItems(buildItems([i]), 0); }
+function stopAloud(){ stopAll(); }
+function toggleRate(){
+  save.slow = !save.slow; persist();
+  $("btn-rate").textContent = save.slow ? "🐇 正常速" : "🐢 慢速";
+  toast(save.slow ? "已切换为慢速朗读 🐢" : "已切换为正常语速 🐇");
+}
+
+/* =====================================================
+   首页
+   ===================================================== */
+function isUnlocked(i){ return i === 0 || !!save.done[BOOK[i-1].id]; }
+function firstUndone(){
+  for (let i = 0; i < BOOK.length; i++) if (!save.done[BOOK[i].id]) return i;
+  return BOOK.length - 1;
+}
+function renderHome(){
+  const doneN = BOOK.filter(c=>save.done[c.id]).length;
+  const starN = Object.values(save.stars).reduce((a,b)=>a+b, 0);
+  const wordN = Object.keys(save.words).length;
+  $("st-ch").textContent = doneN + "/" + BOOK.length;
+  $("st-star").textContent = starN;
+  $("st-word").textContent = wordN;
+  $("prog-bar").style.width = Math.round(doneN / BOOK.length * 100) + "%";
+  $("prog-label").textContent = doneN === BOOK.length
+    ? "🎉 全书通关!你读完了一整本英文小说!"
+    : "整本书进度 " + Math.round(doneN / BOOK.length * 100) + "%";
+  $("btn-continue").textContent = doneN === 0 ? "▶️ 开始冒险" :
+    (doneN === BOOK.length ? "🎉 再玩一遍喜欢的章节" : "▶️ 继续冒险:" + BOOK[firstUndone()].title_cn);
+  $("wb-count").textContent = wordN ? "(" + wordN + ")" : "";
+
+  // 跨书成长横幅: 已读词数 + 连读天数; 全书通关时给证书入口
+  const h = hubLoad();
+  const streak = (h.streak && h.streak.last === todayStr()) ? h.streak.count : (h.streak ? 0 : 0);
+  const twr = totalWordsRead();
+  let banner = `📚 累计已读 <b>${twr}</b> 词`;
+  if (h.streak && h.streak.count > 0) banner += ` · 🔥 连读 <b>${h.streak.count}</b> 天`;
+  banner += `<div class="g-sub">读得越多，数字越大——这是你自己读出来的成绩单！</div>`;
+  if (doneN === BOOK.length){
+    banner += `<div style="margin-top:8px"><a class="shelf-link" style="background:#ffb300;color:#2b1a00;border:none" href="javascript:showCert()">🏅 领取本书通关证书</a></div>`;
+  }
+  $("growth-banner").innerHTML = banner;
+
+  const map = $("map"); map.innerHTML = "";
+  let lastSection = null;
+  const nextIdx = firstUndone();
+  BOOK.forEach((ch, i)=>{
+    if (ch.section !== lastSection){
+      lastSection = ch.section;
+      const s = SECTIONS[ch.section] || {cn: ch.section, icon: "📖"};
+      const h = document.createElement("div");
+      h.className = "section-head";
+      h.innerHTML = `<span class="s-icon">${s.icon}</span><span class="s-name">${s.cn}</span><span class="s-en">${ch.section}</span>`;
+      map.appendChild(h);
+    }
+    const unlocked = isUnlocked(i);
+    const done = !!save.done[ch.id];
+    const node = document.createElement("div");
+    node.className = "map-node" + (unlocked ? "" : " locked") + (i === nextIdx && unlocked && !done ? " next" : "");
+    const stars = done ? "★".repeat(save.stars[ch.id] || 1) : "";
+    node.innerHTML = `
+      <div class="icon">${ch.icon}</div>
+      <div class="info">
+        <div class="name">${ch.title_en}</div>
+        <div class="place">${ch.title_cn} · ${ch.words}词 ${done ? "" : "· " + ch.teaser_cn}</div>
+      </div>
+      <div class="state">${ done ? `<span class="badge-done">${stars}</span>` : (unlocked ? "▶️" : "🔒") }</div>`;
+    node.onclick = unlocked ? (()=>openChapter(i)) : (()=>toast("先完成上一章才能解锁哦 🔒"));
+    map.appendChild(node);
+  });
+}
+function continueGame(){ openChapter(firstUndone()); }
+function goHome(){ stopAll(); renderHome(); show("scr-home"); }
+function resetProgress(){
+  if (!confirm("确定要清空所有进度和单词册,重新开始吗?")) return;
+  save = { done:{}, stars:{}, words:{}, heard:{}, read:{}, guesses:{}, review:{}, slow: save.slow, ttsMode: save.ttsMode, fontIdx: save.fontIdx }; persist(); renderHome(); toast("已重新开始 ✨");
+}
+
+/* =====================================================
+   阅读页
+   ===================================================== */
+function openChapter(i){
+  stopAll();
+  cur = i;
+  markStreak();                    // 打开章节 = 今天有阅读活动
+  const ch = BOOK[i];
+  $("read-tag").textContent = ch.tag;
+  $("read-title").textContent = ch.title_en;
+  $("read-title-cn").textContent = ch.title_cn + " · " + ch.words + " 词";
+  $("btn-rate").textContent = save.slow ? "🐇 正常速" : "🐢 慢速";
+  const gwHtml = (frag)=>frag.replace(/\{([^}]+)\}/g, (m, w)=>{
+    const key = w.trim().toLowerCase();
+    const cls = save.words[key] ? " learned" : ((GLOSSARY[key]||{}).gold ? " gold" : "");
+    return `<span class="gw${cls}" data-w="${w.replace(/"/g,'&quot;')}">${w}</span>`;
+  });
+  const body = $("story-body");
+  body.innerHTML = ch.paras.map((par, pi)=>{
+    // 把段落切成句子, 每句包一个 .sent(供逐句高亮), 生词 gw 仍在句内
+    const sents = splitSents(par).map((s, si)=>
+      `<span class="sent" data-pi="${pi}" data-si="${si}">${gwHtml(s)}</span>`).join(" ");
+    return `<p data-pi="${pi}">${sents} <span class="pspk" data-p="${pi}">🔊</span></p>`;
+  }).join("");
+  body.querySelectorAll(".gw").forEach(el=>{ el.onclick = (ev)=>{ ev.stopPropagation(); showWordCard(el.dataset.w, el); }; });
+  body.querySelectorAll(".pspk").forEach(el=>{ el.onclick = (ev)=>{ ev.stopPropagation(); readPara(+el.dataset.p); }; });
+  // 恢复本章已听进度(持久化,重进不用重听)
+  save.heard = save.heard || {};
+  heardSet = new Set(save.heard[ch.id] || []);
+  // 恢复本章"读到哪"进度
+  save.read = save.read || {};
+  readPos = save.read[ch.id] || 0;
+  paintRead();
+  updateQuizGate();
+  applyFont();
+  show("scr-read");
+  // 上次没读完 → 自动滚回上次位置继续
+  if (readPos > 0 && readPos < ch.paras.length){
+    setTimeout(()=>{
+      const t = $("story-body").querySelector('p[data-pi="' + readPos + '"]');
+      if (t){ t.scrollIntoView({block:"center"}); toast("⏱ 已回到上次读到的地方，接着读吧"); }
+    }, 220);
+  } else {
+    window.scrollTo(0, 0);
+  }
+}
+function backToRead(){ openChapter(cur); }
+
+/* ---------- 单词卡 ---------- */
+function sentenceOf(word){
+  const ch = BOOK[cur];
+  const low = word.toLowerCase();
+  for (const par of ch.paras){
+    if (par.toLowerCase().indexOf("{" + low) === -1 &&
+        par.toLowerCase().indexOf(low) === -1) continue;
+    const plain = stripMarks(par);
+    const ss = plain.match(/[^.!?]+[.!?”"']*/g) || [plain];
+    for (const s of ss) if (s.toLowerCase().includes(low)) return s.trim();
+  }
+  return "";
+}
+function showWordCard(word, el){
+  const key = word.trim().toLowerCase();
+  const g = GLOSSARY[key] || { cn: "(点🔊听发音)", emoji: "⭐" };
+  const firstTime = !save.words[key];
+  if (firstTime){
+    save.words[key] = { ch: BOOK[cur].id };
+    persist();
+    if (el) el.classList.add("learned");
+  }
+  const eg = sentenceOf(word);
+  const card = $("word-card");
+  card.className = "word-card" + (g.gold ? " goldcard" : "");
+  card.innerHTML = `
+    <div class="w-emoji">${g.emoji}</div>
+    <div class="w-word">${word}</div>
+    <div class="w-cn">${g.cn}</div>
+    ${g.gold ? `<div class="w-goldtag">✨ 金色稀有生词</div>` : ""}
+    ${eg ? `<div class="w-eg">“${eg}”</div>` : ""}
+    <div class="w-collect">${firstTime ? (g.gold ? "🏆 收集到一个金色生词!" : "🎉 新单词已收进单词册!") : "✅ 已在单词册里"}</div>
+    <button class="btn btn-primary btn-block" id="w-speak">🔊 听发音</button>`;
+  $("w-speak").onclick = ()=>speak(word + (eg ? ". " + eg : ""), null, {word: key});
+  $("word-overlay").classList.add("show");
+  speak(word, null, {word: key});
+}
+function closeWordCard(ev){
+  if (ev.target.id === "word-overlay"){ $("word-overlay").classList.remove("show"); stopAll(); }
+}
+
+/* =====================================================
+   答题
+   ===================================================== */
+function tryStartQuiz(){
+  const ch = BOOK[cur];
+  if (!save.done[ch.id] && !allHeard()){
+    const left = Math.max(0, ch.paras.length - goneThrough());
+    toast("把故事读完或听完就能答题啦(还剩 " + left + " 段)~");
+    return;
+  }
+  startQuiz();
+}
+function startQuiz(){
+  stopAll();
+  qIdx = 0; wrongCount = 0; quizLock = false;
+  $("quiz-tag").textContent = BOOK[cur].tag + " · QUIZ";
+  renderQuestion();
+  show("scr-quiz");
+}
+const KIND_LABEL = { choice:"🔤 选一选", tf:"⚖️ 判断对错", fill:"✏️ 选词填空", who:"💬 谁说的？", order:"🔢 按顺序排一排" };
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function renderQuestion(){
+  const q = BOOK[cur].quiz[qIdx];
+  const type = q.type || "choice";
+  $("quiz-progress").textContent = "第 " + (qIdx+1) + " / " + BOOK[cur].quiz.length + " 题";
+  $("quiz-feedback").textContent = "";
+  $("q-kind").textContent = KIND_LABEL[type] || KIND_LABEL.choice;
+  $("q-text").innerHTML = ""; $("q-cn").textContent = ""; $("q-options").innerHTML = "";
+  quizLock = false;
+  if (type === "tf") renderTF(q);
+  else if (type === "fill") renderFill(q);
+  else if (type === "who") renderWho(q);
+  else if (type === "order") renderOrder(q);
+  else renderChoice(q);
+}
+const PRAISE = ["Great job! 🎉","Excellent! ⭐","You got it! 💪","Amazing! 🌟","Perfect! 🏆"];
+function qPass(){
+  quizLock = true;
+  $("quiz-feedback").textContent = PRAISE[qIdx % PRAISE.length];
+  setTimeout(()=>{
+    qIdx++;
+    if (qIdx < BOOK[cur].quiz.length) renderQuestion();
+    else finishChapter();
+  }, 900);
+}
+function qFail(el, msg){
+  wrongCount++;
+  if (el){ el.classList.add("wrong"); setTimeout(()=>el.classList.remove("wrong"), 600); }
+  $("quiz-feedback").textContent = msg || "再想想～答案就藏在故事里 🔍(左上角可以回去再读)";
+}
+/* 兼容旧调用 */
+function answer(el, right){ if (!quizLock){ if (right){ el.classList.add("right"); qPass(); } else qFail(el); } }
+
+function renderChoice(q){
+  $("q-text").textContent = q.q;
+  $("q-cn").textContent = q.cn || "";
+  const box = $("q-options");
+  q.options.forEach((opt, i)=>{
+    const d = document.createElement("div");
+    d.className = "option"; d.textContent = String.fromCharCode(65+i) + ".  " + opt;
+    d.onclick = ()=>{ if (quizLock) return; if (i === q.answer){ d.classList.add("right"); qPass(); } else qFail(d); };
+    box.appendChild(d);
+  });
+}
+function renderTF(q){
+  $("q-text").textContent = q.q;
+  $("q-cn").textContent = q.cn || "这句话对不对？";
+  const box = $("q-options"); box.className = "options tf-row";
+  [{t:"✓ 对", v:true},{t:"✗ 错", v:false}].forEach(o=>{
+    const d = document.createElement("div");
+    d.className = "option tf-opt"; d.textContent = o.t;
+    d.onclick = ()=>{ if (quizLock) return; if (o.v === q.answer){ d.classList.add("right"); qPass(); } else qFail(d); };
+    box.appendChild(d);
+  });
+}
+function renderFill(q){
+  // q.q 里用 ___ 表示空格
+  $("q-text").innerHTML = (q.q || "").replace("___", '<span class="blank" id="the-blank">?</span>');
+  $("q-cn").textContent = q.cn || "把正确的词填进空格里";
+  const box = $("q-options"); box.className = "options chip-box";
+  q.options.forEach((opt, i)=>{
+    const d = document.createElement("div");
+    d.className = "chip"; d.textContent = opt;
+    d.onclick = ()=>{
+      if (quizLock) return;
+      if (i === q.answer){
+        d.classList.add("right");
+        const bl = $("the-blank"); if (bl){ bl.textContent = opt; bl.classList.add("filled"); }
+        qPass();
+      } else qFail(d);
+    };
+    box.appendChild(d);
+  });
+}
+function renderWho(q){
+  $("q-text").innerHTML = '<div class="quote-bubble">“' + q.q + '”</div><div style="margin-top:14px">这句话是谁说的？</div>';
+  $("q-cn").textContent = q.cn || "";
+  const box = $("q-options"); box.className = "options";
+  q.options.forEach((opt, i)=>{
+    const d = document.createElement("div");
+    d.className = "option"; d.textContent = String.fromCharCode(65+i) + ".  " + opt;
+    d.onclick = ()=>{ if (quizLock) return; if (i === q.answer){ d.classList.add("right"); qPass(); } else qFail(d); };
+    box.appendChild(d);
+  });
+}
+function renderOrder(q){
+  $("q-text").textContent = q.q || "按事情发生的先后，依次点一点：";
+  $("q-cn").textContent = q.cn || "";
+  const box = $("q-options"); box.className = "options";
+  // q.items 已按正确顺序; 打乱显示, 每项记住其正确序号
+  const shuffled = shuffle(q.items.map((t, idx)=>({ t, idx })));
+  let expect = 0;                       // 下一个应点的正确序号
+  shuffled.forEach(it=>{
+    const d = document.createElement("div");
+    d.className = "order-item";
+    d.innerHTML = '<span class="order-badge">•</span><span>' + it.t + '</span>';
+    d.onclick = ()=>{
+      if (quizLock || d.classList.contains("placed")) return;
+      if (it.idx === expect){
+        d.classList.add("placed");
+        d.querySelector(".order-badge").textContent = (expect + 1);
+        expect++;
+        if (expect === q.items.length) qPass();
+      } else {
+        qFail(d, "顺序不对哦，想想哪件事先发生 🤔");
+      }
+    };
+    box.appendChild(d);
+  });
+}
+function finishChapter(){
+  const ch = BOOK[cur];
+  const stars = wrongCount === 0 ? 3 : (wrongCount <= 2 ? 2 : 1);
+  const firstClear = !save.done[ch.id];
+  save.done[ch.id] = true;
+  save.stars[ch.id] = Math.max(save.stars[ch.id] || 0, stars);
+  save.read = save.read || {};
+  save.read[ch.id] = ch.paras.length;      // 通关 = 整章已读
+  persist();
+  recordWords(ch.id, ch.words);            // 累计跨书阅读词数
+  markStreak();
+  $("reward-part").textContent = ch.icon;
+  $("reward-title").textContent = (firstClear ? "获得纪念品:" : "纪念品已擦亮:") + ch.itemName + "!";
+  $("reward-stars").textContent = "⭐".repeat(stars);
+  const nx = cur + 1;
+  if (nx < BOOK.length){
+    const left = BOOK.length - 1 - cur;    // 章末悬念
+    const cliff = left <= 1 ? "🔥 就差最后一章，真相马上揭晓！"
+                : "🔎 距离结局还有 <b>" + left + "</b> 章，往下读揭开谜底！";
+    $("reward-sub").innerHTML = `已解锁下一章 <b>${BOOK[nx].title_en}</b><br>${BOOK[nx].teaser_cn}<br><span style="color:#ffd54f">${cliff}</span>`;
+  } else {
+    $("reward-sub").innerHTML = `🎉🎉🎉<br>你独立读完了一整本 ${BOOK.reduce((a,c)=>a+c.words,0)} 词的英文小说!<br>` +
+      `<a class="shelf-link" style="background:#ffb300;color:#2b1a00;border:none;margin-top:10px" href="javascript:showCert()">🏅 领取通关证书</a>`;
+  }
+  show("scr-reward");
+  maybePrediction(ch.id);
+}
+
+/* ===== 先猜后揭晓 ===== */
+function maybePrediction(chId){
+  save.guesses = save.guesses || {};
+  for (const p of PREDICTIONS){                 // 先看有没有要揭晓的
+    if (p.revealAt === chId && save.guesses[p.id] != null && !save.guesses[p.id + "_done"]){
+      setTimeout(()=>showReveal(p), 1100); return;
+    }
+  }
+  for (const p of PREDICTIONS){                 // 再看有没有要提问的
+    if (p.askAt === chId && save.guesses[p.id] == null){
+      setTimeout(()=>showPrediction(p), 1100); return;
+    }
+  }
+}
+function showPrediction(p){
+  const card = $("pred-card");
+  card.innerHTML = `<div class="p-icon">🔮</div><div class="p-q">${p.q}</div>` +
+    p.options.map((o,i)=>`<div class="p-opt" data-i="${i}">${o}</div>`).join("") +
+    `<div class="chapter-title-cn" style="margin-top:8px">先猜一个，读到后面揭晓——猜错也没关系！</div>`;
+  card.querySelectorAll(".p-opt").forEach(el=>{
+    el.onclick = ()=>{
+      save.guesses[p.id] = +el.dataset.i; persist();
+      $("pred-overlay").classList.remove("show");
+      toast("🔮 你的预测已记下，读到后面揭晓！");
+    };
+  });
+  $("pred-overlay").classList.add("show");
+}
+function showReveal(p){
+  const guess = save.guesses[p.id];
+  const right = guess === p.answer;
+  save.guesses[p.id + "_done"] = true; persist();
+  $("pred-card").innerHTML =
+    `<div class="p-icon">${right ? "🎯" : "💡"}</div>` +
+    `<div class="p-verdict ${right ? "right" : "wrong"}">${right ? "猜对啦！" : "没猜到吧~"}</div>` +
+    `<div class="chapter-title-cn">你当时猜的是：<b>${p.options[guess]}</b></div>` +
+    `<div class="p-reveal">${p.reveal}</div>` +
+    `<button class="btn btn-primary btn-block" onclick="document.getElementById('pred-overlay').classList.remove('show')">明白啦</button>`;
+  $("pred-overlay").classList.add("show");
+}
+
+/* ===== 生词复习小游戏(简易遗忘曲线) ===== */
+const RV_INTERVAL = [0, 1, 2, 4, 7, 15];       // box 越高, 隔越久(天)
+let rvQueue = [], rvIdx = 0, rvRight = 0;
+function dayNum(){ return Math.floor(Date.now() / 86400000); }
+function startReview(){
+  const words = Object.keys(save.words);
+  if (!words.length){ toast("先去故事里收集一些生词，再来复习哦 📖"); return; }
+  save.review = save.review || {};
+  const today = dayNum();
+  let due = words.filter(w=>{ const r = save.review[w]; return !r || r.due <= today; });
+  if (!due.length) due = words.slice();          // 没有到期的就全部提前复习
+  rvQueue = shuffle(due).slice(0, 12); rvIdx = 0; rvRight = 0;
+  renderReview();
+  show("scr-review");
+}
+function renderReview(){
+  if (rvIdx >= rvQueue.length){ return finishReview(); }
+  const w = rvQueue[rvIdx];
+  const g = GLOSSARY[w] || { cn:"", emoji:"⭐" };
+  $("rv-progress").textContent = "第 " + (rvIdx+1) + " / " + rvQueue.length + " 个";
+  $("rv-bar").style.width = Math.round(rvIdx / rvQueue.length * 100) + "%";
+  $("rv-feedback").textContent = "";
+  // 干扰项: 其他生词的中文
+  const others = Object.keys(GLOSSARY).filter(x=>x!==w && GLOSSARY[x].cn && GLOSSARY[x].cn !== g.cn);
+  const opts = shuffle([g.cn].concat(shuffle(others).slice(0,3).map(x=>GLOSSARY[x].cn)));
+  $("rv-body").innerHTML =
+    `<div class="rv-card">
+       <div class="rv-word${g.gold?" gold":""}">${w}</div>
+       <div class="rv-listen" id="rv-listen">🔊 听发音</div>
+       <div class="rv-opts">` +
+       opts.map(o=>`<div class="rv-opt">${o}</div>`).join("") +
+    `  </div>
+     </div>`;
+  $("rv-listen").onclick = ()=>speak(w, null, {word:w});
+  $("rv-body").querySelectorAll(".rv-opt").forEach(el=>{
+    el.onclick = ()=>{
+      if (el.classList.contains("right") || el.classList.contains("wrong")) return;
+      const ok = el.textContent === g.cn;
+      const today = dayNum();
+      const r = save.review[w] || { box:0 };
+      if (ok){
+        el.classList.add("right"); rvRight++;
+        r.box = Math.min(RV_INTERVAL.length-1, (r.box||0)+1);
+        $("rv-feedback").textContent = ["答对啦 🎉","太棒了 ⭐","记住咯 💪"][rvIdx%3];
+      } else {
+        el.classList.add("wrong");
+        r.box = 0;
+        $("rv-body").querySelectorAll(".rv-opt").forEach(o=>{ if(o.textContent===g.cn) o.classList.add("right"); });
+        $("rv-feedback").textContent = "正确意思是:" + g.cn;
+      }
+      r.due = today + RV_INTERVAL[r.box]; save.review[w] = r; persist();
+      setTimeout(()=>{ rvIdx++; renderReview(); }, ok ? 750 : 1500);
+    };
+  });
+  speak(w, null, {word:w});
+}
+function finishReview(){
+  $("rv-progress").textContent = "复习完成";
+  $("rv-bar").style.width = "100%";
+  $("rv-feedback").textContent = "";
+  $("rv-body").innerHTML =
+    `<div class="rv-done"><div class="big">${rvRight===rvQueue.length?"🏆":"👍"}</div>
+       <div class="reward-title" style="color:#ffd54f">复习完成！答对 ${rvRight}/${rvQueue.length}</div>
+       <div class="reward-sub">记住的词会隔几天再考你，忘了的明天再来~</div>
+       <button class="btn btn-primary btn-block" style="margin-top:22px" onclick="startReview()">再来一组</button>
+       <button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="showWordbook()">回单词册</button>
+     </div>`;
+}
+
+/* ===== 通关证书 ===== */
+function editKidName(){
+  const cur = kidName();
+  const n = prompt("写上你的名字，印在证书上：", cur || "");
+  if (n != null){ const h = hubLoad(); h.kidName = n.trim().slice(0, 16); hubSave(h); if ($("scr-cert").classList.contains("active")) showCert(); renderHome(); }
+}
+function showCert(){
+  let name = kidName();
+  if (!name){ editKidName(); name = kidName(); if (!name) name = "小读者"; }
+  $("cert-name").textContent = name || "小读者";
+  $("cert-book").textContent = "《" + META.title + "》 " + (META.pageTitle && META.pageTitle.indexOf("·")>=0 ? META.pageTitle.split("·").pop().trim() : "");
+  $("cert-words").textContent = BOOK.reduce((a,c)=>a+c.words,0);
+  $("cert-vocab").textContent = Object.keys(save.words).length;
+  $("cert-stars").textContent = Object.values(save.stars).reduce((a,b)=>a+b,0);
+  const d = new Date();
+  $("cert-date").textContent = "颁发于 " + d.getFullYear() + " 年 " + (d.getMonth()+1) + " 月 " + d.getDate() + " 日";
+  show("scr-cert");
+}
+
+/* =====================================================
+   单词册 & 收藏馆
+   ===================================================== */
+function showWordbook(){
+  const list = $("wordbook-list");
+  const byCh = {};
+  Object.entries(save.words).forEach(([w, info])=>{
+    (byCh[info.ch] = byCh[info.ch] || []).push(w);
+  });
+  const total = Object.keys(GLOSSARY).length;
+  const goldTotal = Object.values(GLOSSARY).filter(g=>g.gold).length;
+  const got = Object.keys(save.words).length;
+  const goldGot = Object.keys(save.words).filter(w=>(GLOSSARY[w]||{}).gold).length;
+  if (!got){
+    list.innerHTML = `<div class="wb-empty">单词册还是空的 📭<br>去故事里点一点紫色的单词吧!<br><span style="color:#ffd766">✨ 金色的是稀有生词，集齐更棒</span></div>`;
+  } else {
+    let html = `<div class="chapter-title-cn">已收集 ${got} / ${total} 个生词 · <span style="color:#ffd766">✨ 金色 ${goldGot}/${goldTotal}</span></div>`;
+    const wbItem = (w)=>{
+      const g = GLOSSARY[w] || {cn:"", emoji:"⭐"};
+      return `<div class="wb-item${g.gold?" gold":""}">
+        <div class="wb-emoji">${g.gold?"✨":g.emoji}</div>
+        <div class="wb-main"><div class="wb-word">${w}</div><div class="wb-cn">${g.cn}</div></div>
+        <div class="wb-sound" data-w="${w.replace(/"/g,'&quot;')}">🔊</div>
+      </div>`;
+    };
+    // 金色生词单独置顶一组
+    const goldWs = Object.keys(save.words).filter(w=>(GLOSSARY[w]||{}).gold).sort();
+    if (goldWs.length){
+      html += `<div class="wb-chapter gold-hd">✨ 金色稀有生词（${goldWs.length}）</div>` + goldWs.map(wbItem).join("");
+    }
+    BOOK.forEach(ch=>{
+      const ws = (byCh[ch.id]||[]).filter(w=>!(GLOSSARY[w]||{}).gold);
+      if (!ws.length) return;
+      html += `<div class="wb-chapter">${ch.icon} ${ch.title_cn}(${ws.length})</div>`;
+      html += ws.sort().map(wbItem).join("");
+    });
+    list.innerHTML = html;
+    list.querySelectorAll(".wb-sound").forEach(el=>{ el.onclick = ()=>speak(el.dataset.w, null, {word: el.dataset.w}); });
+  }
+  show("scr-wordbook");
+}
+function showShelf(){
+  const grid = $("shelf-grid");
+  grid.innerHTML = BOOK.map(ch=>{
+    const owned = !!save.done[ch.id];
+    return `<div class="shelf-cell${owned ? "" : " miss"}">
+      <div class="c-emoji">${owned ? ch.icon : "❓"}</div>
+      <div class="c-name">${owned ? ch.itemName : "???"}</div>
+    </div>`;
+  }).join("");
+  show("scr-shelf");
+}
+
+/* =====================================================
+   声音检测
+   ===================================================== */
+const TEST_TEXT = "Hello! Welcome to Frankenstein. Can you hear me?";
+function testFile(){
+  stopAll();
+  playFile(AUDIO_BASE + "test.mp3", ()=>toast("测试⓪播放完毕,听到了吗?"),
+    ()=>toast("音频文件加载失败 ❌(离线打开的单文件版没有音频包)"));
+}
+function testLocal(){
+  stopAll();
+  speakLocal(splitSentences(TEST_TEXT), ()=>toast("本地引擎没出声 ❌ 试试别的测试"));
+}
+function testOnline(){
+  stopAll();
+  speakOnline(splitSentences(TEST_TEXT));
+}
+const MODE_NAMES = {auto: "已设为自动选择 🤖", recorded: "已固定用音频文件 ⓪",
+  local: "已固定用本地发音 ①", online: "已固定用在线发音 ②"};
+function setMode(m){
+  save.ttsMode = m; persist();
+  paintMode();
+  toast(MODE_NAMES[m]);
+}
+function paintMode(){
+  const cur = save.ttsMode || "auto";
+  ["auto","recorded","local","online"].forEach(m=>{
+    const b = $("m-" + m);
+    b.style.borderColor = (m === cur) ? "#ffd54f" : "#4c4380";
+    b.style.color = (m === cur) ? "#ffd54f" : "#e8e2ff";
+  });
+}
+function showSound(){
+  paintMode();
+  let vn = 0;
+  try{ vn = ("speechSynthesis" in window) ? speechSynthesis.getVoices().length : -1; }catch(e){}
+  $("snd-diag").innerHTML = "诊断: 音频包" + (TTS.hasAudio ? "✓" : "✗")
+    + " | 本地引擎音色数 " + vn
+    + " | 微信环境 " + (IN_WECHAT ? "是" : "否")
+    + (TTS.lastErr ? " | 上次错误 " + TTS.lastErr : "")
+    + "<br>浏览器: " + (navigator.userAgent || "").slice(0, 90);
+  show("scr-sound");
+}
+
+/* 首页标题等文案由 META 注入 */
+document.title = (META && META.pageTitle) || "阅读大冒险";
+$("home-title").textContent = (META && META.title) || "READING ADVENTURE";
+$("home-subtitle").textContent = (META && META.subtitle) || "读完这本书，点亮所有成就";
+$("home-bolt").textContent = (META && META.bolt) || "📖";
+
+/* ===== 阅读字号(可调, 记忆) ===== */
+const FONT_STEPS = [17, 20, 23, 27, 31];
+const FONT_NAMES = ["小", "中", "大", "特大", "超大"];
+function applyFont(){
+  let i = (save.fontIdx == null) ? 1 : save.fontIdx;
+  i = Math.max(0, Math.min(FONT_STEPS.length - 1, i));
+  document.documentElement.style.setProperty("--story-fs", FONT_STEPS[i] + "px");
+  const lbl = document.getElementById("fs-label");
+  if (lbl) lbl.textContent = FONT_NAMES[i];
+}
+function changeFont(d){
+  let i = (save.fontIdx == null) ? 1 : save.fontIdx;
+  i = Math.max(0, Math.min(FONT_STEPS.length - 1, i + d));
+  save.fontIdx = i; persist(); applyFont();
+  toast("字号:" + FONT_NAMES[i]);
+}
+applyFont();
+ttsInit();
+detectAudio();
+renderHome();
+</script>
+</body>
+</html>

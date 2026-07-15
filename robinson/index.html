@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Robinson Crusoe · 鲁滨逊漂流记</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: linear-gradient(180deg,#1a1f3c 0%,#2b2350 60%,#3a2c5e 100%);
+    color:#f3efe4; min-height:100%; overflow-x:hidden;
+  }
+  .screen { display:none; max-width:760px; margin:0 auto; padding:24px 20px 48px; min-height:100vh; }
+  .screen.active { display:block; animation:fadein .35s ease; }
+  @keyframes fadein { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+
+  /* ---------- 首页 ---------- */
+  .title-zone { text-align:center; margin:20px 0 8px; }
+  .title-zone .bolt { font-size:44px; }
+  h1.game-title { font-size:28px; letter-spacing:1px; margin-top:6px;
+    background:linear-gradient(90deg,#ffe082,#a5ffb0,#8ecfff);
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .subtitle { color:#bfb8d9; font-size:14px; margin-top:6px; }
+
+  .shelf-link { display:inline-block; margin:12px auto 0; padding:7px 16px; border-radius:20px;
+    background:#2e2856; border:1px solid #4c4380; color:#e8e2ff; font-size:14px; text-decoration:none; }
+  .growth-banner { margin:12px 0 0; padding:12px 14px; border-radius:14px;
+    background:linear-gradient(90deg,#33295c,#3a2c5e); border:1px solid #4c4380;
+    text-align:center; font-size:15px; color:#ffe082; font-weight:700; line-height:1.7; }
+  .growth-banner .g-sub { color:#a79fce; font-weight:400; font-size:12px; }
+  /* 通关证书 */
+  .cert-wrap { padding:18px 6px; }
+  .cert { background:linear-gradient(160deg,#fffdf5,#fff2cf); color:#3a2a10; border-radius:20px;
+    padding:30px 24px; text-align:center; border:3px solid #e0b84a;
+    box-shadow:0 10px 30px rgba(0,0,0,.4); position:relative; }
+  .cert .seal { font-size:52px; }
+  .cert h2 { font-size:22px; margin:8px 0 4px; color:#8a6d1a; letter-spacing:1px; }
+  .cert .cert-sub { font-size:13px; color:#9a7d2a; }
+  .cert .cert-name { font-size:30px; font-weight:900; margin:16px 0 6px; color:#5a4410;
+    border-bottom:2px dashed #e0b84a; display:inline-block; padding:0 18px 6px; }
+  .cert .cert-book { font-size:18px; font-weight:800; margin:14px 0 4px; }
+  .cert .cert-stats { display:flex; justify-content:center; gap:18px; margin:16px 0 6px; flex-wrap:wrap; }
+  .cert .cert-stat { text-align:center; }
+  .cert .cert-stat b { display:block; font-size:22px; color:#b8860b; }
+  .cert .cert-stat span { font-size:12px; color:#9a7d2a; }
+  .cert .cert-date { font-size:12px; color:#9a7d2a; margin-top:12px; }
+
+  .stat-row { display:flex; gap:10px; margin:18px 0 6px; }
+  .stat-box { flex:1; background:#262148; border:1px solid #443b74; border-radius:16px;
+    padding:12px 8px; text-align:center; }
+  .stat-box .num { font-size:22px; font-weight:800; color:#ffd54f; }
+  .stat-box .lbl { font-size:12px; color:#a79fce; margin-top:3px; }
+
+  .progress-wrap { background:#241f42; border-radius:10px; height:14px; margin:12px 0 4px; overflow:hidden; }
+  .progress-bar { height:100%; background:linear-gradient(90deg,#66bb6a,#ffd54f); border-radius:10px;
+    transition:width .5s; }
+  .progress-label { text-align:center; font-size:12px; color:#a79fce; margin-bottom:10px; }
+
+  .section-head { display:flex; align-items:center; gap:10px; margin:26px 0 4px; }
+  .section-head .s-icon { font-size:22px; }
+  .section-head .s-name { font-size:16px; font-weight:800; color:#ffd54f; }
+  .section-head .s-en { font-size:12px; color:#8d84b8; }
+
+  .map-node { display:flex; align-items:center; gap:14px; background:#262148;
+    border:1px solid #443b74; border-radius:18px; padding:14px 16px; margin:10px 0;
+    cursor:pointer; transition:transform .12s; }
+  .map-node:active { transform:scale(.98); }
+  .map-node.locked { opacity:.42; cursor:default; }
+  .map-node.next { border-color:#ffd54f; box-shadow:0 0 12px rgba(255,213,79,.25); }
+  .map-node .icon { font-size:30px; width:44px; text-align:center; }
+  .map-node .info { flex:1; min-width:0; }
+  .map-node .name { font-size:16px; font-weight:700; }
+  .map-node .place { font-size:12px; color:#a79fce; margin-top:3px; }
+  .map-node .state { font-size:18px; min-width:60px; text-align:right; }
+  .badge-done { color:#ffd54f; letter-spacing:1px; }
+
+  .toolbar { display:flex; gap:12px; margin-top:24px; }
+  .btn { border:none; border-radius:16px; padding:15px 20px; font-size:16px; font-weight:700;
+    cursor:pointer; font-family:inherit; color:#2b1a00; }
+  .btn:active { transform:scale(.97); }
+  .btn-primary { background:linear-gradient(90deg,#ffb300,#ff8f00); }
+  .btn-ghost { background:#2e2856; color:#e8e2ff; border:1px solid #4c4380; }
+  .btn-block { display:block; width:100%; }
+  .toolbar .btn { flex:1; }
+  .btn-continue { margin-top:16px; font-size:17px; }
+
+  /* ---------- 阅读页 ---------- */
+  .chapter-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap; }
+  .back-btn { background:#2e2856; border:1px solid #4c4380; color:#e8e2ff; border-radius:12px;
+    padding:8px 14px; font-size:15px; cursor:pointer; font-family:inherit; }
+  .chapter-tag { font-size:13px; color:#ffd54f; letter-spacing:2px; }
+  h2.chapter-title { font-size:23px; margin:10px 0 2px; }
+  .chapter-title-cn { color:#bfb8d9; font-size:14px; margin-bottom:14px; }
+
+  .story-card { background:#f7f1e1; color:#2d2a24; border-radius:20px; padding:22px 20px;
+    font-size:var(--story-fs, 20px); line-height:1.85; box-shadow:0 6px 24px rgba(0,0,0,.35); }
+  .story-card p { margin-bottom:14px; position:relative; padding-left:12px; border-left:4px solid transparent;
+    transition:border-color .3s, background .3s; }
+  .story-card p:last-child { margin-bottom:0; }
+  /* 已读过的段落: 绿色左条 + 淡绿底, 一眼看出读到哪 */
+  .story-card p.read { border-left-color:#66bb6a; background:rgba(102,187,106,.10); border-radius:0 8px 8px 0; }
+  .story-card p.read::after { content:"✓"; position:absolute; left:-2px; top:-2px; font-size:11px; color:#2e7d32; }
+  /* 句子级高亮:正在朗读的那一句变亮黄 */
+  .story-card .sent { border-radius:6px; transition:background .12s, box-shadow .12s; }
+  .story-card .sent.speaking { background:#ffe36b; box-shadow:0 0 0 4px #ffe36b; }
+  .gw { color:#8e24aa; font-weight:700; border-bottom:2px dotted #8e24aa; cursor:pointer; }
+  .gw.learned { color:#2e7d32; border-bottom-color:#2e7d32; }
+  .pspk { font-size:14px; opacity:.45; cursor:pointer; margin-left:6px; user-select:none; }
+
+  .read-tools { display:flex; gap:10px; margin:6px 0 10px; }
+  .read-tools .btn { flex:1; font-size:15px; padding:13px 8px; }
+  .fs-row { display:flex; align-items:center; justify-content:center; gap:8px; margin:0 0 14px;
+    color:#a79fce; font-size:14px; }
+  .fs-btn { background:#2e2856; border:1px solid #4c4380; color:#e8e2ff; border-radius:10px;
+    width:44px; height:38px; font-weight:800; cursor:pointer; font-family:inherit; }
+  .fs-btn:active { transform:scale(.95); }
+  .fs-btn.small { font-size:14px; }
+  .fs-btn.big { font-size:20px; }
+  .hint-line { text-align:center; font-size:13px; color:#a79fce; margin-top:10px; line-height:1.8; }
+
+  /* ---------- 单词卡弹窗 ---------- */
+  .overlay { position:fixed; inset:0; background:rgba(10,8,26,.72); display:none;
+    align-items:center; justify-content:center; z-index:50; padding:24px; }
+  .overlay.show { display:flex; }
+  .word-card { background:#fffef8; color:#2d2a24; border-radius:22px; padding:24px 22px;
+    width:100%; max-width:420px; text-align:center; animation:pop .22s ease; }
+  @keyframes pop { from{transform:scale(.85); opacity:0;} to{transform:none; opacity:1;} }
+  .word-card .w-emoji { font-size:38px; }
+  .word-card .w-word { font-size:29px; font-weight:800; color:#6a1b9a; margin-top:6px; word-break:break-word; }
+  .word-card .w-cn { font-size:20px; margin-top:8px; }
+  .word-card .w-eg { font-size:15px; color:#6d675c; margin-top:12px; line-height:1.6; font-style:italic; }
+  .word-card .w-collect { margin-top:10px; font-size:13px; color:#2e7d32; }
+  .word-card .btn { margin-top:14px; }
+
+  /* ---------- 答题页 ---------- */
+  .quiz-progress { font-size:14px; color:#ffd54f; margin:8px 0 14px; letter-spacing:1px; }
+  .question-card { background:#262148; border:1px solid #443b74; border-radius:20px; padding:20px; }
+  .question-text { font-size:19px; line-height:1.6; font-weight:700; }
+  .question-cn { font-size:13px; color:#a79fce; margin-top:6px; }
+  .options { margin-top:18px; }
+  .option { background:#312a5e; border:2px solid #4c4380; border-radius:16px; padding:15px;
+    font-size:16px; margin:10px 0; cursor:pointer; transition:all .15s; line-height:1.5; }
+  .option:active { transform:scale(.98); }
+  .option.right { background:#1b5e20; border-color:#66bb6a; }
+  .option.wrong { background:#7f1d1d; border-color:#ef5350; animation:shake .3s; }
+  @keyframes shake { 0%,100%{transform:none;} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+  .quiz-feedback { min-height:30px; text-align:center; font-size:16px; margin-top:12px; }
+  /* 题型小标签 */
+  .q-kind { display:inline-block; font-size:12px; font-weight:800; color:#2b1a00;
+    background:#ffd54f; border-radius:20px; padding:4px 12px; margin-bottom:12px; }
+  /* 判断对错 */
+  .tf-row { display:flex; gap:12px; margin-top:18px; }
+  .tf-row .option { flex:1; text-align:center; font-size:20px; font-weight:800; margin:0; }
+  /* 选词填空 */
+  .blank { display:inline-block; min-width:64px; border-bottom:3px solid #ffd54f; color:#ffd54f;
+    font-weight:800; text-align:center; margin:0 4px; }
+  .blank.filled { border-bottom-color:#66bb6a; color:#a5ffb0; }
+  .chip-box { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+  .chip { background:#312a5e; border:2px solid #4c4380; border-radius:14px; padding:12px 18px;
+    font-size:17px; cursor:pointer; transition:all .15s; }
+  .chip:active { transform:scale(.96); }
+  .chip.right { background:#1b5e20; border-color:#66bb6a; }
+  .chip.wrong { background:#7f1d1d; border-color:#ef5350; animation:shake .3s; }
+  /* 谁说的 */
+  .quote-bubble { background:#f7f1e1; color:#2d2a24; border-radius:16px; padding:16px 18px;
+    font-size:19px; font-style:italic; line-height:1.5; position:relative; margin:4px 0 4px; }
+  .quote-bubble::after { content:""; position:absolute; left:28px; bottom:-12px; border:8px solid transparent;
+    border-top-color:#f7f1e1; border-bottom:0; }
+  /* 排序 */
+  .order-item { display:flex; align-items:center; gap:12px; background:#312a5e; border:2px solid #4c4380;
+    border-radius:16px; padding:14px; margin:10px 0; font-size:16px; cursor:pointer; line-height:1.45; }
+  .order-item:active { transform:scale(.98); }
+  .order-item.placed { background:#1b5e20; border-color:#66bb6a; cursor:default; }
+  .order-item.wrong { animation:shake .3s; border-color:#ef5350; }
+  .order-badge { width:28px; height:28px; border-radius:50%; background:#4c4380; color:#e8e2ff;
+    font-weight:800; display:flex; align-items:center; justify-content:center; flex:0 0 auto; font-size:15px; }
+  .order-item.placed .order-badge { background:#ffd54f; color:#2b1a00; }
+
+  /* ---------- 奖励页 ---------- */
+  .reward-zone { text-align:center; padding-top:56px; }
+  .reward-part { font-size:92px; animation:drop .6s cubic-bezier(.2,1.4,.4,1); display:inline-block; }
+  @keyframes drop { from{transform:translateY(-80px) scale(.4); opacity:0;} to{transform:none; opacity:1;} }
+  .reward-title { font-size:24px; font-weight:800; margin-top:14px; color:#ffd54f; }
+  .reward-sub { color:#bfb8d9; margin-top:10px; font-size:16px; line-height:1.8; }
+  .reward-stars { font-size:30px; margin-top:12px; letter-spacing:6px; }
+  .reward-zone .btn { margin-top:26px; }
+
+  /* ---------- 单词册 & 收藏馆 ---------- */
+  .wb-chapter { font-size:14px; font-weight:800; color:#ffd54f; margin:18px 0 4px; }
+  .wb-item { background:#262148; border:1px solid #443b74; border-radius:16px; padding:12px 16px;
+    margin:8px 0; display:flex; align-items:center; gap:12px; }
+  .wb-item .wb-emoji { font-size:24px; }
+  .wb-item .wb-main { flex:1; min-width:0; }
+  .wb-item .wb-word { font-weight:800; font-size:17px; color:#ce93d8; word-break:break-word; }
+  .wb-item .wb-cn { font-size:14px; color:#cfc8ea; margin-top:2px; }
+  .wb-item .wb-sound { font-size:22px; cursor:pointer; padding:4px; }
+  .wb-empty { text-align:center; color:#a79fce; margin-top:60px; line-height:2; }
+  .shelf-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:10px; margin-top:16px; }
+  .shelf-cell { background:#262148; border:1px solid #443b74; border-radius:16px; padding:12px 6px;
+    text-align:center; }
+  .shelf-cell .c-emoji { font-size:30px; }
+  .shelf-cell .c-name { font-size:12px; color:#cfc8ea; margin-top:6px; }
+  .shelf-cell.miss { opacity:.32; filter:grayscale(1); }
+
+  /* 金色生词 */
+  .gw.gold { color:#c58a00; border-bottom-color:#e0a800; }
+  .word-card.goldcard { background:linear-gradient(160deg,#fffdf2,#fff0c4); border:2px solid #e0b84a; }
+  .w-goldtag { display:inline-block; margin-top:8px; font-size:12px; font-weight:800; color:#8a6d1a;
+    background:#ffe9a8; border-radius:20px; padding:3px 12px; }
+  .wb-item.gold { border-color:#e0b84a; background:linear-gradient(90deg,#2c2545,#3a3018); }
+  .wb-item.gold .wb-word { color:#ffd766; }
+  .wb-chapter.gold-hd { color:#ffd766; }
+
+  /* 预测/揭晓弹窗 */
+  .pred-card { background:#fffef8; color:#2d2a24; border-radius:22px; padding:24px 22px;
+    width:100%; max-width:440px; text-align:center; animation:pop .22s ease; }
+  .pred-card .p-icon { font-size:40px; }
+  .pred-card .p-q { font-size:18px; font-weight:800; margin:10px 0 4px; line-height:1.5; }
+  .pred-card .p-opt { background:#f0ebff; border:2px solid #d5c9f2; color:#3a2d5e; border-radius:14px;
+    padding:13px; margin:9px 0; font-size:16px; cursor:pointer; font-weight:700; }
+  .pred-card .p-opt:active { transform:scale(.98); }
+  .pred-card .p-reveal { font-size:16px; line-height:1.7; color:#3a2d1a; margin:10px 0; }
+  .pred-card .p-verdict { font-size:22px; font-weight:900; margin:6px 0; }
+  .pred-card .p-verdict.right { color:#2e7d32; }
+  .pred-card .p-verdict.wrong { color:#c56000; }
+
+  /* 生词复习小游戏 */
+  .rv-top { text-align:center; margin:8px 0 14px; }
+  .rv-progress { font-size:14px; color:#ffd54f; letter-spacing:1px; }
+  .rv-scorebar { background:#241f42; border-radius:8px; height:10px; margin:10px 0 0; overflow:hidden; }
+  .rv-scorebar .b { height:100%; background:linear-gradient(90deg,#66bb6a,#ffd54f); width:0; transition:width .3s; }
+  .rv-card { background:#262148; border:1px solid #443b74; border-radius:20px; padding:26px 20px; text-align:center; }
+  .rv-word { font-size:34px; font-weight:900; color:#ce93d8; word-break:break-word; }
+  .rv-word.gold { color:#ffd766; }
+  .rv-listen { margin-top:10px; font-size:24px; cursor:pointer; }
+  .rv-opts { margin-top:20px; }
+  .rv-opt { background:#312a5e; border:2px solid #4c4380; border-radius:16px; padding:15px; font-size:18px;
+    margin:10px 0; cursor:pointer; }
+  .rv-opt:active { transform:scale(.98); }
+  .rv-opt.right { background:#1b5e20; border-color:#66bb6a; }
+  .rv-opt.wrong { background:#7f1d1d; border-color:#ef5350; animation:shake .3s; }
+  .rv-feedback { text-align:center; min-height:26px; font-size:16px; margin-top:12px; }
+  .rv-done { text-align:center; padding-top:40px; }
+  .rv-done .big { font-size:70px; }
+
+  .toast { position:fixed; left:50%; bottom:34px; transform:translateX(-50%);
+    background:#ffd54f; color:#3a2a00; font-weight:700; padding:12px 22px; border-radius:30px;
+    font-size:15px; display:none; z-index:60; box-shadow:0 4px 18px rgba(0,0,0,.4);
+    max-width:86vw; text-align:center; }
+  .toast.show { display:block; animation:fadein .25s ease; }
+</style>
+</head>
+<body>
+
+<!-- ============ 首页 ============ -->
+<div class="screen active" id="scr-home">
+  <div class="title-zone">
+    <div class="bolt" id="home-bolt">📖</div>
+    <h1 class="game-title" id="home-title"></h1>
+    <div class="subtitle" id="home-subtitle"></div>
+  </div>
+
+  <a class="shelf-link" href="../">📚 我的书架</a>
+  <div class="growth-banner" id="growth-banner"></div>
+
+  <div class="stat-row">
+    <div class="stat-box"><div class="num" id="st-ch">0</div><div class="lbl">已通关章节</div></div>
+    <div class="stat-box"><div class="num" id="st-star">0</div><div class="lbl">获得星星</div></div>
+    <div class="stat-box"><div class="num" id="st-word">0</div><div class="lbl">收集单词</div></div>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="prog-bar" style="width:0%"></div></div>
+  <div class="progress-label" id="prog-label"></div>
+
+  <button class="btn btn-primary btn-block btn-continue" id="btn-continue" onclick="continueGame()">▶️ 继续冒险</button>
+
+  <div id="map"></div>
+
+  <div class="toolbar">
+    <button class="btn btn-ghost" onclick="showWordbook()">📖 单词册 <span id="wb-count"></span></button>
+    <button class="btn btn-ghost" onclick="showShelf()">🏆 收藏馆</button>
+    <button class="btn btn-ghost" onclick="resetProgress()">🔄 重置</button>
+  </div>
+  <div class="toolbar">
+    <button class="btn btn-ghost" onclick="showSound()">🔧 朗读没声音?点这里检测</button>
+  </div>
+</div>
+
+<!-- ============ 通关证书 ============ -->
+<div class="screen" id="scr-cert">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 返回</button>
+    <span class="chapter-tag">CERTIFICATE</span>
+  </div>
+  <div class="cert-wrap">
+    <div class="cert" id="cert-card">
+      <div class="seal">🏅</div>
+      <h2>阅读大冒险 · 通关证书</h2>
+      <div class="cert-sub">READING ADVENTURE · CERTIFICATE</div>
+      <div class="cert-name" id="cert-name">小读者</div>
+      <div class="cert-sub">独立读完了英文原著</div>
+      <div class="cert-book" id="cert-book"></div>
+      <div class="cert-stats">
+        <div class="cert-stat"><b id="cert-words">0</b><span>阅读词数</span></div>
+        <div class="cert-stat"><b id="cert-vocab">0</b><span>收集生词</span></div>
+        <div class="cert-stat"><b id="cert-stars">0</b><span>获得星星</span></div>
+      </div>
+      <div class="cert-date" id="cert-date"></div>
+    </div>
+  </div>
+  <button class="btn btn-ghost btn-block" style="margin-top:14px" onclick="editKidName()">✏️ 改名字</button>
+  <div class="hint-line">📸 截图保存，发给爸爸妈妈、爷爷奶奶看看吧！</div>
+</div>
+
+<!-- ============ 声音检测 ============ -->
+<div class="screen" id="scr-sound">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag">SOUND CHECK</span>
+  </div>
+  <h2 class="chapter-title">🔧 声音检测</h2>
+  <div class="chapter-title-cn">先把平板的<b>媒体音量</b>调大,再依次点下面的按钮</div>
+  <button class="btn btn-ghost btn-block" style="margin:10px 0" onclick="testFile()">▶️ 测试⓪ 音频文件(推荐)</button>
+  <button class="btn btn-ghost btn-block" style="margin:10px 0" onclick="testLocal()">▶️ 测试① 本地发音引擎</button>
+  <button class="btn btn-ghost btn-block" style="margin:10px 0" onclick="testOnline()">▶️ 测试② 在线发音(需联网)</button>
+  <div class="chapter-title-cn" style="margin-top:18px">哪个有声音,就选用哪个:</div>
+  <div class="toolbar" style="margin-top:8px">
+    <button class="btn btn-ghost" id="m-auto" onclick="setMode('auto')">🤖 自动</button>
+    <button class="btn btn-ghost" id="m-recorded" onclick="setMode('recorded')">⓪ 音频</button>
+    <button class="btn btn-ghost" id="m-local" onclick="setMode('local')">① 本地</button>
+    <button class="btn btn-ghost" id="m-online" onclick="setMode('online')">② 在线</button>
+  </div>
+  <div class="hint-line" style="margin-top:22px; text-align:left">
+    都没声音时请检查:<br>
+    · 平板<b>媒体音量</b>是否调大(和铃声音量是两回事)<br>
+    · 是否连着<b>蓝牙耳机/音箱</b>——声音可能被送去了别的设备<br>
+    · 微信里打开的话,点右上角 ⋯ 选择<b>"在浏览器打开"</b>再试<br>
+    · 先在浏览器里放一个视频:视频也没声就是平板设置问题
+  </div>
+  <div class="hint-line" style="margin-top:12px; text-align:left; opacity:.7" id="snd-diag"></div>
+</div>
+
+<!-- ============ 阅读页 ============ -->
+<div class="screen" id="scr-read">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag" id="read-tag"></span>
+  </div>
+  <h2 class="chapter-title" id="read-title"></h2>
+  <div class="chapter-title-cn" id="read-title-cn"></div>
+  <div class="read-tools">
+    <button class="btn btn-ghost" id="btn-readaloud" onclick="readAloud()">🔊 读给我听</button>
+    <button class="btn btn-ghost" id="btn-pause" onclick="pauseToggle()">⏸ 暂停</button>
+    <button class="btn btn-ghost" id="btn-rate" onclick="toggleRate()">🐢 慢速</button>
+  </div>
+  <div class="fs-row">
+    <span>字号</span>
+    <button class="fs-btn small" onclick="changeFont(-1)">A－</button>
+    <span id="fs-label" style="min-width:44px;text-align:center">中</span>
+    <button class="fs-btn big" onclick="changeFont(1)">A＋</button>
+  </div>
+  <div class="story-card" id="story-body"></div>
+  <button class="btn btn-primary btn-block" id="btn-quiz" onclick="tryStartQuiz()">✅ 我读完了，去答题</button>
+  <div class="hint-line">💡 点"🔊 读给我听"把整章听完就能解锁答题 · 每段末尾的 🔊 可单独听一段 · 紫色单词点一下有惊喜</div>
+</div>
+
+<!-- ============ 答题页 ============ -->
+<div class="screen" id="scr-quiz">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="backToRead()">← 回去再读读</button>
+    <span class="chapter-tag" id="quiz-tag"></span>
+  </div>
+  <div class="quiz-progress" id="quiz-progress"></div>
+  <div class="question-card">
+    <div class="q-kind" id="q-kind"></div>
+    <div class="question-text" id="q-text"></div>
+    <div class="question-cn" id="q-cn"></div>
+    <div class="options" id="q-options"></div>
+  </div>
+  <div class="quiz-feedback" id="quiz-feedback"></div>
+</div>
+
+<!-- ============ 奖励页 ============ -->
+<div class="screen" id="scr-reward">
+  <div class="reward-zone">
+    <div class="reward-part" id="reward-part"></div>
+    <div class="reward-title" id="reward-title"></div>
+    <div class="reward-stars" id="reward-stars"></div>
+    <div class="reward-sub" id="reward-sub"></div>
+    <button class="btn btn-primary btn-block" onclick="goHome()">🗺 回到地图，继续冒险</button>
+  </div>
+</div>
+
+<!-- ============ 单词册 ============ -->
+<div class="screen" id="scr-wordbook">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag">MY WORD BOOK</span>
+  </div>
+  <h2 class="chapter-title">📖 我的单词册</h2>
+  <button class="btn btn-primary btn-block" style="margin:6px 0 4px" onclick="startReview()">🎮 复习生词小游戏</button>
+  <div id="wordbook-list"></div>
+</div>
+
+<!-- ============ 生词复习小游戏 ============ -->
+<div class="screen" id="scr-review">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="showWordbook()">← 单词册</button>
+    <span class="chapter-tag">VOCAB REVIEW</span>
+  </div>
+  <div class="rv-top">
+    <div class="rv-progress" id="rv-progress"></div>
+    <div class="rv-scorebar"><div class="b" id="rv-bar"></div></div>
+  </div>
+  <div id="rv-body"></div>
+  <div class="rv-feedback" id="rv-feedback"></div>
+</div>
+
+<!-- ============ 收藏馆 ============ -->
+<div class="screen" id="scr-shelf">
+  <div class="chapter-head">
+    <button class="back-btn" onclick="goHome()">← 地图</button>
+    <span class="chapter-tag">COLLECTION</span>
+  </div>
+  <h2 class="chapter-title">🏆 我的收藏馆</h2>
+  <div class="chapter-title-cn">每通关一章，就能获得一件故事纪念品</div>
+  <div class="shelf-grid" id="shelf-grid"></div>
+</div>
+
+<!-- 单词卡弹窗 -->
+<div class="overlay" id="word-overlay" onclick="closeWordCard(event)">
+  <div class="word-card" id="word-card"></div>
+</div>
+
+<!-- 预测/揭晓弹窗 -->
+<div class="overlay" id="pred-overlay">
+  <div class="pred-card" id="pred-card"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ======== 数据(由构建脚本注入) ======== */
+const BOOK = [{"id":"u00","section":"\u7b2c\u4e00\u5e55 \u00b7 \u51fa\u6d77\u4e0e\u6d77\u96be","tag":"START","title_en":"Adventures at Sea","title_cn":"\u51fa\u6d77\u5386\u9669\u8bb0","teaser_cn":"\u5c11\u5e74\u4e0d\u542c\u529d\u544a\u51fa\u6d77,\u4f1a\u9047\u5230\u4ec0\u4e48?","icon":"\u26f5","itemName":"\u8fdc\u822a\u4e4b\u8239","words":2905,"paras":["I was born in the year 1632, in the city of York in England. My father was of a good family. He was a merchant from Bremen in Germany. He settled in England and made his fortune in trade, then he married. My mother's family name was Robinson. I was {baptized} Robinson Kreutznaer. However, in England we were always called Crusoe, so my friends call me Robinson Crusoe.","I had two brothers. One became a soldier and was killed in a battle against the {Spaniards}. I do not know what happened to my other brother. My father hoped I would study law, but I wanted to go to sea. Although my mother and father did not want me to go, my desire was so strong that I ignored their wishes.","My father was a wise and serious man. He said that if I stayed at home my life would be easy and pleasant. Only desperate men or very {fortunate} men went abroad, he said. I was neither desperate nor very fortunate. Mine was the middle state, and he thought that the middle state was the best. The poor had a difficult life, and the rich were hated by the poor, said he. In the middle state a man could be happy. Kings often {regretted} that they were not born in the middle state, and wise men {prayed} to have neither poverty nor wealth. He said that the greatest {misfortunes} in life were suffered by the rich and the poor. Only the man in the middle state can live in peace. He said that {moderation}, {quietness}, and good health were the conditions of the middle state.","He {begged} me not to abandon this happy condition. He told me that he had begged my brother not to become a soldier for the same reasons. However, my brother had run away to the army, and now he was dead. He said that God would not bless me if I went to sea, and that I would be sorry I had ignored my father's advice.","During the last part of his {discourse} the tears ran down his face, especially when he spoke of my brother. When he said that I would regret my choice, he was so moved that he could say no more.","I was {sincerely} affected by his words and decided not to think of going abroad any more. But {alas}! In a few days I began to dream of the sea again. I spoke to my mother. I told her that I still desired to go to sea and that nothing else would make me happy. I said that I was eighteen years old, too old to begin another profession. I asked her to {persuade} my father to let me go to sea.","This made her very angry. She said that it would be useless to speak to my father. If I wanted to ruin myself, she said, there was nothing she or my father could do to stop me. However, they would never agree to it.","A year later, I ran off to sea. This is how it happened. One day I went to the port of Hull. A friend of mine was going by sea to London in his father's ship. He asked me to go with him. Since it would cost me nothing, I decided to go, without even telling my mother and father. Thus on the first of September 1651 I went on board a ship for the first time.","As soon as the ship was at sea, the wind began to blow. I felt very sick and {frightened}. I thought that God was {punishing} me for leaving my father's house. The storm grew worse, although it was not as bad as many I have seen since. It was not even as bad as the storm I saw just a few days later, but it {frightened} me then. I thought the sea would {swallow} us. I {swore} to God that, if I lived, I would return to my father's house and never go to sea again.","The next day the sea grew calm and the sun {shone}. I no longer felt sick or {frightened}. My friend said, 'Well, Bob, how do you feel? Were you afraid?'","'It was a terrible storm,' said I.","'Do you call that a storm?' said he. 'That was nothing. Let's drink some rum and forget about it.'","We drank the rum, and I forgot my promise to God. A few days later, there was a really terrible storm. The waves were as high as mountains. I was very {frightened}. I felt sorry that I had forgotten my promise to God.","The {sailors} began to cry out that the ship would founder. {Fortunately}, I did not know what the word 'founder' meant. I saw the captain and some others {praying} to God. At last we were {rescued} by a boat from another ship. As we escaped, we saw our own ship go down. It was only then that I understood the word 'founder'.","When we reached the shore, the people were very kind to us. They gave us money to return to Hull or continue to London, as we pleased. If I had returned home, I would have been happy. My father, like the father in Christ's story of the {prodigal} son, would have welcomed me. But I was foolish, and I did not go home.","The captain, who was my father's friend, said to me, 'Young man, you should never go to sea again.'","'Why, sir?' said I. 'Will you never go to sea again?'","'That is different,' said the captain. 'The sea is my profession. It is my duty to go to sea, but you made this {voyage} to see if you liked it. God has shown you that the sea is not for you. Perhaps that is why my ship {foundered}. You are like {Jonah} of the Bible story. I am sorry I ever allowed you on my ship!'","I went to London by land. How {unwise} young people are! They are not afraid to sin, but they are afraid to seem foolish! I signed up for a {voyage} to Africa. I should have signed up as a {sailor}. I could have learned the sailor's profession. In time, I might even have become a captain. However, I always made the worst choice, and I chose to go to sea as a gentleman. Therefore I had no duties on the ship, and I had no chance of learning to be a sailor.","I met the captain of a ship that had been on the coast of Africa. He had made good profits from the {voyage} and was eager to go again. He asked me to go with him as his companion. He said that I need not pay for the {voyage}. If I had any money, he said, he would show me how to make a profit in trade.","I accepted the offer, and became friends with the captain, who was a good and honest man. Following the captain's advice, I spent about forty pounds on things of little value. These I could trade for gold on the coast of Africa.","The {voyage} was a great success for me. Indeed, it was my only successful voyage. My friend the captain taught me the skills of both a {sailor} and a merchant. I brought home five pounds nine {ounces} of gold, which I sold in London for nearly three hundred pounds. Soon after our return to England, my friend died. I decided to do the same {voyage} again and signed up on the same ship with its new captain. As we approached the coast of Africa, we were {pursued} by a Turkish ship. After a short battle, the Turkish ship was {victorious}, and we were all taken as prisoners to the port of Sallee.","The captain of the Turkish ship made me his slave. I was {horrified} by this surprising change from merchant to miserable slave. I remembered my father's {prophesy} that I would be miserable, and I realized that it had indeed been {fulfilled}.","After about two years of slavery, I saw my chance of escape. One day, my master sent me out fishing with his brother Ismael and a black slave boy called Xury. The fishing boat was full of food, guns, and fresh water. While we were fishing, I pushed Ismael into the sea. He cried for help. I pointed a gun at him and said, 'I will not hurt you, if you do as I say. You swim well enough to reach the shore. Go! Swim to the shore and leave us alone. If you do not, I will shoot you in the head, for I want my liberty.'","Ismael {swam} away from the ship, and I turned to the slave boy. 'Xury,' said I, 'if you will be faithful to me, I will make you a great man. If not, I will throw you into the sea too.' The boy smiled and promised to be faithful to me.","We {sailed} along the coast of Africa, close to the shore. Sometimes we heard lions and other {wild beasts}. We needed fresh water, but we were afraid to {go ashore}, for fear of wild beasts and {savages}. Xury said that he would go {ashore} to get water, and I should wait in the boat.","'Why should you go, Xury?' I asked.","'Why should I not go, and you wait in the boat?'","Xury replied in words that made me love him ever after: 'If wild men come, they will eat me, and you will escape.'","'Well, Xury,' I said, 'we will both go. If wild men come we will kill them, and they will eat neither of us.' We {went ashore} and got fresh water. As we were returning to the boat, we saw a lion on the beach.","I aimed my gun and shot. Xury and I took the skin off the lion, for I thought it might be of some value. We {sailed} along the coast for ten days. I hoped that we would meet a European trading ship and be saved, but we did not meet one.","Sometimes we saw people on the shore. Their skin was black, and they were naked. Once I thought of {going ashore} to meet them, but Xury {advised against} it. I made signs to them that we needed food. They brought meat and grain and left it on the beach for us. I made signs to thank them but had nothing to give them in payment.","However, we soon had the chance to do them a great service. Just as we reached our boat, a {leopard} came running down from the mountain towards the beach. I shot it dead. The {Negroes} were {amazed} and {terrified} by the sound of my gun. When they saw that the {leopard} was dead, they approached him. They wished to eat the flesh of this animal. I made signs to tell them that they could have him, and they began cutting him up. They cut off his skin and gave it to me.","Leaving my friendly {Negroes}, I {sailed on} for eleven days. As we approached {Cape Verde}, Xury cried out, 'Master! A ship!' I saw that it was a Portuguese ship. I {sailed} towards it, and in three hours I reached it.","The men on the ship asked who I was. When I told them my story, they were very kind. They took me on board their ship with all my property from the boat. I offered all my property to the captain, to thank him for saving me, but he would not take it. He said they were {sailing} to Brazil. He said that my property would be returned to me when we arrived. He offered to buy my boat from me. He paid me eighty pieces of eight for it. He also offered me sixty pieces of eight for my boy Xury. I did not want to sell the poor boy's liberty because he had helped me to escape from slavery. Then the captain offered to set Xury free in ten years if he became a Christian. Xury said he was willing to go with him, so I let the captain have him.","About twenty-two days later we landed in All Saints' Bay in Brazil. I will never forget the captain's kindness. He bought a lot of my property from the boat. I left the ship with about two hundred and twenty pieces of eight.","In Brazil I saw how well the {sugar planters} lived. They grew rich quickly. I decided to settle in Brazil and become a {sugar planter}. The first two years were difficult, but then my {plantation} grew {prosperous}. I was sorry that I had sold my boy Xury, for I needed help.","I was not happy in my new life. This was the middle state of which my father had spoken. I often said to myself, 'I could have done this at home, instead of coming five thousand miles to do it among strangers and {savages}.'","I thought I was like a man {stranded} alone upon an island. Never compare your situation to a worse one! God may place you in the worse situation, so that you long for your old life! I say, God was just to leave me on an island, where I really was alone! If I had been content to stay as I was, I would have been rich and happy. By leaving me on an island, God made me understand this.","The captain of the Portuguese ship advised me to send for some money. I had left my money with a friend in London. My friend sent me the money in the form of English goods. When they arrived, I thought that my fortune was made. I sold the goods at a great profit for about four hundred pounds. As soon as I got this money, I bought myself a {Negro} slave.","After four years, I had learned the language and made some friends among my fellow {planters}. I told them of the trade in {Negro} slaves on the African coast. 'If a merchant takes knives, hatchets, and other things of little value,' I said, 'he can easily trade them for gold and {Negro} slaves.'","They listened very {attentively}, especially to the part about buying slaves. There were very few slaves in Brazil at the time, and they cost a lot of money. Three planters came to me the next morning. They said they planned to buy a ship and sail to the African coast to buy slaves. They wanted to make one {voyage} only, then share the slaves among their {plantations}. They asked me if I would go on this voyage, and they promised that I would have a share of slaves without spending any money.","I agreed to go. I {went aboard the ship} on the first of September 1659, exactly eight years after my first {voyage} from Hull. We {sailed up} the coast to Cape St Augustino, then we lost sight of land. Twelve days later, a hurricane hit our ship. For twelve days the winds blew strongly. Every day I expected the sea to {swallow} us.","On the twelfth day, the weather was a little {calmer}. The ship {was filling with} water, so I advised the captain to {sail for} Barbados. As we sailed another storm hit us. The wind blew us far away from the trading routes. If we came to land, we would probably be eaten by {savages}.","One morning, a {sailor} cried out, 'Land!' We ran out to look, but at that moment the ship struck sand. The waves broke over the ship, and we thought we would all die.","We could not move the ship off the sand. We were sure that the ship would soon break into pieces. Therefore, we climbed into a boat and left the ship. We {rowed} through that wild water towards the land, knowing that we were {rowing} towards our greatest danger. Then a great wave came and the boat turned over.","Though I was a good swimmer, I could not get my breath in this {stormy} sea. A wave carried me along towards the shore. It left me on the sand, {half-drowned}. I stood up and walked fast towards the beach. I knew another wave would soon break over me. The sea rose behind me like a mountain. I held my breath, and the wave carried me closer to the shore. I tried to stand up and get my breath again, but another wave broke over me. I was carried with great force and speed towards the shore. Then my head shot above the water, and I was able to breathe for a moment. I was covered with water again, then that wave too began to withdraw.","I felt the earth under my feet. I ran towards the shore, but twice more the waves came over me. The last time nearly killed me. The sea threw me hard against a rock. I held on to the rock as the next wave broke over me. When the wave {withdrew}, I ran to the beach, climbed over the rocks, and lay down on the grass."],"quiz":[{"q":"Why did Robinson go to sea?","cn":"\u9c81\u6ee8\u900a\u4e3a\u4ec0\u4e48\u8981\u51fa\u6d77?","options":["He wanted an adventurous life at sea, against his parents' wishes","His father sent him to work on a trading ship","He was forced onto a ship by soldiers"],"answer":0},{"type":"tf","q":"Robinson Crusoe was born in the city of York.","cn":"\u9c81\u6ee8\u900a\u51fa\u751f\u5728\u82f1\u56fd\u7684\u7ea6\u514b\u5e02\u3002","answer":true},{"q":"Who helped Robinson escape from slavery in Sallee?","cn":"\u8c01\u5e2e\u52a9\u9c81\u6ee8\u900a\u4ece\u8428\u5229\u9003\u51fa\u5974\u96b6\u8eab\u4efd?","options":["The Turkish captain who owned him","Xury, a slave boy on the fishing boat","His brother, who was a soldier"],"answer":1},{"type":"fill","q":"Xury was a young slave ___ who escaped with Robinson.","cn":"\u7956\u777f\uff08Xury\uff09\u662f\u548c\u9c81\u6ee8\u900a\u4e00\u8d77\u9003\u8dd1\u7684\u9ed1\u4eba\u5974\u96b6___\u3002","options":["boy","sailor","king"],"answer":0},{"q":"At the end of the chapter, Robinson alone survives a shipwreck and crawls onto a beach. How does he probably feel?","cn":"\u7ae0\u672b\u9c81\u6ee8\u900a\u5728\u6d77\u96be\u4e2d\u72ec\u81ea\u751f\u8fd8,\u722c\u4e0a\u6c99\u6ee9,\u4ed6\u6b64\u523b\u7684\u5fc3\u60c5\u6700\u53ef\u80fd\u662f?","options":["Proud that he made the right choices","Angry at his father for warning him","Relieved to be alive, but frightened and alone"],"answer":2}]},{"id":"u01","section":"\u7b2c\u4e00\u5e55 \u00b7 \u51fa\u6d77\u4e0e\u6d77\u96be","tag":"CHAPTER 1","title_en":"Stranded on the Island","title_cn":"\u8352\u5c9b\u6c42\u751f","teaser_cn":"\u8239\u6bc1\u4eba\u5728,\u4ed6\u8981\u5982\u4f55\u5728\u8352\u5c9b\u6d3b\u4e0b\u53bb?","icon":"\ud83e\udeb5","itemName":"\u6551\u547d\u6728\u7b4f","words":2302,"paras":["I looked up and thanked God for saving my life. A short time before there had seemed to be no hope. It is impossible to describe the joy of someone who has just escaped death. I alone had survived; all my {companions} were dead. When I saw how far away the ship was, I was amazed that I had been able to get to shore.","I then began to look around me, to see what kind of a place I was in. My joy left me. I was wet, I had no other clothes, and I had nothing to eat or drink. Surely I would die of {starvation} or be eaten by wild animals. I had no gun with which to hunt for food or defend myself. For a while I ran around, {trembling} and crying. Night came. I walked around, looking for fresh water. When I found some, I drank, then I climbed up a tree to sleep.","When I {awoke} the sun was shining. The waves had moved the ship closer to the shore during the night. I realized that if we had stayed on board we would all have survived the storm. This thought made the tears run down my face.","I took off my clothes and {swam} to the ship. I climbed aboard and looked around. The ship's store of food was not wet. I needed a boat or {raft} to carry the goods back to the shore. There were several large pieces of wood on the ship. I threw them into the sea then jumped in myself and tied them all together with rope. In this way, after a lot of time and effort, I made a {raft}.","I then loaded the raft with food, clothes, tools, guns, and bullets, all packed in wooden boxes. I got onto the raft and returned to the shore. A short distance from where I had landed the night before, I saw a river. I landed the raft a little way up the river and got all my goods on shore.","I did not yet know whether I was on the {mainland} or on an island. I took a gun and climbed a hill. From the top of the hill I saw that I was on an island. I saw many birds, but no animals or people. On my way back down the hill, I shot a bird. I believe it was the first gun fired there since the creation of the world. At the sound, thousands of birds rose screaming into the air.","That evening I set wooden boards and boxes around me to protect me as I slept. The next day I returned to the ship. This time I got a {hammock}, {blankets}, {hatchets}, a perspective glass and {sails}.","Back on shore, I made a tent out of one of the sails. I brought everything into the tent that could be ruined by rain or sun. Then l made a bed and slept in it quietly all night, for I was very tired from the work of the day.","I had the largest store, I believe, that was ever laid up for one man. However, I was not satisfied. The ship had not yet broken to pieces, and I thought I should get everything I could out of her. Every day I went to the ship and brought back more goods. I brought bread, rum, sugar, and many other things back to my tent.","Finally there was nothing more to take out of the ship. I then began to take pieces of the ship itself. Iron, nails, rope - I carried away everything I could.","I had now been on the island for thirteen days and had been eleven times on board the ship. I think that if the weather had remained calm I would have brought the whole ship away piece by piece.","The last time I went to the ship I found money. I smiled and said, 'Oh, drug! What are you good for? One knife is worth more to me than all this money. I will leave you here! You are a creature whose life is not worth saving!' However, on second thoughts, I took it away.","Then clouds covered the sky and the wind began to blow. I went home to my tent, where I lay with all my wealth around me, very secure. There was a bad storm that night. In the morning the ship was gone.","I now began to think about protecting myself from {savages} and wild animals. I wanted to build my house in a place that was near a fresh water supply. It should be {sheltered} from the sun. It should be safe from attack. Finally, it should face the sea, so that I could see any ship that came near the island. (I still hoped to be {rescued}).","I found a little flat shelf on the side of a hill. There was a cliff behind it, so that nothing could attack me from behind. In front, the hill {descended to} the beach. It was on the north side of the hill, so that it was {sheltered} from the sun all day.","I built my tent against the cliff. Then I built a high, strong wooden fence in a {semicircle} around the front of my tent. I made a ladder. When I was inside, I could bring the ladder in after me. In this way neither man nor beast could enter my house.","It took a lot of time and effort to carry all my goods inside. Then I began to dig out a cave in the cliff behind my tent, because I needed a place to store my property. After a big storm, I was afraid that lightning might strike my great box of {gunpowder}. Therefore, I made many small boxes and put the gunpowder in them. These I hid in places secure from lightning.","Every day I went out hunting. There were goats on the island. I shot a she-goat that had a little kid by her. This made me very sad. When I carried the dead she-goat to my house, the kid followed me, but it would not eat. I was therefore forced to kill it and eat it.","I thought about my situation a lot.","The storm had blown the ship hundreds of miles away from the European trading routes. Therefore, I thought, it was God's will that I should spend the rest of my life on this miserable island. I often asked myself why God chose to ruin his creatures. It seemed hardly rational to be thankful for such a life.","Then one day, when I was walking on the beach with my gun, I thought, 'Certainly you are miserable, but what happened to the others? You alone were {fortunate} enough to survive. Is it better to be on this island or at the bottom of the sea?'","Then I thought how well-equipped I was to survive on the island. What would have happened to me if the ship had not been blown closer to shore? That happy chance allowed me to take all these things from the ship. How would I have lived without guns and bullets, tools, and clothes?","I was afraid that I would forget what day it was. I might even forget the Sabbath. Therefore, I planted a great wooden cross on the beach, and on it I {carved} these words with my knife: 'I came on shore here on the 30 of September 1659'. Upon the sides of the post I made a small cut with my knife every day, a longer cut every Sunday, and an even longer cut for the first day of every month.","I forgot to say before that among the things I took from the ship were some Catholic prayer books and three {Bibles}. There were also two cats and a dog on board the ship. I carried the cats back with me to the island. The dog jumped into the sea and swam after me.","I tried to comfort myself by listing the comforts I enjoyed beside the {miseries} I suffered like this: Evil: I am {stranded} on an island, with no hope of being saved.","I have been {singled out}. I alone am chosen to lead this miserable life.","I am separated from {mankind}, without human society. I have not clothes to cover me.","I have no means of defending myself against attack by man or beast.","I have no soul to speak to.","Good: But I am alive, not {drowned} as were the other men on the ship.","But I have also been {singled out} to survive, and He who saved me can deliver me from this condition.","But I am not {starving}. There is food on the island.","But the weather is hot, and I do not need clothes.","But I see no {wild beasts} on this island. What if I had been {shipwrecked} on the coast of Africa, where I saw the lion and the {leopard}?","But God sent the ship near enough to the shore that I have been able to supply myself with many things.","This showed me clearly that even in the most miserable conditions there are things for which to be thankful.","Robinson Crusoe's Journal September 30, 1659. I, poor miserable Robinson Crusoe, was {shipwrecked} near the shore of this unfortunate island, which I call the Island of {Despair}.","October 1 to October 24. I spent my time getting all I could out of the ship. It often rained during these days, this being the rainy season.","October 25. It rained all day and night. The bad weather broke the ship into pieces. I spent this day hiding my goods from the rain.","October 26 to October 30. I found a place in which to build my house and worked very hard carrying all my property to this place.","October 31. I went out with my gun to find food. I shot a she-goat.","November 1. I set up my tent and my {hammock}.","November 2. I set wooden boxes and boards to form a fence around my tent.","November 3. I went out with my gun and killed two birds, which were very good food. In the afternoon I began to make myself a table.","November 4. This morning I began to plan my time. Every morning after this I walked out with my gun for two or three hours if it did not rain. I worked until about eleven o'clock, then I ate. From twelve to two, when it was very hot, I slept. In the evening I worked again.","November 5. This day I went out with my gun and my dog. I killed a wild cat. Her skin was soft, but I could not eat the meat. I {skinned} every creature that I killed and kept the skin.","November 6. I finished my table but was not satisfied with it.","November 7. Now the weather began to be pleasant. From the seventh to the twelfth I worked at making myself a chair (except for the eleventh, which was a Sunday). I was not satisfied with the chair. Note: I soon forgot which days were Sundays, having forgotten to make the longer cut on the post. November 13. This day it rained, which cooled the earth and {refreshed} me. There was terrible thunder and lightning. I decided to separate my powder into many small boxes and to store them far from each other.","November 14, 15, and 16. I spent these three days making little boxes for my powder. On one of these days I killed a large bird that was good to eat, but I do not know its name.","November 17. This day I began to dig in the rock behind my tent to make a cave in which to store my goods. Note: I needed two things for this work- a {pick-axe} and a {shovel}. I stopped my work to make these tools. I made a pick-axe out of the pieces of iron I had taken from the ship, but I had no idea how to make a {shovel}.","November 18. In the woods I found an iron tree, so called because its wood is very hard. With great difficulty, I cut a piece of this wood, carried it home, and {carved} it into the form of a shovel. The making of these tools took me four days.","November 23. I began work on the cave again and worked for eighteen days. At the end of that time, the cave was large enough to hold all my goods.","December 10. Just when I had finished my cave, the roof fell in. This {frightened} me. If I had been inside at the time I would have been killed. I carried out all the fallen earth and built {props} to hold up the roof so that it would not fall down again.","December 17. From this day to the twenty-seventh, I built {shelves}.","December 20. I carried all my property into the cave and put everything in order.","December 24. It rained all day and night, so that I could not go out.","December 25. Rain all day.","December 26. No rain. The earth was much cooler than before.","December 27. I killed a young goat and shot another in the leg. I led the wounded goat home and took care of it. It lived and grew {tame}. It ate the grass around my house and would not go away. This gave me the idea of breeding the goats so that they would grow up tame and provide me with food when my gunpowder was finished.","January 3 to April 14. I built a fence around my house. I cut branches from trees and planted them deep in the ground. After a while, they began to grow, so that my fence looked like a natural thing."],"quiz":[{"q":"How did Robinson get food and tools from the wrecked ship to the shore?","cn":"\u9c81\u6ee8\u900a\u600e\u6837\u628a\u8239\u4e0a\u7684\u98df\u7269\u548c\u5de5\u5177\u8fd0\u5230\u5cb8\u4e0a?","options":["Friendly sailors carried them for him","The ship sailed itself close to the beach","He tied pieces of wood together to build a raft"],"answer":2},{"type":"tf","q":"When Robinson first explored the island, he found many dangerous wild animals.","cn":"\u9c81\u6ee8\u900a\u7b2c\u4e00\u6b21\u63a2\u7d22\u5c0f\u5c9b\u65f6\uff0c\u53d1\u73b0\u5c9b\u4e0a\u6709\u5f88\u591a\u5371\u9669\u7684\u91ce\u517d\u3002","answer":false},{"q":"How did Robinson keep track of the days on the island?","cn":"\u9c81\u6ee8\u900a\u5728\u5c9b\u4e0a\u600e\u4e48\u8bb0\u5f55\u65e5\u671f?","options":["He cut a mark into a wooden post every day","He wrote a letter every morning","He counted the birds that flew by"],"answer":0},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["Robinson built a raft and carried goods to the shore.","Robinson climbed a hill and found he was on an island.","Robinson built a fence around his tent."]},{"q":"Robinson made a list comparing the 'Evil' and 'Good' of his situation. What does this show about him?","cn":"\u9c81\u6ee8\u900a\u5217\u51fa\u5904\u5883\u4e2d\u7684'\u574f\u4e8b'\u4e0e'\u597d\u4e8b',\u8fd9\u8bf4\u660e\u4e86\u4ec0\u4e48?","options":["He had given up all hope of surviving","He was trying to stay hopeful despite his hardship","He wanted to leave the island immediately"],"answer":1}]},{"id":"u02","section":"\u7b2c\u4e8c\u5e55 \u00b7 \u8352\u5c9b\u4e3a\u738b","tag":"CHAPTER 2","title_en":"Lord of the Island","title_cn":"\u8352\u5c9b\u4e4b\u738b","teaser_cn":"\u6c99\u6ee9\u60ca\u73b0\u811a\u5370,\u5c9b\u4e0a\u771f\u7684\u53ea\u6709\u4ed6\u4e00\u4eba\u5417?","icon":"\ud83c\udfda","itemName":"\u5c9b\u4e0a\u6728\u5c4b","words":1979,"paras":["One day, I found among my goods a little bag that had once held grain on board our ship. I decided to use it to store my powder, so I shook it out near the rock outside my house. Soon afterwards the rains came. A month later, I saw some young plants growing there. I had forgotten all about the grain bag. When the plants grew, I was surprised to see that some were our English {barley} and others were rice.","Up to this point, I had very little idea of religion. I thought of everything that had happened to me as chance. When I saw English {barley} growing there, I thought it was a miracle. God had made it grow there to comfort me.","This thought brought tears to my eyes. Then I remembered shaking out the bag in that place just before the rains came. This calmed my mind. I thought the grain had grown there by chance, and so I felt less thankful to God. But I should have been thankful anyway, because the chance of grain growing there was very small. By chance ten or twelve grains of barley and rice had remained in the bottom of the bag. By chance I had shaken out the bag in the shade of the rock, where it was protected from the sun. I carefully saved the grain to plant again, hoping to grow enough to supply me with bread.","April 16. I finished my ladder. With this I could climb over the fence. The fence was now thick and high. From outside, the house could not be seen. At last I was safe from attack by man or beast.","The next day, the earth came falling down from the roof of my cave and the hill above it. I thought that my cave was falling in as it had done before. I climbed the fence, for fear of being buried alive. Once outside, I realized that it was an earthquake.","I was terrified that the hill would fall upon my tent and {bury} all my goods. I sat on the ground, feeling miserable. The wind rose and there was a great storm. It lasted about three hours. At that time I sat on the ground, terrified and miserable, but I never had one serious religious thought.","Two hours later, the air and sea were calm, and it began to rain. I realized that the storm had been the result of the earthquake and that the earthquake was now over. I went in and sat in my tent.","June 16. On the beach at the other side of the island I found a large {turtle}. I had never seen one before, but I soon discovered that there were many on the other side of the island.","June 19. I fell ill and began {shivering}.","June 20. I did not sleep all night because of the fever.","June 21. I was terrified by my illness and had no one to help me. I {prayed} to God for the first time since the storm on the sea by Hull. I could not think clearly. For several days I lay {shivering} with fever.","June 26. I woke up feeling better. Having no food, I took my gun and killed a goat. I found it very difficult to carry the goat home, because I was weak from my illness.","June 27. I fell ill again and lay in bed all day without food or drink. I tried to pray to God, but all I could say was 'Lord have mercy upon me' over and over again. I fell asleep and had a terrible dream.","I dreamt I was sitting on the ground outside my house. I saw a man {descend} from the sky. He was clothed in fire and held a {spear} in his hand. When he landed on the ground before me, the earth {trembled}. He moved towards me to kill me. Then he said, 'Since you do not {repent}, now you will die.'","I {awoke} terrified. Alas! I had no religious knowledge. What my father had taught me had all been forgotten in eight years of a {wicked} sailor's life. My soul had been stupid. It had not desired good. It had not feared evil.","Through all my {misfortunes} I had never once thought that they were the just punishment for my sins. I had acted like an animal, guided by my {passions}. When the rice and {barley} grew, I had a moment of serious religious thought, but that passed when I discovered that it was not a miracle.","Now, for the first time, I began seriously to {repent} of my {sinful} life. I saw my condition not as simple misfortune but as the punishment of a just God. These thoughts brought tears to my eyes. I remembered my father's words. He had said that, if I went to sea, God would not bless me and I would be sorry.","'Now,' I said to myself, 'my father's {prophesy} has really been {fulfilled}. God has punished me, and there is no one to help me.' Then I cried out, 'Lord help me, for I am in great distress!'","June 28. Feeling a little stronger, I ate some {turtle} meat. This was the first time in my life I asked God's blessing on what I ate. Afterwards, I took my gun and walked to the shore. There I sat down, feeling weak once more, and looked out at the sea.' What,' I asked myself, 'is this earth and sea of which I have seen so much? What am I? What are men and beasts? Where do we come from? Surely we are made by the same secret power that formed the earth and sea. Who is that?' The answer was clear: 'God made it all.' Then I thought, 'if God made all these things, He must also guide them all. Nothing can happen in creation without his knowledge. Therefore, He knows that I am here in this miserable condition, and he meant these things to happen to me.'","'Why has God done this to me?' I asked myself. But then I remembered my {wicked} life, and I said to myself, 'Why do you ask why God has done this to you? Ask instead why you were not killed long ago'.","Sadly {disturbed} by these thoughts, I went to my chest to look for some tobacco. There I also found the Bibles I had taken from the ship. I took one of the Bibles and began to read. The first words I saw were these: 'Call on me in the day of trouble, and I will deliver you, and you will praise me.'","The words were very relevant to my situation, and I often thought about them afterwards. Before going to bed, I knelt down and prayed to God. I asked him to fulfill the promise of the Bible and deliver me. I had taken rum and tobacco, so I fell asleep and did not wake up until about three in the afternoon of the next day. When I {awoke} I was {refreshed} and {cheerful}.","July 3. I thought often about the words in the Bible, will deliver you, but it seemed impossible that I should escape from the island. Then suddenly I said to myself, 'But I have been delivered from my illness!' God had delivered me, but I had not praised him. Instead of thanking Him for saving my life, I had thought only of {escaping} from the island.","July 4. I began to read the Bible seriously. I decided to read a little every morning and every night. Now I understood the words 'Call on me, and I will deliver you' in a different way. Before I had asked to be delivered from my island-prison. Now I asked to be delivered from the guilt of my {sinful} past. {Deliverance} from sin is a far greater blessing than deliverance from {misery}.","My mind was now calm and comforted. I had been on this unhappy island for more than ten months. I believed that no human being had ever come here before. I was lord of the whole island. If I liked, I could call myself king or emperor. I had enough wood to build twenty ships, enough food for an army. However, if I could not use it, it was of no value to me. I had enough to eat, so the rest was useless. I would have {gladly} given all my money for a little ink, because it would have been useful. My life was now much easier than before. I thought much more about the blessings of my present life and much less about its misfortunes.","My ink had been gone for some time. My clothes were all {worn out}. I made new clothes for myself from the skins of the goats I killed. This was very slow and difficult work, since I had no {needle}. The weather was so hot that I could have gone naked. However, I did not want to go naked, even though there was no one to see me.","I could not go naked, because the sun was so strong that it would burn my skin. I therefore made myself clothes, a hat, and even an {umbrella}. I tried to make a boat or canoe with which to escape from the island, for on a clear day I could see the {mainland}. It took me a long time to build the {canoe}. When it was finished it was too big for me to move. I could not get it to the shore, and so I left it where I had built it. Later, I made a smaller boat, but this was not large enough to take me to the mainland. I used it to sail around my island.","My life continued in this way for many years. It was an orderly life, filled with work and the praise of God. I was not unhappy. I was king of my island. My subjects were the goats, the dog, the cats, and some parrots I had tamed. There were no rebels among my subjects.","One day around noon something happened that changed my life on the island. I found the print of a man's naked foot on the beach. I stood and looked at the footprint in {amazement}.","I looked around me but saw nothing. I went to higher ground and looked again, but it was the same. I saw no one, and no other footprint except that one. I was {terrified}, and went home to hide myself.","At first I thought it must have been the footprint of the devil, for how could a human being have come to this place? I then began to think the print was left by savages from the mainland. They must have come in {canoes} and left again. I was very thankful that they had not seen my boat.","How strange is the life of man! Today we desire what tomorrow we fear. For years I had desired human society. Now I was terrified at the thought that another human being had set his foot upon the island!","I thought again of the words in the Bible: 'Call upon me in the day of trouble, and I will deliver you, and you will praise me.' I prayed to God to deliver me from danger. Afterwards, I opened my Bible and read, Wait on the Lord, and be of good cheer, and He shall strengthen your heart. Although these words comforted me, I was still afraid. Fear of danger is ten thousand times more terrifying than danger itself. I no longer trusted in God, as I had before. If I had kept my trust in God, I would have been more cheerful in this new {distress}."],"quiz":[{"q":"What surprised Robinson when he saw plants growing near his tent?","cn":"\u770b\u5230\u5e10\u7bf7\u9644\u8fd1\u957f\u51fa\u690d\u7269,\u4ec0\u4e48\u8ba9\u9c81\u6ee8\u900a\u611f\u5230\u60ca\u8bb6?","options":["They were poisonous plants he had never seen","They were English barley and rice from a shaken-out grain bag","They were flowers that smelled like his home"],"answer":1},{"type":"tf","q":"Robinson found plants growing near his home that came from grain in an old bag he had shaken out.","cn":"\u9c81\u6ee8\u900a\u53d1\u73b0\u5e10\u7bf7\u9644\u8fd1\u957f\u51fa\u4e86\u5927\u9ea6\u548c\u7a3b\u5b50\uff0c\u8fd9\u4e9b\u8c37\u7c92\u662f\u4ece\u4ed6\u5012\u7a7a\u7684\u65e7\u53e3\u888b\u91cc\u957f\u51fa\u6765\u7684\u3002","answer":true},{"q":"What frightening discovery suddenly changed Robinson's peaceful life?","cn":"\u4ec0\u4e48\u53ef\u6015\u7684\u53d1\u73b0\u6253\u7834\u4e86\u9c81\u6ee8\u900a\u5e73\u9759\u7684\u751f\u6d3b?","options":["He found another shipwreck nearby","He found a letter from his father","He found the print of a man's naked foot on the beach"],"answer":2},{"type":"fill","q":"Robinson named the island the Island of ___.","cn":"\u9c81\u6ee8\u900a\u7ed9\u8fd9\u5ea7\u5c9b\u53d6\u540d\u53eb\"___\u5c9b\"\u3002","options":["Despair","Adventure","Hope"],"answer":0},{"q":"After his illness, his dream, and reading the Bible, how does Robinson's attitude change?","cn":"\u751f\u75c5\u3001\u505a\u68a6\u3001\u8bfb\u5723\u7ecf\u4e4b\u540e,\u9c81\u6ee8\u900a\u7684\u5fc3\u6001\u53d1\u751f\u4e86\u4ec0\u4e48\u53d8\u5316?","options":["He becomes more thankful to God and hopeful","He decides to attack the savages right away","He stops caring whether he survives"],"answer":0}]},{"id":"u03","section":"\u7b2c\u4e8c\u5e55 \u00b7 \u8352\u5c9b\u4e3a\u738b","tag":"CHAPTER 3","title_en":"Footprints in the Sand","title_cn":"\u811a\u5370\u4e0e\u661f\u671f\u4e94","teaser_cn":"\u98df\u4eba\u65cf\u51fa\u73b0\u4e86,\u4ed6\u80fd\u6551\u4e0b\u90a3\u4e2a\u56da\u72af\u5417?","icon":"\ud83d\udc63","itemName":"\u6c99\u6ee9\u811a\u5370","words":2725,"paras":["I had now been living on the island for fifteen years. During all that time I had never seen another human being. However, {savages} from the mainland had clearly come to the island, and they might come again. I decided to build a second fence around my house and plant trees outside it, so that no one could enter. In six years, I had a thick wood around my house.","About two years after I saw the footprint, I thought I saw a boat in the distance off the western part of the island. Perhaps the savages from the mainland often came to that side of the island. Perhaps God had guided me to the eastern side, where the savages never came.","When I came down the hill to the shore, I was {amazed} and {horrified} to see human {skulls}, hands, and feet lying on the sand. There was a pit in the earth where a fire had been made. There the savages had made their inhuman {feast}, eating the bodies of their fellow-men.","I turned away from this terrible sight. I felt sick and {vomited}, then I ran back to my house.","My eyes were full of tears. I thanked God that I had been born a {civilized} man, quite different from these savages. I thanked him for the comforts He had sent me in my {distress}.","I thought I was probably safe from the savages. I had been on the island for eighteen years, and I had never met them. I could live there safely eighteen more years, if I did not choose to show myself to them.","For two years after this, I stayed close to my house. Then I began to go about the island as before, but more {cautiously}. I did not fire my gun, for fear that the savages should hear the shot. Fortunately, I had my tame goats, and could kill them for meat without using my gun.","I began to think night and day of killing some of these savages. Perhaps I could rescue their victim. I was {horrified} by their inhuman {feasting}. I was full of anger towards them. Sometimes I thought of burying five or six pounds of {gunpowder} under the place where they made their fire. When they lit the fire, the gunpowder would {explode} and kill them. But I did not want to use so much gunpowder, since I had very little left.","Then I thought of waiting for them, hidden from sight, with my guns loaded. In the middle of their bloody {feast}, I would shoot at them, and I would be sure to kill many. Then I would run at them with my {pistols} and sword. Even if there were twenty of them, I was sure I could kill them all. This idea pleased me very much. I thought about it so much that I began to dream about it.","Every day for two or three months I walked to the western side of the island and looked out to sea. All this time I was willing and eager to do an {outrageous} act: I was ready to kill twenty or thirty naked savages. I had not given any thought to this sin. I had never asked myself if it was right or wrong. I was fired by my hatred of their {unnatural} customs.","When I became tired of watching out for them every day, I began to question my plan. God had let them live {unpunished} for ages, and what had these people ever done to me? They did not think it was a sin to kill a prisoner and eat his flesh.","Then I thought that, though this custom was {inhuman}, it was really nothing to me. These people had done me no harm. If they attacked me, then I might have the right to kill them. At present I was at no risk, and therefore I had no right to kill them. If I did so, I would be no better than the Spaniards, who had destroyed millions of savages in America. The savages had done the Spaniards no harm. All the Christian nations of Europe said that the Spaniards had been cruel and {unnatural} to kill those people.","These thoughts made me abandon my bloody plan. Besides, I thought that attacking them would put me at greater risk. If I did not kill all of them, the survivors would go home and return with others to kill me. Therefore, I decided, it was neither just nor wise to attack the savages.","I gave thanks to God that I had been saved from {committing} a great sin. For a year afterwards, I never went to the western shore except once, to get my boat and hide it on the eastern side of the island.","I had now been living on the island for twenty-three years, and I had found some pleasant ways to pass the time. I taught my parrot to speak. I taught him to say 'Poor Robinson Crusoe!' He lived with me for twenty-six years. Perhaps he is still living on the island, calling out 'Poor Robinson Crusoe!'.","I might have lived this way until I died {contented} in old age, but God had other plans for me. How often in our lives the thing we fear most becomes the means of our {deliverance}! I could give many examples of this in my strange life. However, the best example is that of my last years on the island.","It was December of my twenty-third year. I went out early one morning, when it was still dark. Suddenly I saw a fire on the shore about two miles away. I went back to my house and pulled the ladder up after me. I loaded all my guns and {prayed} to God to protect me.","After about two hours, I wanted to know what was happening outside. I climbed the hill behind my house, lay down in the grass, and looked towards the shore with my perspective glass. There I saw nine naked {savages} sitting around a small fire. They had two {canoes} with them. some hours later, they got into their canoes and left the island. As soon as they were gone, I took my guns and went to the western shore. I saw that there had been three more canoes at that place. Looking out to sea, I saw them all {rowing back} to the mainland. Going down to the shore, I saw the remains of their {unnatural} {feast}: the blood, the bones, the parts of human bodies. I was so filled with anger at this sight that I began again to think about destroying the next savages who came there.","It was more than fifteen months before they returned to the island. During all this time I was in a {murderous} state of mind. I did not think that, if I killed these {savages}, I would have to also kill the next ones who came, and the next, and the next. In the end I would be as much a {murderer} as they were, and perhaps much more so.","On the sixteenth of May in my twenty-fourth year on the island, there was a terrible storm. I was reading the Bible and thinking about my condition. Suddenly I heard the sound of a gun out at sea. I left my house and ran up to the top of the hill. There I saw a flash of fire on the sea and heard the sound of the gun again.","'It must be a ship in {distress},' I thought, 'firing her guns to call for help.' I could not help them, but I thought that they might help me. Therefore I built a fire on the {hilltop}. I was sure that the people on the ship had seen my fire, because as soon as I lit it they fired the gun again.","The next morning, I saw that the ship was {wrecked}. Perhaps the people on board were all dead. Or perhaps they had escaped in a boat and been blown away from the island towards the open sea. If so, they would die of {starvation}. Even now, they might be thinking of eating one another.","I was thankful that God had chosen to save me alone out of all those who had been {drowned} in this sea. But I was also sad, so that I cried out, 'Oh! If one person had been saved out of that ship and had escaped to this island, I would have had a companion, someone to talk to!' In all my time on the island, I never had so strong a desire for human society.","I was in great {distress}. 'Oh! If just one had been saved!' I cried over and over again. But it was not to be. A few days later I saw the body of a {drowned} boy came on shore, which made me very sad.","I took my boat and went out to the {wreck}. There I found no living soul, but I brought back more goods, about eleven hundred pieces of eight, and some gold. I stored these goods in a cave on the island.","For the next two years, I lived quietly and {cautiously} on the island. Yet all that time I was {imagining} ways to escape. Thus once again I was an example of the common weakness of {mankind}: we are never satisfied with what God has given us, and lids makes us miserable.","One night I dreamt I was going out in the morning from my house. On the shore I saw two {canoes} and eleven savages coming to land. They had with them another savage, and they were going to kill and eat him. Suddenly, their prisoner began to run as fast as he could. He ran to the thick woods in front of my house to hide himself. Seeing that he was alone, I showed myself to him. He {knelt down} before me and {begged} me to help him. I showed him the ladder and took him into my house. He became my servant. Then I thought I could go to the {mainland} with this man to guide me. I awoke full of joy, but when I found it was only a dream I felt very sad.","This dream gave me the idea that my only hope of escape was to get a savage. If possible I would rescue one of those they brought over to eat. This could only be done by killing all the other savages, and my heart {trembled} at the thought. However, my desire to escape was so strong that finally I decided to watch out for the savages again.","For about a year and a half I watched. No one came to the island in all that time. Then, one morning, I saw five {canoes} on the shore. I climbed the hill, hid myself in the grass, and watched them with my perspective glass. There were about thirty of them. They had built a fire and were dancing around it. As I watched, they brought two prisoners from the boats to be killed. One of the prisoners fell down, and the savages began cutting him up for their {feast}. At that moment, the other prisoner began to run. He ran with amazing speed along the shore towards my house.","I was terribly {frightened} when I saw him running towards me. I thought that all the others would follow him. My dream seemed to be coming true. When I saw that only three men were {pursuing} him, I felt less frightened. The prisoner came to the river, jumped in, and swam across. When his {pursuers} came to the river, one of them stopped and turned back, for clearly he could not swim. The others swam across the river, but not so quickly as the prisoner had done.","I thought that God was calling me to save this poor creature's life. I thought that by saving his life I would get a servant, and perhaps a companion. I took my guns and ran down to the shore. I cried out to the prisoner. At first he was frightened of me. Slowly I walked towards the two who followed. I hit the first one with my gun. Having knocked this fellow down, I walked towards the other. I saw that he had a {spear}. He was ready to throw it at me. Therefore I had no choice but to shoot him.","Though he saw that both his enemies had fallen, the poor savage was frightened by the sound of my gun. I called to him and made encouraging signs. The poor creature was trembling. He walked towards me slowly. When he came close to me, he {knelt} on the ground and kissed the earth. He then put his head upon the ground. He took my foot and placed it upon his head. I helped him to his feet and encouraged him.","The savage I had knocked down now began to move. I pointed to him, to show my savage that his enemy was not dead. My savage spoke some words to me. I did not understand them, but I enjoyed listening to them. They were the first words spoken to me by any human being for over twenty-five years. I pointed my gun at the savage on the ground. My savage touched the sword at my side, as if asking to use it. I gave it to him, and he ran to his enemy and cut off his head with one blow. When he had done this, he came back to me, laughing, and gave me my sword. Then he buried the bodies in the sand.","Afterwards, I took my savage to my cave and gave him food and water. I made signs to him that he should sleep, and pointed to the blanket where I often slept myself.","He was a strong handsome fellow, about twenty-six years old. He had a pleasant face, with all the {sweetness} and {softness} of a European, especially when he smiled. When he awoke he made many signs of {thankfulness} to me for saving his life. I showed him that I was pleased with him. Then I began to speak to him and teach him how to speak to me. First I told him that his name would be Friday, which was the name of the day on which I saved his life. I taught him to call me Master.","I stayed with him in the cave all that night. The next morning we went out. We came to the place where we had buried the two men. Friday made signs to me that we should dig them up and eat them. I made signs of {vomiting} and let him know how much I hated the idea. I then led him to the top of the hill, to see if his enemies were still on the island.","The savages and their {canoes} were gone. We went down to the place where they had been. I was {horrified} at the sight, but Friday did not seem {disturbed} by it. The place was covered with human bones and blood. I saw three {skulls}, five hands, and the bones of three or four legs and feet. I made Friday put the skulls and bones into a pile and burn them. I could see that he still wished to eat some of the flesh.","When we had done this we went back to our house. I made clothes for Friday. Then I built a tent for him between the first fence and the second. Thus, Friday could not attack me during the night. But there was no need. Friday was the most faithful, loving, and {sincere} servant. He loved me as a child loves his father. He would have given his life to save mine.","God did not give all his creatures the knowledge of how best to use their {capacities}. However, He gave all {mankind} the same reason, {sentiments}, and {passions}. It made me sad to think that God had hidden the saving knowledge from so many millions of souls. Someone like Friday would use that knowledge better than many white men."],"quiz":[{"q":"What horrifying scene did Robinson find on the beach?","cn":"\u9c81\u6ee8\u900a\u5728\u6c99\u6ee9\u4e0a\u53d1\u73b0\u4e86\u4ec0\u4e48\u53ef\u6015\u7684\u666f\u8c61?","options":["The remains of a cannibal feast, with human bones","A group of shipwrecked sailors resting","A pile of gold left by pirates"],"answer":0},{"type":"tf","q":"After seeing the remains of the cannibal feast, Robinson decided to attack the savages right away.","cn":"\u9c81\u6ee8\u900a\u770b\u5230\u98df\u4eba\u65cf\u7684\u53ef\u6015\u75d5\u8ff9\u540e\uff0c\u7acb\u523b\u51b2\u4e0a\u53bb\u653b\u51fb\u4ed6\u4eec\u3002","answer":false},{"q":"How did Robinson save the escaping prisoner who later became Friday?","cn":"\u9c81\u6ee8\u900a\u662f\u600e\u6837\u6551\u4e0b\u540e\u6765\u53eb\u661f\u671f\u4e94\u7684\u90a3\u4e2a\u9003\u8dd1\u56da\u72af\u7684?","options":["He gave the prisoner his own canoe to escape","He shot the two men who were chasing the prisoner","He hid the prisoner inside his cave for a month"],"answer":1},{"type":"who","q":"It must be a ship in distress, firing her guns to call for help.","cn":"\u8fd9\u4e00\u5b9a\u662f\u4e00\u8258\u9047\u9669\u7684\u8239\uff0c\u6b63\u5728\u5f00\u70ae\u6c42\u6551\u3002","options":["Robinson\u9c81\u6ee8\u900a","Friday\u661f\u671f\u4e94","The captain\u8239\u957f"],"answer":0},{"q":"Robinson is horrified by the cannibals but decides not to attack them. Why?","cn":"\u9c81\u6ee8\u900a\u867d\u538c\u6076\u98df\u4eba\u65cf,\u5374\u51b3\u5b9a\u4e0d\u53bb\u653b\u51fb\u4ed6\u4eec,\u4e3a\u4ec0\u4e48?","options":["He is too afraid of their weapons","He secretly wants to join their feast","He realizes they have never actually harmed him, so he has no right to kill them"],"answer":2}]},{"id":"u04","section":"\u7b2c\u4e09\u5e55 \u00b7 \u661f\u671f\u4e94\u4e0e\u5f52\u4e61","tag":"CHAPTER 4","title_en":"Friday's Story","title_cn":"\u661f\u671f\u4e94\u7684\u6545\u4e8b","teaser_cn":"\u661f\u671f\u4e94\u80fd\u8bb2\u8bdd\u4e86,\u4ed6\u4f1a\u8bf4\u51fa\u4ec0\u4e48\u79d8\u5bc6?","icon":"\ud83d\udc3e","itemName":"\u4f19\u4f34\u661f\u671f\u4e94","words":1766,"paras":["Friday learned to speak quickly. He was very pleased when he understood me or could make me understand him. It was good to talk to him. Now my life was easy. I took Friday out with me to shoot a goat. When I fired my gun, Friday trembled and {tore} open his jacket to see if he was wounded. He {knelt} on the ground and said many things I did not understand. I think he was {begging} me not to kill him.","I took him by the hand and laughed at him, then pointed to the goat I had shot. He was amazed. I believe that, if I had let him, he would have {worshipped} me and my gun. For days afterwards he would not touch the gun, but he often spoke to it, begging it not to kill him.","That night I {roasted} some meat and gave it to Friday. He enjoyed it so much that he told me he would never again eat man's flesh. I was very glad to hear that.","The next day I taught Friday how to make bread. After a little time, he was able to do these things as well as I could do them myself. This was the best year of my life on the island. Now I had someone to talk to, and he was a pleasant fellow. He was honest and simple. I began really to love him, and I believed he loved me more than he had ever loved anything before.","One day I talked to Friday about his nation. I asked him what his nation did with the prisoners they took in battle.","'Do they carry them away and eat them, as these did?' I asked.","'Yes,' said Friday. 'My nation eat men too.'","'Do they ever carry prisoners to this island?'","'Yes. Sometimes.'","'Have you been here with them, Friday?'","'Yes. I have been here.' He pointed to the western side of the island.","So Friday had been one of the {cannibals} who used to come to the other side of the island. He told me that one time they had eaten twenty men, two women and a child.","Friday told me many things about the people of his nation and the nations nearby. Then he told me that at a great distance from his nation there lived white men like me, and that they had killed many people. I understood that these were Spaniards, whose {cruelty} was well-known.","I asked him if he thought I could go from this island to the place where the other white men lived. He said I could, but I would need a large boat. I began to hope that I could escape from the island, with Friday's help.","I taught Friday all I could about religion. One time I asked him who made him. He did not understand me at all. He thought I had asked who his father was. Then I asked him who made the sea, the earth, the hills, and the woods. He told me Benamuckee made them. Benamuckee was very old, much older than the sea or the land, Friday said.","'If his old person has made all things,' said I, 'why do all things not worship him?'","Friday looked very serious and said, 'All things say O to him'.","I asked what happened to the people who died in his country. He said they went to Benamuckee. Then I asked whether those they ate went to Benamuckee too, and he said yes.","I then began to teach him about the true God. I told him that the great Creator of all things lived up there (pointing towards heaven). I said he was {omnipotent}. He could give everything to us and take everything away from us. Friday listened very {attentively}. He liked the idea that Jesus Christ was sent to save us and that God could hear our prayers. He said that if God could hear us in heaven, He must be a greater god than Benamuckee. Benamuckee only heard when people went to the mountains to speak to him, Friday said. He told me that only the old men were allowed to go to speak to Benamuckee. 'Well,' I thought, 'there are {cunning} priests even among the savages.'","I told Friday that the old men were not telling the truth when they said they had spoken to Benamuckee. I said perhaps they had spoken to the devil. I then had to explain to Friday who the devil was.","Some days later, I spoke to Friday about God again.","Friday said, 'If God is so strong, why does he not destroy the devil?'","I was surprised at this question. I was a very old man, but I was a very young teacher of religion. I asked him to repeat what he had said. This gave me the time to think of an answer.","'God will {punish} the devil in the end,' said I.","That did not {satisfy} Friday. 'But why does God not kill him now? Why did God not kill him long ago?'","I said, 'Why does God not kill you and I when we are {wicked}? He gives us time to {repent} and be forgiven.'","Friday thought about this. Then he said, 'Well, well. I understand. You, I, and the devil are all {wicked}, but God lets us all live so that we can repent and be forgiven.'","Here I was in difficulty again, and I thought how true it was that reason alone cannot lead us to {salvation}. I told Friday that I needed something and sent him to get it. This gave me time alone to pray to God that he would help me to teach Friday.","As a teacher, I had more {sincerity} than knowledge. In trying to teach him, I taught myself many things that I did not know before and many I did not really understand. I wanted to understand more than ever before. I do not know whether I helped Friday, but I am sure that Friday helped me. I was more {contented} than before, and I enjoyed my home very much. I thanked God for allowing me to save the life and perhaps the soul of this poor savage.","When I thought about these things I felt a secret joy, and I thanked God for bringing me to the island.","Friday and I lived happily together on the island for three years. The savage was now a good Christian, better indeed than I was myself. One day I showed him the {wreck} of the boat in which my {companions} and I had left our ship. Friday looked at it a long time then said, 'Once a boat like that came to my nation.'","'Were there any white men in the boat?' I asked.","'Yes,' said Friday, 'there were seventeen'.","'And what happened to them?'","'They live in my nation,' he said.","Perhaps these white men were from the ship that I had seen {wrecked} near my island, I thought.","'But Friday,' said I, 'why do the people of your nation not kill and eat the white men?'","'We only eat the flesh of prisoners we catch in battle,' said he. Some time after this, when we were on the {hilltop} looking out to sea, we saw the coast of America. 'Oh joy!' cried Friday. 'There is my country! There is my nation!'","His eyes shone and his face was eager. I began to worry. If Friday could return to his own nation, I thought, he would forget about me and his new religion. Perhaps he would even tell his people about me and return with hundreds of them to eat me. I worried about this for several weeks. Then one day I asked him, 'Friday, would you like to return to your own nation?'","'Oh yes,' said Friday, 'that would make me very happy.'","'What would you do there?' I asked. 'Would you eat men's flesh and become a savage again?'","Friday shook his head and said, 'No. I would teach them how to live well and how to pray to God. I would teach them to eat bread and the flesh of goats and never to eat men.'","'But then,' I said, 'they would kill you.'","'No. They would not kill me. They would be willing to learn.'","I told him that I would make a canoe for him to go back to his nation. Then Friday said that he would go if I would go with him.","'I go!' said. 'But they would eat me!'","'No, no,' he said. 'I would tell them not to eat you. I would make them love you very much.'","I told him again that I would make him a {canoe} so that he could return to his nation. Friday looked very sad. 'Why are you angry with me?' he asked. I said I was not angry with him at all. 'Then why do you want to send me away?'","'But Friday,' said I, 'did you not say that you want to go home?'","'Yes, yes,' said Friday. 'I wish we were both there. I do not wish to return alone.'","'But what would I do there, Friday?' I asked.","'You could do a lot of good there. You could teach my people to be good. You could tell them about God.'","'No, no, Friday,' I said. 'You go without me and leave me here to live alone, as I did before.'","He looked very distressed at my words, and taking up a {hatchet}, he gave it to me and said, 'Kill me!'","'Why must I kill you?' I asked in {amazement}.","'Why do you want to send me away? Do not send me away. It is better to kill me.' He spoke very {sincerely}, and his eyes were full of tears.","I saw clearly that he loved me and would never leave me. I told him that I would never send him away from me, if he was willing to stay.","We started building a boat large enough for the two of us and all our goods. The rainy season came before we finished the boat. Therefore, we brought it into the river to keep it safe until the weather was calm."],"quiz":[{"q":"What did Friday tell Robinson about the white men near his homeland?","cn":"\u661f\u671f\u4e94\u544a\u8bc9\u9c81\u6ee8\u900a,\u4ed6\u5bb6\u4e61\u9644\u8fd1\u7684\u767d\u4eba\u662f\u4ec0\u4e48\u6837\u7684?","options":["They brought many gifts to Friday's people","There were no white men anywhere nearby","Cruel white men (Spaniards) had killed many people"],"answer":2},{"type":"tf","q":"Friday told Robinson that his nation also ate the flesh of prisoners taken in battle.","cn":"\u661f\u671f\u4e94\u544a\u8bc9\u9c81\u6ee8\u900a\uff0c\u4ed6\u7684\u90e8\u843d\u4e5f\u4f1a\u5403\u6218\u4fd8\u7684\u8089\u3002","answer":true},{"q":"When Robinson offered to build Friday a canoe to go home, what did Friday do?","cn":"\u5f53\u9c81\u6ee8\u900a\u8bf4\u8981\u4e3a\u661f\u671f\u4e94\u9020\u72ec\u6728\u821f\u9001\u4ed6\u56de\u5bb6\u65f6,\u661f\u671f\u4e94\u600e\u4e48\u505a?","options":["He begged Robinson not to send him away, even offering his own life","He happily left the island without saying goodbye","He laughed and said he didn't want to go home"],"answer":0},{"type":"who","q":"Kill me!","cn":"\u6740\u4e86\u6211\u5427\uff01","options":["Friday\u661f\u671f\u4e94","Robinson\u9c81\u6ee8\u900a","The Spaniard\u897f\u73ed\u7259\u4eba"],"answer":0},{"q":"Friday offers to be killed rather than be sent away from Robinson. What does this show?","cn":"\u661f\u671f\u4e94\u5b81\u613f\u88ab\u6740\u4e5f\u4e0d\u613f\u79bb\u5f00\u9c81\u6ee8\u900a,\u8fd9\u8bf4\u660e\u4e86\u4ec0\u4e48?","options":["He is simply following orders out of fear","He deeply loves and is loyal to Robinson","He wants to take over as leader of the island"],"answer":1}]},{"id":"u05","section":"\u7b2c\u4e09\u5e55 \u00b7 \u661f\u671f\u4e94\u4e0e\u5f52\u4e61","tag":"CHAPTER 5","title_en":"Coming Back Home","title_cn":"\u7ec8\u4e8e\u56de\u5bb6\u4e86","teaser_cn":"\u4f4f\u5c9b28\u5e74,\u4ed6\u7ec8\u4e8e\u80fd\u56de\u5bb6\u4e86\u5417?","icon":"\ud83c\udfe1","itemName":"\u5f52\u4e61\u4e4b\u8239","words":2160,"paras":["I had now been on the island for twenty-seven years. One day I sent Friday to get a {turtle}. He came running back from the shore, crying, 'Oh, Master, Master! There are three canoes!' The poor fellow was terribly frightened.","'Will you help me to fight them, Friday?' said I.","'Oh yes,' said he.","'And will you do everything I tell you to do?'","'Yes, yes. I will,' said he.","'Then I will defend you, Friday,' said I, giving him a loaded gun and a {hatchet}.","He said, 'Master, I will die when you tell me to die.'","I took the {pistols} and my sword. We went up the hill to see what was happening. There were twenty-one savages, three prisoners, and three canoes. They had landed closer to my house than ever before. This filled me with anger, but then I thought, 'What right have I to kill men who have done me no harm? It is a national sin, and God alone can punish the nations.' Friday could attack them, because they were the enemies of his nation. They had tried to kill and eat him. But, since they had done me no harm, I had no right to kill them. Therefore I decided not to attack them. Instead, I would hide myself and watch their {cannibal} {feast}. I would wait for a sign from God before I acted.","I sent Friday closer to look at the savages. He came back and told me that they were around the fire, eating the flesh of one of their prisoners. Another prisoner was lying upon the sand with his hands and feet bound! Friday said that they would kill him next. This made me very angry. Then Friday told me that this other prisoner was not of his nation. He was one of the white men who had come to Friday's nation in a boat. I was {horrified} at the thought of this white man waiting to be killed and eaten. I went closer and looked through my perspective glass. I saw a white man tied up on the beach. He wore clothes and was clearly a European.","I moved closer to the beach, keeping myself hidden behind the {bushes}. Two savages were approaching the poor Christian. They were going to kill him and bring him piece by piece to the fire. I told Friday to do as I did. I took one of my guns and aimed at the savages. Friday did the same. We both fired our guns at the same moment.","Friday was a better shot than I. He killed two of them and wounded three more. All those who were not hurt jumped up and looked around in fear and amazement. I threw down that gun and took up another. Friday did the same. 'Are you ready, Friday?' said I.","'Yes.'","'Then fire, in the name of God!'","Again we both fired our guns at the same moment. Only two were killed, but many were wounded and ran about screaming and covered in blood. 'Come, Friday,' said I. 'Follow me'. I ran out of the bushes and showed myself to the savages. Friday followed me without question. I ran towards the poor victim. Some of the savages ran away and jumped into a {canoe}. I told Friday to shoot them. He killed two of them and wounded another.","I pulled out my knife and cut the {ropes} that bound the poor victim. I asked him in Portuguese what he was. He said, 'Espagniole'. I gave him a gun and a sword. The savages that remained had been very frightened by the sound of my gun. The poor creatures lay on the ground unable to move. The Spaniard took the sword and the gun very thankfully. They seemed to give him new strength. He attacked his {murderers} and cut two of them to pieces.","I told Friday to get the other guns. Then I sat down and began to load them. Friday and the Spaniard fought the savages. They came to me when they wanted a loaded gun.","Friday {pursued} the savages who were running away. He killed four of them with his hatchet. At the end of the battle, most of the savages were dead: 3 killed at our first shot from the tree. 2 killed at the next shot. 2 killed by Friday in the boat. 2 killed by Friday of those at first wounded. 1 killed by Friday in the wood. 3 killed by the Spaniard. 4 killed by Friday while they were running away. 4 escaped in the boat, of which one was wounded or dead. 21 in all.","I ran towards a canoe, because I wanted to pursue the savages who had escaped to sea. However, when I got to the {canoe}, I found another poor creature tied up in it. I cut the ropes that bound him and gave him rum to drink. Then I told Friday to explain to him that he was saved. But when Friday saw him, he kissed him. He cried, then he laughed, then he danced. I looked at him in {amazement}. 'Friday! What does this mean?' said I.","'Oh, Master!' said Friday, with tears in his eyes, 'that prisoner is my father!'","I was sincerely moved to see how much Friday loved his father. He got into the boat and took his father in his arms. There he stayed for half an hour, holding his father close.","Friday took good care of his father and the Spaniard. He ran back to the house to bring them bread and fresh water.They were both very weak, and their feet hurt from being tied, so they could not walk. Friday put the Spaniard into the canoe beside his father. He pushed the {canoe} around the shore to our river. We carried them from the river to the house, but there we met a great difficulty. How could we get them over the fence? It was impossible, so Friday and I set to work. In about two hours we built a handsome tent for them, covered with sails, just outside the second fence.","My island was now peopled. I was the king, and all my subjects {owed} their lives to me, because I had saved them all from certain death. Although I had only three subjects, they were all of different {religions}. My man Friday was a Protestant, his father was a {pagan} and a {cannibal}, and the Spaniard was a Catholic. However, I allowed freedom of religion throughout my country.","I said to the Spaniard, 'Do you think that the other white men who live in Friday's nation would like to escape to a Christian country?'","'Yes, they would,' said he.","'And would they swear loyalty to me and accept me as their leader?' I asked.","'They will be so glad to escape,' said he, 'that I am sure they will be faithful to you'.","I decided to send the Spaniard and Friday's father back to the mainland to speak to the other white men there. The Spaniard said that we should wait until we had enough food for them all. My grain and my goats were enough for four, but they would not be enough for sixteen others.","We planted more {barley} and rice. I ordered Friday and his father to build a boat big enough for all of us. I told the Spaniard to {supervise} their work. We went out to catch wild goats each day. I made Friday and the Spaniard go out one day, and Friday and myself the next, for we took our turns. In this way we got twenty young kids to breed up with the rest.","When everything was ready, Friday's father and the Spaniard took a canoe and two guns and set off for the mainland.","'If you bring others back with you,' said I, 'they must first swear loyalty to me.'","Eight days later, Friday awoke me crying, 'They are here! They are here!'","When I got to the shore, I saw the boat approaching us was not the one we expected. I told Friday to hide, because we did not know whether these people were friends or enemies. Then I went to get my perspective glass. I climbed to the top of the hill and looked out to sea. There I saw an English ship.","At first I thought an English ship must surely be friendly, then I had {doubts}. What was an English ship doing here, far from the English trading routes? I decided to be {cautious}. Now I am sure that those {doubts} were messages sent from God. If I had not been cautious, I would have been killed.","I saw the boat land on the beach. There were eleven men. Three of them were bound with ropes. The three prisoners were crying out to the others, begging for mercy. Friday, who was by my side, said to me, 'Oh, Master! You see? Englishmen eat prisoners too.'","'No, Friday,' said I. 'They might murder them, but they will not eat them.'","At about two o'clock in the afternoon, the prisoners were left alone under a tree. The other men had gone into the woods to sleep. Friday and I took our guns and went down to show ourselves to the prisoners.","When I was very near to them but still hidden by the bushes, I cried out, 'Who are you, gentlemen?'","They were frightened by my voice, but they were even more frightened when I stepped out into the open. I was wearing my {goatskin} jacket and my hat. A naked sword hung by my side. I carried two guns and two {pistols}. I thought they were going to run away from me, so I said, 'Do not be afraid. I am your friend. How can I help you?'","One of them replied, 'You must be sent from heaven.'","'All help is from heaven, sir' I said. 'Now tell me what has happened.'","The poor man, with tears running down his face, said, 'I was the captain of that ship, but my men have {rebelled} against me. They wanted to kill me, but I {persuaded} them to leave me on this island, with my two friends here.'","'Do your enemies have guns?' I asked.","He said they had only one gun with them and another in the boat.","'Well,' said I, 'it will be easy to kill them, because they are all asleep. But should we take them prisoner instead?'","He said that two of them were so evil that they must be killed, and then the others would probably {obey}.","'If I save you, sir,' said I, 'you must promise to accept me as your leader and be faithful to me.'","He promised, and the other two did the same. Then I gave them each a loaded gun. They went into the woods towards the sleeping men. One awoke and cried out to the others. The captain's two {companions} fired their guns. They killed the two rebel leaders and took two prisoners. The others then begged for mercy.","With these {repentant} men, the captain went in the boat to the ship. Since the rebel leaders were now dead, the men on the ship decided to obey him once more. He then returned to the island and said to me, 'My good friend, there is your ship!'","These words affected me greatly, and I sat down upon the ground with tears in my eyes. I did not forget to give thanks to God for delivering me. We asked the two rebel prisoners if they wished to be left on the island or to return to England, where they would be punished. They said they wished to stay on the island. Therefore, I showed them my house, my goats, my grain {plantation}, and my goods. I gave them guns and powder and wished them good fortune.","And thus I left the island on the nineteenth of December 1686, having lived there for twenty-eight years, two months, and nineteen days. I was delivered on the same day of the same month that I escaped from slavery in Sallee.","I took with me my {goatskin} hat, my umbrella, and a parrot. I also took the money that had been so useless to me. After a long {voyage}, I arrived in England on the eleventh of June 1687, having been away for thirty-five years.","We had many adventures afterwards, my man Friday and I. I married and had three children, but then my wife died. A friend came home from a successful {voyage}, and he {persuaded} me to go in his ship to the East Indies. Our adventures on this later {voyage} may perhaps be the subject of another story."],"quiz":[{"q":"Who turned out to be one of the prisoners rescued from the cannibals?","cn":"\u4ece\u98df\u4eba\u65cf\u624b\u4e2d\u6551\u4e0b\u7684\u56da\u72af\u4e2d,\u6709\u4e00\u4f4d\u662f\u8c01?","options":["The captain of the English ship","Friday's own father","One of Robinson's old sailor friends"],"answer":1},{"type":"tf","q":"As soon as Robinson saw the English ship, he ran to greet the sailors without any caution.","cn":"\u9c81\u6ee8\u900a\u4e00\u770b\u5230\u82f1\u56fd\u8239\uff0c\u5c31\u6beb\u65e0\u6212\u5fc3\u5730\u7acb\u523b\u8dd1\u53bb\u8fce\u63a5\u6c34\u624b\u4eec\u3002","answer":false},{"q":"How did Robinson finally manage to leave the island?","cn":"\u9c81\u6ee8\u900a\u6700\u7ec8\u662f\u600e\u6837\u79bb\u5f00\u5c0f\u5c9b\u7684?","options":["He built a huge ship by himself and sailed alone","Savages agreed to carry him to the mainland","He helped an English captain regain control of his mutinied ship and sailed home with him"],"answer":2},{"type":"order","q":"\u6309\u4e8b\u60c5\u53d1\u751f\u7684\u5148\u540e\uff0c\u4f9d\u6b21\u70b9\u4e00\u70b9\uff1a","cn":"","items":["Robinson and Friday rescued the Spaniard and Friday's father.","Robinson helped the captain defeat the mutineers.","Robinson left the island on an English ship."]},{"q":"After 28 years, Robinson sees his rescue ship and sits down with tears in his eyes. How does he likely feel?","cn":"28\u5e74\u540e\u770b\u5230\u642d\u6551\u7684\u8239,\u9c81\u6ee8\u900a\u5750\u4e0b\u6d41\u6cea,\u4ed6\u6b64\u523b\u7684\u5fc3\u60c5\u6700\u53ef\u80fd\u662f?","options":["Overwhelmed with gratitude and emotion","Angry that rescue took so long","Indifferent, since he preferred living alone"],"answer":0}]}];
+const GLOSSARY = {"advised against":{"cn":"\u529d\u963b","emoji":"\ud83d\udeab"},"alas":{"cn":"\u5509","emoji":"\ud83d\ude14"},"amazed":{"cn":"\u60ca\u8bb6\u7684","emoji":"\ud83d\ude32"},"amazement":{"cn":"\u60ca\u8bb6","emoji":"\ud83d\ude32","gold":true},"ankind":{"cn":"\u4eba\u7c7b","emoji":"\ud83d\udc65","gold":true},"ashore":{"cn":"\u4e0a\u5cb8","emoji":"\ud83c\udfd6\ufe0f"},"attentively":{"cn":"\u4e13\u6ce8\u5730","emoji":"\ud83d\udc42","gold":true},"awoke":{"cn":"\u9192\u6765","emoji":"\ud83d\ude34"},"baptized":{"cn":"\u53d7\u6d17","emoji":"\u26ea"},"barley":{"cn":"\u5927\u9ea6","emoji":"\ud83c\udf3e"},"begged":{"cn":"\u6073\u6c42","emoji":"\ud83d\ude4f"},"begging":{"cn":"\u6073\u6c42\u7740","emoji":"\ud83d\ude4f"},"bibles":{"cn":"\u5723\u7ecf","emoji":"\ud83d\udcd6"},"blankets":{"cn":"\u6bef\u5b50","emoji":"\ud83d\udecf\ufe0f"},"bury":{"cn":"\u57cb\u846c","emoji":"\u26b0\ufe0f"},"bushes":{"cn":"\u704c\u6728\u4e1b","emoji":"\ud83c\udf33"},"calmer":{"cn":"\u66f4\u5e73\u9759","emoji":"\ud83d\ude0c"},"cannibal":{"cn":"\u98df\u4eba\u7684","emoji":"\ud83c\udf56"},"cannibals":{"cn":"\u98df\u4eba\u65cf","emoji":"\ud83c\udf56","gold":true},"canoe":{"cn":"\u72ec\u6728\u821f","emoji":"\ud83d\udef6"},"canoes":{"cn":"\u72ec\u6728\u821f(\u590d\u6570)","emoji":"\ud83d\udef6"},"capacities":{"cn":"\u80fd\u529b","emoji":"\ud83e\udde0"},"cape verde":{"cn":"\u4f5b\u5f97\u89d2(\u5730\u540d)","emoji":"\ud83d\uddfa\ufe0f"},"carved":{"cn":"\u523b(\u8fc7\u53bb\u5f0f)","emoji":"\ud83d\udd2a"},"cautious":{"cn":"\u8c28\u614e\u7684","emoji":"\ud83e\udd14"},"cautiously":{"cn":"\u8c28\u614e\u5730","emoji":"\ud83e\udd14"},"cheerful":{"cn":"\u5f00\u5fc3\u7684","emoji":"\ud83d\ude0a"},"civilized":{"cn":"\u6587\u660e\u7684","emoji":"\ud83c\udfdb\ufe0f"},"committing":{"cn":"\u72af(\u7f6a)","emoji":"\u26a0\ufe0f"},"companions":{"cn":"\u540c\u4f34","emoji":"\ud83d\udc65"},"contented":{"cn":"\u6ee1\u8db3\u7684","emoji":"\ud83d\ude0a","gold":true},"cruelty":{"cn":"\u6b8b\u5fcd","emoji":"\ud83d\ude08"},"cunning":{"cn":"\u72e1\u733e\u7684","emoji":"\ud83e\udd8a"},"deliverance":{"cn":"\u89e3\u6551","emoji":"\ud83d\ude4c"},"descend":{"cn":"\u964d\u4e0b","emoji":"\u2b07\ufe0f"},"descended to":{"cn":"\u5411\u4e0b\u5ef6\u4f38\u5230","emoji":"\u2b07\ufe0f"},"despair":{"cn":"\u7edd\u671b","emoji":"\ud83d\ude1e"},"discourse":{"cn":"\u8bb2\u8bdd","emoji":"\ud83d\udde3\ufe0f"},"distress":{"cn":"\u82e6\u96be\u56f0\u5883","emoji":"\ud83d\ude1f"},"disturbed":{"cn":"\u4e0d\u5b89\u7684","emoji":"\ud83d\ude27"},"doubts":{"cn":"\u7591\u8651","emoji":"\ud83e\udd14"},"drowned":{"cn":"\u6df9\u6b7b\u7684","emoji":"\ud83c\udf0a"},"escaping":{"cn":"\u9003\u8dd1","emoji":"\ud83c\udfc3"},"explode":{"cn":"\u7206\u70b8","emoji":"\ud83d\udca5"},"feast":{"cn":"\u76db\u5bb4","emoji":"\ud83c\udf57"},"feasting":{"cn":"\u5403\u76db\u5bb4","emoji":"\ud83c\udf57","gold":true},"fortunate":{"cn":"\u5e78\u8fd0\u7684","emoji":"\ud83c\udf40"},"fortunately":{"cn":"\u5e78\u8fd0\u5730","emoji":"\ud83c\udf40"},"foundered":{"cn":"\u6c89\u6ca1","emoji":"\ud83c\udf0a","gold":true},"frightened":{"cn":"\u5bb3\u6015\u7684","emoji":"\ud83d\ude31"},"fulfilled":{"cn":"\u5e94\u9a8c\u4e86","emoji":"\u2705"},"gladly":{"cn":"\u4e50\u610f\u5730","emoji":"\ud83d\ude04"},"go ashore":{"cn":"\u4e0a\u5cb8","emoji":"\ud83c\udfd6\ufe0f"},"goatskin":{"cn":"\u5c71\u7f8a\u76ae","emoji":"\ud83d\udc10","gold":true},"going ashore":{"cn":"\u6b63\u5728\u4e0a\u5cb8","emoji":"\ud83c\udfd6\ufe0f"},"gunpowder":{"cn":"\u706b\u836f","emoji":"\ud83d\udca5"},"half-drowned":{"cn":"\u534a\u6df9\u6b7b\u7684","emoji":"\ud83c\udf0a"},"hammock":{"cn":"\u540a\u5e8a","emoji":"\ud83d\udecc"},"hatchet":{"cn":"\u77ed\u65a7","emoji":"\ud83e\ude93"},"hatchets":{"cn":"\u77ed\u65a7(\u590d\u6570)","emoji":"\ud83e\ude93","gold":true},"hilltop":{"cn":"\u5c71\u9876","emoji":"\u26f0\ufe0f"},"horrified":{"cn":"\u6050\u60e7\u7684","emoji":"\ud83d\ude28"},"imagining":{"cn":"\u60f3\u8c61\u7740","emoji":"\ud83d\udcad"},"inhuman":{"cn":"\u6b8b\u5fcd\u7684","emoji":"\ud83d\ude08"},"jonah":{"cn":"\u7ea6\u62ff(\u5012\u9709\u7684\u4eba)","emoji":"\ud83d\udc33"},"knelt":{"cn":"\u8dea\u4e0b","emoji":"\ud83d\ude47","gold":true},"knelt down":{"cn":"\u8dea\u4e0b\u6765","emoji":"\ud83d\ude47","gold":true},"leopard":{"cn":"\u8c79","emoji":"\ud83d\udc06"},"mainland":{"cn":"\u5927\u9646","emoji":"\ud83d\uddfa\ufe0f"},"mankind":{"cn":"\u4eba\u7c7b","emoji":"\ud83d\udc65"},"miseries":{"cn":"\u82e6\u96be","emoji":"\ud83d\ude22","gold":true},"misery":{"cn":"\u82e6\u96be","emoji":"\ud83d\ude22"},"misfortunes":{"cn":"\u4e0d\u5e78","emoji":"\ud83d\ude22","gold":true},"moderation":{"cn":"\u9002\u5ea6\u8282\u5236","emoji":"\u2696\ufe0f"},"murderer":{"cn":"\u51f6\u624b","emoji":"\ud83d\udd2a"},"murderers":{"cn":"\u51f6\u624b(\u590d\u6570)","emoji":"\ud83d\udd2a"},"murderous":{"cn":"\u51f6\u6b8b\u7684","emoji":"\ud83d\udd2a"},"needle":{"cn":"\u9488","emoji":"\ud83e\udea1"},"negro":{"cn":"\u9ed1\u4eba","emoji":"\ud83d\udc64"},"negroes":{"cn":"\u9ed1\u4eba(\u590d\u6570)","emoji":"\ud83d\udc64"},"obey":{"cn":"\u670d\u4ece","emoji":"\ud83e\udee1"},"omnipotent":{"cn":"\u5168\u80fd\u7684","emoji":"\u26a1","gold":true},"ounces":{"cn":"\u76ce\u53f8(\u91cd\u91cf\u5355\u4f4d)","emoji":"\u2696\ufe0f"},"outrageous":{"cn":"\u6b8b\u66b4\u7684","emoji":"\ud83d\ude20"},"owed":{"cn":"\u6b20(\u6027\u547d)","emoji":"\ud83d\udcb0"},"pagan":{"cn":"\u5f02\u6559\u5f92","emoji":"\u2b50"},"passions":{"cn":"\u6b32\u671b","emoji":"\ud83d\udd25"},"persuade":{"cn":"\u8bf4\u670d","emoji":"\ud83d\udde3\ufe0f"},"persuaded":{"cn":"\u8bf4\u670d\u4e86","emoji":"\ud83d\udde3\ufe0f"},"pick-axe":{"cn":"\u9550","emoji":"\u26cf\ufe0f"},"pistols":{"cn":"\u624b\u67aa","emoji":"\ud83d\udd2b"},"plantation":{"cn":"\u79cd\u690d\u56ed","emoji":"\ud83c\udf31"},"plantations":{"cn":"\u79cd\u690d\u56ed(\u590d\u6570)","emoji":"\ud83c\udf31"},"planters":{"cn":"\u79cd\u690d\u56ed\u4e3b","emoji":"\ud83c\udf31"},"prayed":{"cn":"\u7948\u7977\u4e86","emoji":"\ud83d\ude4f"},"praying":{"cn":"\u7948\u7977\u7740","emoji":"\ud83d\ude4f"},"prodigal":{"cn":"\u6d6a\u5b50","emoji":"\ud83c\udfe0","gold":true},"prophesy":{"cn":"\u9884\u8a00","emoji":"\ud83d\udd2e","gold":true},"props":{"cn":"\u652f\u67f1","emoji":"\ud83e\udeb5"},"prosperous":{"cn":"\u7e41\u8363\u7684","emoji":"\ud83d\udcb0"},"punish":{"cn":"\u60e9\u7f5a","emoji":"\u26a1"},"punishing":{"cn":"\u60e9\u7f5a\u7740","emoji":"\u26a1"},"pursued":{"cn":"\u8ffd\u8d76\u4e86","emoji":"\ud83c\udfc3"},"pursuers":{"cn":"\u8ffd\u8d76\u8005","emoji":"\ud83c\udfc3","gold":true},"pursuing":{"cn":"\u8ffd\u8d76\u7740","emoji":"\ud83c\udfc3"},"quietness":{"cn":"\u5e73\u9759","emoji":"\ud83d\ude0c","gold":true},"raft":{"cn":"\u6728\u7b4f","emoji":"\ud83e\udeb5"},"rebelled":{"cn":"\u53cd\u53db\u4e86","emoji":"\u2694\ufe0f","gold":true},"refreshed":{"cn":"\u7cbe\u795e\u7115\u53d1","emoji":"\ud83d\udca6"},"regretted":{"cn":"\u540e\u6094\u4e86","emoji":"\ud83d\ude14"},"religions":{"cn":"\u5b97\u6559","emoji":"\u26ea"},"repent":{"cn":"\u5fcf\u6094","emoji":"\ud83d\ude4f"},"repentant":{"cn":"\u6094\u8fc7\u7684","emoji":"\ud83d\ude4f","gold":true},"rescued":{"cn":"\u83b7\u6551\u7684","emoji":"\ud83c\udd98"},"roasted":{"cn":"\u70e4\u8fc7\u7684","emoji":"\ud83d\udd25"},"ropes":{"cn":"\u7ef3\u5b50","emoji":"\ud83e\udea2"},"rowed":{"cn":"\u5212\u8239\u4e86","emoji":"\ud83d\udea3","gold":true},"rowing":{"cn":"\u5212\u8239\u7740","emoji":"\ud83d\udea3"},"rowing back":{"cn":"\u5212\u8239\u56de\u53bb","emoji":"\ud83d\udea3"},"sail for":{"cn":"\u9a76\u5411","emoji":"\u26f5"},"sailed":{"cn":"\u822a\u884c\u4e86","emoji":"\u26f5"},"sailed on":{"cn":"\u7ee7\u7eed\u822a\u884c","emoji":"\u26f5"},"sailed up":{"cn":"\u6cbf\u5cb8\u822a\u884c","emoji":"\u26f5"},"sailing":{"cn":"\u822a\u884c\u7740","emoji":"\u26f5"},"sailor":{"cn":"\u6c34\u624b","emoji":"\u2693"},"sailors":{"cn":"\u6c34\u624b(\u590d\u6570)","emoji":"\u2693"},"sails":{"cn":"\u5e06","emoji":"\u26f5"},"salvation":{"cn":"\u6551\u8d4e","emoji":"\u271d\ufe0f"},"satisfy":{"cn":"\u6ee1\u8db3","emoji":"\ud83d\ude0a"},"savages":{"cn":"\u91ce\u4eba","emoji":"\ud83c\udff9"},"semicircle":{"cn":"\u534a\u5706\u5f62","emoji":"\u2b55","gold":true},"sentiments":{"cn":"\u60c5\u611f","emoji":"\u2764\ufe0f"},"sheltered":{"cn":"\u906e\u853d\u7684","emoji":"\u26fa"},"shelves":{"cn":"\u67b6\u5b50","emoji":"\ud83d\udcda"},"shipwrecked":{"cn":"\u8239\u53ea\u5931\u4e8b\u7684","emoji":"\ud83d\udea2","gold":true},"shivering":{"cn":"\u53d1\u6296\u7740","emoji":"\ud83e\udd76"},"shone":{"cn":"\u7167\u8000\u4e86","emoji":"\u2600\ufe0f"},"shovel":{"cn":"\u94c1\u9539","emoji":"\u26cf\ufe0f"},"sincere":{"cn":"\u771f\u8bda\u7684","emoji":"\u2764\ufe0f"},"sincerely":{"cn":"\u771f\u8bda\u5730","emoji":"\u2764\ufe0f"},"sincerity":{"cn":"\u771f\u8bda","emoji":"\u2764\ufe0f"},"sinful":{"cn":"\u6709\u7f6a\u7684","emoji":"\ud83d\ude14"},"singled out":{"cn":"\u88ab\u5355\u72ec\u9009\u4e2d","emoji":"\u2b50"},"skinned":{"cn":"\u5265\u76ae\u4e86","emoji":"\ud83d\udd2a"},"skulls":{"cn":"\u5934\u9aa8","emoji":"\ud83d\udc80"},"softness":{"cn":"\u67d4\u548c","emoji":"\u2601\ufe0f","gold":true},"spaniards":{"cn":"\u897f\u73ed\u7259\u4eba","emoji":"\ud83c\uddea\ud83c\uddf8"},"spear":{"cn":"\u957f\u77db","emoji":"\ud83d\udd31"},"starvation":{"cn":"\u9965\u997f","emoji":"\ud83d\ude29"},"starving":{"cn":"\u6328\u997f\u7684","emoji":"\ud83d\ude29"},"stormy":{"cn":"\u6709\u66b4\u98ce\u96e8\u7684","emoji":"\u26c8\ufe0f"},"stranded":{"cn":"\u88ab\u56f0\u7684","emoji":"\ud83c\udfdd\ufe0f"},"sugar planter":{"cn":"\u7518\u8517\u56ed\u4e3b","emoji":"\ud83c\udf31"},"sugar planters":{"cn":"\u7518\u8517\u56ed\u4e3b(\u590d\u6570)","emoji":"\ud83c\udf31"},"supervise":{"cn":"\u76d1\u7763","emoji":"\ud83d\udc40"},"swallow":{"cn":"\u541e\u6ca1","emoji":"\ud83c\udf0a"},"swam":{"cn":"\u6e38\u6cf3\u4e86","emoji":"\ud83c\udfca"},"sweetness":{"cn":"\u751c\u7f8e","emoji":"\ud83c\udf6f"},"swore":{"cn":"\u53d1\u8a93\u4e86","emoji":"\ud83e\udd1e"},"tame":{"cn":"\u9a6f\u670d\u7684","emoji":"\ud83d\udc10"},"terrified":{"cn":"\u6781\u5ea6\u5bb3\u6015\u7684","emoji":"\ud83d\ude31"},"thankfulness":{"cn":"\u611f\u6fc0","emoji":"\ud83d\ude4f","gold":true},"tore":{"cn":"\u6495\u5f00\u4e86","emoji":"\ud83d\udc94"},"trembled":{"cn":"\u98a4\u6296\u4e86","emoji":"\ud83d\ude30","gold":true},"trembling":{"cn":"\u98a4\u6296\u7740","emoji":"\ud83d\ude30"},"turtle":{"cn":"\u6d77\u9f9f","emoji":"\ud83d\udc22"},"umbrella":{"cn":"\u4f1e","emoji":"\u2602\ufe0f"},"unnatural":{"cn":"\u53cd\u5e38\u7684","emoji":"\ud83d\ude28"},"unpunished":{"cn":"\u672a\u53d7\u60e9\u7f5a","emoji":"\u2696\ufe0f","gold":true},"unwise":{"cn":"\u4e0d\u660e\u667a\u7684","emoji":"\ud83e\udd26"},"victorious":{"cn":"\u83b7\u80dc\u7684","emoji":"\ud83c\udfc6"},"vomited":{"cn":"\u5455\u5410\u4e86","emoji":"\ud83e\udd2e","gold":true},"vomiting":{"cn":"\u5455\u5410\u7740","emoji":"\ud83e\udd2e"},"voyage":{"cn":"\u822a\u6d77\u65c5\u7a0b","emoji":"\u26f5"},"was filling with":{"cn":"\u6b63\u704c\u6ee1(\u6c34)","emoji":"\ud83c\udf0a"},"went aboard the ship":{"cn":"\u767b\u8239\u4e86","emoji":"\ud83d\udea2"},"went ashore":{"cn":"\u4e0a\u5cb8\u4e86","emoji":"\ud83c\udfd6\ufe0f"},"wicked":{"cn":"\u90aa\u6076\u7684","emoji":"\ud83d\ude08"},"wild beasts":{"cn":"\u91ce\u517d","emoji":"\ud83d\udc3a"},"withdrew":{"cn":"\u9000\u53bb\u4e86","emoji":"\ud83c\udf0a"},"worn out":{"cn":"\u7834\u65e7\u7684","emoji":"\ud83d\udc55"},"worshipped":{"cn":"\u5d07\u62dc\u4e86","emoji":"\ud83d\ude4f"},"wreck":{"cn":"\u6b8b\u9ab8","emoji":"\ud83d\udea2"},"wrecked":{"cn":"\u5931\u4e8b\u7684","emoji":"\ud83d\udea2"}};
+const SECTIONS = {"\u7b2c\u4e00\u5e55 \u00b7 \u51fa\u6d77\u4e0e\u6d77\u96be":{"cn":"\u7b2c\u4e00\u5e55 \u00b7 \u51fa\u6d77\u4e0e\u6d77\u96be","icon":"\u26f5"},"\u7b2c\u4e8c\u5e55 \u00b7 \u8352\u5c9b\u4e3a\u738b":{"cn":"\u7b2c\u4e8c\u5e55 \u00b7 \u8352\u5c9b\u4e3a\u738b","icon":"\ud83c\udfdd"},"\u7b2c\u4e09\u5e55 \u00b7 \u661f\u671f\u4e94\u4e0e\u5f52\u4e61":{"cn":"\u7b2c\u4e09\u5e55 \u00b7 \u661f\u671f\u4e94\u4e0e\u5f52\u4e61","icon":"\ud83d\udc3e"}};
+const META = {"title":"ROBINSON CRUSOE","subtitle":"\u9605\u8bfb\u5927\u5192\u9669 \u00b7 \u4e00\u4e2a\u4eba\u7684\u8352\u5c9b\u6c42\u751f28\u5e74","bolt":"\ud83c\udfdd\u26f5\ud83d\udc3e","pageTitle":"Robinson Crusoe \u00b7 \u9c81\u6ee8\u900a\u6f02\u6d41\u8bb0","saveKey":"robinson_game_v1","bookId":"robinson"};   // { title, subtitle, bolt, saveKey }
+const PREDICTIONS = [];   // 先猜后揭晓
+
+/* =====================================================
+   存档
+   ===================================================== */
+const SAVE_KEY = (META && META.saveKey) || "reading_game_v1";
+const BOOK_ID = (META && META.bookId) || SAVE_KEY;
+let save = { done:{}, stars:{}, words:{}, slow:false };
+try { const s = localStorage.getItem(SAVE_KEY); if (s) save = Object.assign(save, JSON.parse(s)); } catch(e){}
+function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){} }
+
+/* ===== 跨书成长数据(全站共享, 书架中枢也读它) ===== */
+const HUB_KEY = "reading_hub_v1";
+function hubLoad(){ try{ return JSON.parse(localStorage.getItem(HUB_KEY)) || {}; }catch(e){ return {}; } }
+function hubSave(h){ try{ localStorage.setItem(HUB_KEY, JSON.stringify(h)); }catch(e){} }
+function ymd(d){ return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+function todayStr(){ return ymd(new Date()); }
+function markStreak(){                       // 每天首次阅读活动记一次连读
+  const h = hubLoad(); const t = todayStr();
+  h.streak = h.streak || { last:null, count:0, best:0 };
+  if (h.streak.last !== t){
+    const y = new Date(); y.setDate(y.getDate()-1);
+    h.streak.count = (h.streak.last === ymd(y)) ? (h.streak.count+1) : 1;
+    h.streak.last = t; h.streak.best = Math.max(h.streak.best||0, h.streak.count);
+    hubSave(h);
+  }
+  return h.streak.count;
+}
+function recordWords(chId, words){           // 通关某章 → 累计跨书阅读词数(每章只计一次)
+  const h = hubLoad();
+  h.words = h.words || {}; h.words[BOOK_ID] = h.words[BOOK_ID] || {};
+  if (!h.words[BOOK_ID][chId]){ h.words[BOOK_ID][chId] = words; hubSave(h); }
+}
+function totalWordsRead(){
+  const h = hubLoad(); let n = 0;
+  for (const b in (h.words||{})) for (const c in h.words[b]) n += h.words[b][c] || 0;
+  return n;
+}
+function kidName(){ return (hubLoad().kidName) || ""; }
+
+let cur = 0, qIdx = 0, wrongCount = 0, quizLock = false;
+
+function $(id){ return document.getElementById(id); }
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._tm); t._tm = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+function stripMarks(s){ return s.replace(/\{([^}]*)\}/g, "$1"); }
+
+/* =====================================================
+   朗读引擎 TTS —— 三层保障:
+   1) 本地 speechSynthesis(优选英文音色, 分句排队, 防长文本被浏览器掐断)
+   2) 本地不出声 → 自动切换在线发音(有道 dictvoice, 需联网)
+   3) 都不行 → 提示换浏览器
+   ===================================================== */
+const TTS = {
+  voices: [], mode: "auto",    // auto | local | online | dead
+  player: null, queue: [], playing: false, keepAlive: null, curPara: -1, unlocked: false
+};
+const IN_WECHAT = /MicroMessenger/i.test(navigator.userAgent || "");
+function ttsInit(){
+  if (!("speechSynthesis" in window) || IN_WECHAT) { TTS.mode = "online"; }
+  if (!("speechSynthesis" in window)) return;
+  const load = ()=>{ try{ TTS.voices = speechSynthesis.getVoices() || []; }catch(e){} };
+  load();
+  try{ speechSynthesis.onvoiceschanged = load; }catch(e){}
+  setTimeout(load, 500); setTimeout(load, 2000);
+}
+/* 移动端/微信自动播放限制: 用户第一次触屏时"解锁"音频通道,
+   之后延迟触发的在线发音才允许出声 */
+const SILENT_WAV = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+function ensurePlayer(){
+  if (!TTS.player) TTS.player = new Audio();
+  return TTS.player;
+}
+function unlockAudio(){
+  if (TTS.unlocked) return;
+  TTS.unlocked = true;
+  try{ const p = ensurePlayer(); p.src = SILENT_WAV; p.play().catch(()=>{ TTS.unlocked = false; }); }catch(e){}
+  try{
+    if ("speechSynthesis" in window){
+      const u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u);
+    }
+  }catch(e){}
+}
+document.addEventListener("touchend", unlockAudio, true);
+document.addEventListener("click", unlockAudio, true);
+function pickVoice(){
+  const vs = TTS.voices;
+  return vs.find(v=>/en[-_]US/i.test(v.lang) && /google|natural|online/i.test(v.name))
+      || vs.find(v=>/en[-_]US/i.test(v.lang))
+      || vs.find(v=>/^en/i.test(v.lang)) || null;
+}
+function splitSentences(text){
+  const parts = (text.match(/[^.!?]+[.!?”"']*\s*/g) || [text]).map(s=>s.trim()).filter(Boolean);
+  // 合并过短的句子, 控制每段 ≤ 190 字符(在线接口和本地引擎都友好)
+  const out = [];
+  let buf = "";
+  for (const p of parts){
+    if ((buf + " " + p).length > 190 && buf) { out.push(buf.trim()); buf = p; }
+    else buf = buf ? buf + " " + p : p;
+  }
+  if (buf.trim()) out.push(buf.trim());
+  return out;
+}
+function rate(){ return save.slow ? 0.7 : 0.88; }
+/* 预录音频的播放倍速: 原速播放(语速不变); 句间停顿靠剪静音+预加载解决 */
+function playSpeed(){ return save.slow ? 0.8 : 1.0; }
+
+/* 把一段文本切成"自然句子"(与 gen_audio.py 完全一致的切法),不做合并 */
+function splitSents(text){
+  const raw = text.match(/[^.!?]+[.!?]*["'”’]*/g) || [text];
+  const out = [];
+  for (let s of raw){
+    s = s.trim(); if (!s) continue;
+    if (!/[A-Za-z0-9]/.test(s) && out.length) out[out.length - 1] += " " + s;
+    else out.push(s);
+  }
+  return out;
+}
+function stopAll(){
+  if (RS){ clearTimeout(RS._gap); }
+  RS = null;
+  TTS.playing = false; TTS.queue = [];
+  clearInterval(TTS.keepAlive);
+  try{ speechSynthesis.cancel(); }catch(e){}
+  if (TTS.player){ try{ TTS.player.pause(); TTS.player.onended = null; }catch(e){} }
+  highlightSent(null);
+  setPauseUI();
+}
+/* 高亮"正在读的那一句" */
+function highlightSent(it){
+  document.querySelectorAll(".story-card .sent.speaking").forEach(e=>e.classList.remove("speaking"));
+  if (!it) return;
+  const el = document.querySelector('.sent[data-pi="' + it.pi + '"][data-si="' + it.si + '"]');
+  if (el){ el.classList.add("speaking"); try{ el.scrollIntoView({behavior:"smooth", block:"center"}); }catch(e){} }
+}
+/* 记录某段"已听完",全部段落听完才解锁答题 */
+function markHeard(i){
+  if (i < 0 || cur == null) return;
+  const ch = BOOK[cur];
+  heardSet.add(i);
+  save.heard = save.heard || {};
+  save.heard[ch.id] = Array.from(heardSet);
+  bumpRead(i + 1);                 // 听完某段也算读过
+  persist();
+  updateQuizGate();
+}
+let heardSet = new Set();
+
+/* ===== 阅读进度: 记住读到第几段 + 标记已读段落 ===== */
+let readPos = 0;                   // 本章已读到的段落数(0..N), 段 i 已读 <=> i < readPos
+function saveReadPos(){
+  if (cur == null) return;
+  save.read = save.read || {};
+  save.read[BOOK[cur].id] = readPos;
+  persist();
+}
+function paintRead(){
+  document.querySelectorAll("#story-body p[data-pi]").forEach(p=>{
+    p.classList.toggle("read", (+p.dataset.pi) < readPos);
+  });
+}
+function bumpRead(n){
+  if (n > readPos){ readPos = n; saveReadPos(); paintRead(); updateQuizGate(); }
+}
+let _scrollT = 0;
+function onReadScroll(){
+  if (!$("scr-read").classList.contains("active")) return;
+  const now = Date.now();
+  if (now - _scrollT < 180) return; _scrollT = now;
+  const line = window.innerHeight * 0.5;    // 段落底部越过屏幕中线 = 读完这段
+  let fp = readPos;
+  document.querySelectorAll("#story-body p[data-pi]").forEach(p=>{
+    if (p.getBoundingClientRect().bottom < line){ const pi = (+p.dataset.pi) + 1; if (pi > fp) fp = pi; }
+  });
+  bumpRead(fp);
+}
+window.addEventListener("scroll", onReadScroll, { passive:true });
+/* 读过或听过都算"走过这一章": readPos 由滚动阅读和逐句朗读共同推进 */
+function goneThrough(){
+  if (!BOOK[cur]) return 0;
+  return Math.max(readPos, heardSet.size);   // 两者取大, 稳妥
+}
+function allHeard(){
+  return BOOK[cur] && goneThrough() >= BOOK[cur].paras.length;
+}
+function updateQuizGate(){
+  const btn = $("btn-quiz");
+  if (!btn || cur == null) return;
+  const ch = BOOK[cur];
+  const done = !!save.done[ch.id];       // 已通关章节不再限制
+  if (done || allHeard()){
+    btn.textContent = "✅ 我读完了，去答题";
+    btn.style.opacity = "1";
+  } else {
+    const left = Math.max(0, ch.paras.length - goneThrough());
+    btn.textContent = "🔒 读完/听完故事就能答题（还剩 " + left + " 段）";
+    btn.style.opacity = ".6";
+  }
+}
+
+/* 本地引擎播放; onFail 在完全没出声时触发 */
+function speakLocal(sentences, onFail, onDone){
+  try{ speechSynthesis.cancel(); }catch(e){ onFail && onFail(); return; }
+  let started = false, finished = 0;
+  const total = sentences.length;
+  sentences.forEach(s=>{
+    const u = new SpeechSynthesisUtterance(s);
+    u.lang = "en-US"; u.rate = rate();
+    const v = pickVoice(); if (v) u.voice = v;
+    u.onstart = ()=>{ started = true; TTS.mode = "local"; };
+    u.onend = ()=>{ finished++; if (finished >= total && onDone) onDone(); };
+    try{ speechSynthesis.speak(u); }catch(e){}
+  });
+  /* Chrome 桌面版 15 秒掐断长朗读的经典 bug: 周期性 resume 保活 */
+  clearInterval(TTS.keepAlive);
+  TTS.keepAlive = setInterval(()=>{
+    try{
+      if (!speechSynthesis.speaking){ clearInterval(TTS.keepAlive); }
+      else { speechSynthesis.resume(); }
+    }catch(e){}
+  }, 10000);
+  /* 3 秒还没出声 → 判定本地引擎不可用 */
+  setTimeout(()=>{
+    if (!started){
+      try{ speechSynthesis.cancel(); }catch(e){}
+      clearInterval(TTS.keepAlive);
+      onFail && onFail();
+    }
+  }, 3000);
+}
+
+/* 预录音频(与游戏同源托管的 mp3, 最稳的通道) */
+const AUDIO_BASE = "audio/";
+function slug(w){
+  const s = w.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  return s || "x";
+}
+function detectAudio(){
+  try{
+    fetch(AUDIO_BASE + "test.mp3", {method:"HEAD"})
+      .then(r=>{ TTS.hasAudio = !!r.ok; })
+      .catch(()=>{});
+  }catch(e){}
+}
+function playFile(url, onDone, onFail){
+  const p = ensurePlayer();
+  TTS.playing = true;
+  p.src = url;
+  p.playbackRate = playSpeed();
+  p.onended = ()=>{ TTS.playing = false; onDone && onDone(); };
+  p.onerror = ()=>{ TTS.playing = false; onFail && onFail(); };
+  p.play().then(()=>{ TTS.lastErr = ""; TTS.hasAudio = true; }).catch(err=>{
+    TTS.playing = false; TTS.lastErr = "play:" + (err && err.name || "blocked");
+    toast("请再点一次 🔊,并确认媒体音量已调大");
+  });
+}
+
+/* 在线发音(有道词典接口, 需联网; 复用同一个已解锁的 Audio 元素) */
+function speakOnline(sentences, onDone, onFail){
+  TTS.queue = sentences.slice(); TTS.playing = true;
+  const p = ensurePlayer();
+  p.playbackRate = playSpeed();
+  const next = ()=>{
+    if (!TTS.playing) return;
+    if (!TTS.queue.length){ TTS.playing = false; onDone && onDone(); return; }
+    const s = TTS.queue.shift();
+    p.src = "https://dict.youdao.com/dictvoice?type=2&audio=" + encodeURIComponent(s);
+    p.onended = next;
+    p.onerror = ()=>{ TTS.playing = false; TTS.lastErr = "online:loaderror";
+      if (onFail) onFail(); else toast("在线朗读失败:请检查网络;首页有[声音检测]可排查"); };
+    p.play().catch(err=>{ TTS.playing = false; TTS.lastErr = "play:" + (err && err.name || "blocked");
+      toast("请再点一次 🔊,并把媒体音量调大"); });
+  };
+  next();
+}
+
+/* 统一入口: 依次尝试 预录音频 → 本地引擎 → 在线发音;
+   用户在[声音检测]里手动固定过模式则只走该通道(音频模式保留在线兜底) */
+function speak(text, onDone, hint){
+  stopAll();
+  const forced = (save.ttsMode && save.ttsMode !== "auto") ? save.ttsMode : null;
+  const sentences = splitSentences(text || "");
+  /* 有预录音频就直接先试播,加载失败会自动落到下一通道,
+     不再依赖启动时的 hasAudio 探测(某些环境探测请求会被拦而播放正常) */
+  const url = hint
+    ? AUDIO_BASE + (hint.file ? hint.file : "w/" + slug(hint.word) + ".mp3")
+    : null;
+  const chain = [];
+  if (url && (!forced || forced === "recorded"))
+    chain.push(fail=>playFile(url, onDone, fail));
+  if (sentences.length && (!forced || forced === "local"))
+    chain.push(fail=>speakLocal(sentences, fail, onDone));
+  if (sentences.length && (!forced || forced === "online" || forced === "recorded"))
+    chain.push(fail=>speakOnline(sentences, onDone, fail));
+  if (!chain.length) return;
+  const step = i=>{
+    if (i >= chain.length){ toast("朗读失败:请到首页[声音检测]排查"); return; }
+    chain[i](()=>step(i + 1));
+  };
+  step(0);
+}
+
+/* ============ 逐句朗读引擎(支持暂停/继续) ============ */
+let RS = null;   // { items:[{pi,si,file,text}], pos, paused }
+function sentFile(ch, pi, si){ return "s/" + ch.id + "_" + pi + "_" + si + ".mp3"; }
+function buildItems(paraIdxs){
+  const ch = BOOK[cur]; const items = [];
+  paraIdxs.forEach(pi=>{
+    const sents = splitSents(ch.paras[pi]);
+    sents.forEach((s, si)=>items.push({ pi, si, file: sentFile(ch, pi, si), text: stripMarks(s) }));
+  });
+  return items;
+}
+function paraSentCount(pi){ return splitSents(BOOK[cur].paras[pi]).length; }
+function setPauseUI(){
+  const b = $("btn-pause"); if (!b) return;
+  b.textContent = (RS && RS.paused) ? "▶️ 继续" : "⏸ 暂停";
+}
+function readItems(items, startPos){
+  stopAll();
+  if (!items.length) return;
+  RS = { items: items, pos: startPos || 0, paused: false };
+  setPauseUI();
+  rsStep();
+}
+function rsStep(){
+  if (!RS || RS.paused) return;
+  if (RS.pos >= RS.items.length){ RS = null; highlightSent(null); setPauseUI(); return; }
+  const it = RS.items[RS.pos];
+  highlightSent(it);
+  prefetchNext();                        // 预加载下一句, 缩短句间加载停顿
+  speakSentence(it, ()=>{
+    if (it.si === paraSentCount(it.pi) - 1) markHeard(it.pi);   // 该段最后一句读完 → 记已听
+    if (!RS || RS.paused) return;
+    RS.pos++;
+    // 句间留一点换气停顿(慢速时更长), 高亮先跳到下一句让孩子准备
+    const gap = save.slow ? 620 : 380;
+    if (RS.pos < RS.items.length) highlightSent(RS.items[RS.pos]);
+    RS._gap = setTimeout(()=>{ if (RS && !RS.paused) rsStep(); }, gap);
+  });
+}
+function prefetchNext(){
+  const nx = RS && RS.items[RS.pos + 1];
+  if (!nx || !nx.file) return;
+  try{ const a = new Audio(); a.preload = "auto"; a.src = AUDIO_BASE + nx.file; TTS._pre = a; }catch(e){}
+}
+/* 播放单句:预录音频 → 本地引擎 → 在线,任一成功即止 */
+function speakSentence(it, onDone){
+  const forced = (save.ttsMode && save.ttsMode !== "auto") ? save.ttsMode : null;
+  const chain = [];
+  if (!forced || forced === "recorded") chain.push(fail=>playFile(AUDIO_BASE + it.file, onDone, fail));
+  if (!forced || forced === "local")    chain.push(fail=>speakLocal([it.text], fail, onDone));
+  if (!forced || forced === "online" || forced === "recorded") chain.push(fail=>speakOnline([it.text], onDone, fail));
+  const step = i=>{ if (i >= chain.length){ toast("朗读失败:请到首页[声音检测]排查"); return; } chain[i](()=>step(i + 1)); };
+  step(0);
+}
+function pauseToggle(){
+  if (!RS){ readAloud(); return; }        // 没在读 → 直接开始读
+  if (RS.paused) readResume(); else readPause();
+}
+function readPause(){
+  if (!RS) return;
+  RS.paused = true;
+  clearTimeout(RS._gap);
+  try{ if (TTS.player) TTS.player.pause(); }catch(e){}
+  try{ if ("speechSynthesis" in window) speechSynthesis.pause(); }catch(e){}
+  setPauseUI();
+}
+function readResume(){
+  if (!RS) return;
+  RS.paused = false;
+  clearTimeout(RS._gap);
+  setPauseUI();
+  let resumed = false;
+  try{ if (TTS.player && TTS.player.src && TTS.player.paused){ TTS.player.play(); resumed = true; } }catch(e){}
+  try{ if ("speechSynthesis" in window && speechSynthesis.paused){ speechSynthesis.resume(); resumed = true; } }catch(e){}
+  if (!resumed) rsStep();                  // 暂停恰好卡在两句之间 → 直接接着下一句
+}
+function readAloud(){
+  const items = buildItems(BOOK[cur].paras.map((_, i)=>i));
+  // 从上次读到的段落之后开始读(已读过的不再重复); 整章读完过则从头再读
+  let start = 0;
+  if (readPos > 0 && readPos < BOOK[cur].paras.length){
+    const idx = items.findIndex(it => it.pi >= readPos);
+    if (idx > 0){ start = idx; toast("▶️ 从上次读到的地方接着读"); }
+  }
+  readItems(items, start);
+}
+function readPara(i){ readItems(buildItems([i]), 0); }
+function stopAloud(){ stopAll(); }
+function toggleRate(){
+  save.slow = !save.slow; persist();
+  $("btn-rate").textContent = save.slow ? "🐇 正常速" : "🐢 慢速";
+  toast(save.slow ? "已切换为慢速朗读 🐢" : "已切换为正常语速 🐇");
+}
+
+/* =====================================================
+   首页
+   ===================================================== */
+function isUnlocked(i){ return i === 0 || !!save.done[BOOK[i-1].id]; }
+function firstUndone(){
+  for (let i = 0; i < BOOK.length; i++) if (!save.done[BOOK[i].id]) return i;
+  return BOOK.length - 1;
+}
+function renderHome(){
+  const doneN = BOOK.filter(c=>save.done[c.id]).length;
+  const starN = Object.values(save.stars).reduce((a,b)=>a+b, 0);
+  const wordN = Object.keys(save.words).length;
+  $("st-ch").textContent = doneN + "/" + BOOK.length;
+  $("st-star").textContent = starN;
+  $("st-word").textContent = wordN;
+  $("prog-bar").style.width = Math.round(doneN / BOOK.length * 100) + "%";
+  $("prog-label").textContent = doneN === BOOK.length
+    ? "🎉 全书通关!你读完了一整本英文小说!"
+    : "整本书进度 " + Math.round(doneN / BOOK.length * 100) + "%";
+  $("btn-continue").textContent = doneN === 0 ? "▶️ 开始冒险" :
+    (doneN === BOOK.length ? "🎉 再玩一遍喜欢的章节" : "▶️ 继续冒险:" + BOOK[firstUndone()].title_cn);
+  $("wb-count").textContent = wordN ? "(" + wordN + ")" : "";
+
+  // 跨书成长横幅: 已读词数 + 连读天数; 全书通关时给证书入口
+  const h = hubLoad();
+  const streak = (h.streak && h.streak.last === todayStr()) ? h.streak.count : (h.streak ? 0 : 0);
+  const twr = totalWordsRead();
+  let banner = `📚 累计已读 <b>${twr}</b> 词`;
+  if (h.streak && h.streak.count > 0) banner += ` · 🔥 连读 <b>${h.streak.count}</b> 天`;
+  banner += `<div class="g-sub">读得越多，数字越大——这是你自己读出来的成绩单！</div>`;
+  if (doneN === BOOK.length){
+    banner += `<div style="margin-top:8px"><a class="shelf-link" style="background:#ffb300;color:#2b1a00;border:none" href="javascript:showCert()">🏅 领取本书通关证书</a></div>`;
+  }
+  $("growth-banner").innerHTML = banner;
+
+  const map = $("map"); map.innerHTML = "";
+  let lastSection = null;
+  const nextIdx = firstUndone();
+  BOOK.forEach((ch, i)=>{
+    if (ch.section !== lastSection){
+      lastSection = ch.section;
+      const s = SECTIONS[ch.section] || {cn: ch.section, icon: "📖"};
+      const h = document.createElement("div");
+      h.className = "section-head";
+      h.innerHTML = `<span class="s-icon">${s.icon}</span><span class="s-name">${s.cn}</span><span class="s-en">${ch.section}</span>`;
+      map.appendChild(h);
+    }
+    const unlocked = isUnlocked(i);
+    const done = !!save.done[ch.id];
+    const node = document.createElement("div");
+    node.className = "map-node" + (unlocked ? "" : " locked") + (i === nextIdx && unlocked && !done ? " next" : "");
+    const stars = done ? "★".repeat(save.stars[ch.id] || 1) : "";
+    node.innerHTML = `
+      <div class="icon">${ch.icon}</div>
+      <div class="info">
+        <div class="name">${ch.title_en}</div>
+        <div class="place">${ch.title_cn} · ${ch.words}词 ${done ? "" : "· " + ch.teaser_cn}</div>
+      </div>
+      <div class="state">${ done ? `<span class="badge-done">${stars}</span>` : (unlocked ? "▶️" : "🔒") }</div>`;
+    node.onclick = unlocked ? (()=>openChapter(i)) : (()=>toast("先完成上一章才能解锁哦 🔒"));
+    map.appendChild(node);
+  });
+}
+function continueGame(){ openChapter(firstUndone()); }
+function goHome(){ stopAll(); renderHome(); show("scr-home"); }
+function resetProgress(){
+  if (!confirm("确定要清空所有进度和单词册,重新开始吗?")) return;
+  save = { done:{}, stars:{}, words:{}, heard:{}, read:{}, guesses:{}, review:{}, slow: save.slow, ttsMode: save.ttsMode, fontIdx: save.fontIdx }; persist(); renderHome(); toast("已重新开始 ✨");
+}
+
+/* =====================================================
+   阅读页
+   ===================================================== */
+function openChapter(i){
+  stopAll();
+  cur = i;
+  markStreak();                    // 打开章节 = 今天有阅读活动
+  const ch = BOOK[i];
+  $("read-tag").textContent = ch.tag;
+  $("read-title").textContent = ch.title_en;
+  $("read-title-cn").textContent = ch.title_cn + " · " + ch.words + " 词";
+  $("btn-rate").textContent = save.slow ? "🐇 正常速" : "🐢 慢速";
+  const gwHtml = (frag)=>frag.replace(/\{([^}]+)\}/g, (m, w)=>{
+    const key = w.trim().toLowerCase();
+    const cls = save.words[key] ? " learned" : ((GLOSSARY[key]||{}).gold ? " gold" : "");
+    return `<span class="gw${cls}" data-w="${w.replace(/"/g,'&quot;')}">${w}</span>`;
+  });
+  const body = $("story-body");
+  body.innerHTML = ch.paras.map((par, pi)=>{
+    // 把段落切成句子, 每句包一个 .sent(供逐句高亮), 生词 gw 仍在句内
+    const sents = splitSents(par).map((s, si)=>
+      `<span class="sent" data-pi="${pi}" data-si="${si}">${gwHtml(s)}</span>`).join(" ");
+    return `<p data-pi="${pi}">${sents} <span class="pspk" data-p="${pi}">🔊</span></p>`;
+  }).join("");
+  body.querySelectorAll(".gw").forEach(el=>{ el.onclick = (ev)=>{ ev.stopPropagation(); showWordCard(el.dataset.w, el); }; });
+  body.querySelectorAll(".pspk").forEach(el=>{ el.onclick = (ev)=>{ ev.stopPropagation(); readPara(+el.dataset.p); }; });
+  // 恢复本章已听进度(持久化,重进不用重听)
+  save.heard = save.heard || {};
+  heardSet = new Set(save.heard[ch.id] || []);
+  // 恢复本章"读到哪"进度
+  save.read = save.read || {};
+  readPos = save.read[ch.id] || 0;
+  paintRead();
+  updateQuizGate();
+  applyFont();
+  show("scr-read");
+  // 上次没读完 → 自动滚回上次位置继续
+  if (readPos > 0 && readPos < ch.paras.length){
+    setTimeout(()=>{
+      const t = $("story-body").querySelector('p[data-pi="' + readPos + '"]');
+      if (t){ t.scrollIntoView({block:"center"}); toast("⏱ 已回到上次读到的地方，接着读吧"); }
+    }, 220);
+  } else {
+    window.scrollTo(0, 0);
+  }
+}
+function backToRead(){ openChapter(cur); }
+
+/* ---------- 单词卡 ---------- */
+function sentenceOf(word){
+  const ch = BOOK[cur];
+  const low = word.toLowerCase();
+  for (const par of ch.paras){
+    if (par.toLowerCase().indexOf("{" + low) === -1 &&
+        par.toLowerCase().indexOf(low) === -1) continue;
+    const plain = stripMarks(par);
+    const ss = plain.match(/[^.!?]+[.!?”"']*/g) || [plain];
+    for (const s of ss) if (s.toLowerCase().includes(low)) return s.trim();
+  }
+  return "";
+}
+function showWordCard(word, el){
+  const key = word.trim().toLowerCase();
+  const g = GLOSSARY[key] || { cn: "(点🔊听发音)", emoji: "⭐" };
+  const firstTime = !save.words[key];
+  if (firstTime){
+    save.words[key] = { ch: BOOK[cur].id };
+    persist();
+    if (el) el.classList.add("learned");
+  }
+  const eg = sentenceOf(word);
+  const card = $("word-card");
+  card.className = "word-card" + (g.gold ? " goldcard" : "");
+  card.innerHTML = `
+    <div class="w-emoji">${g.emoji}</div>
+    <div class="w-word">${word}</div>
+    <div class="w-cn">${g.cn}</div>
+    ${g.gold ? `<div class="w-goldtag">✨ 金色稀有生词</div>` : ""}
+    ${eg ? `<div class="w-eg">“${eg}”</div>` : ""}
+    <div class="w-collect">${firstTime ? (g.gold ? "🏆 收集到一个金色生词!" : "🎉 新单词已收进单词册!") : "✅ 已在单词册里"}</div>
+    <button class="btn btn-primary btn-block" id="w-speak">🔊 听发音</button>`;
+  $("w-speak").onclick = ()=>speak(word + (eg ? ". " + eg : ""), null, {word: key});
+  $("word-overlay").classList.add("show");
+  speak(word, null, {word: key});
+}
+function closeWordCard(ev){
+  if (ev.target.id === "word-overlay"){ $("word-overlay").classList.remove("show"); stopAll(); }
+}
+
+/* =====================================================
+   答题
+   ===================================================== */
+function tryStartQuiz(){
+  const ch = BOOK[cur];
+  if (!save.done[ch.id] && !allHeard()){
+    const left = Math.max(0, ch.paras.length - goneThrough());
+    toast("把故事读完或听完就能答题啦(还剩 " + left + " 段)~");
+    return;
+  }
+  startQuiz();
+}
+function startQuiz(){
+  stopAll();
+  qIdx = 0; wrongCount = 0; quizLock = false;
+  $("quiz-tag").textContent = BOOK[cur].tag + " · QUIZ";
+  renderQuestion();
+  show("scr-quiz");
+}
+const KIND_LABEL = { choice:"🔤 选一选", tf:"⚖️ 判断对错", fill:"✏️ 选词填空", who:"💬 谁说的？", order:"🔢 按顺序排一排" };
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function renderQuestion(){
+  const q = BOOK[cur].quiz[qIdx];
+  const type = q.type || "choice";
+  $("quiz-progress").textContent = "第 " + (qIdx+1) + " / " + BOOK[cur].quiz.length + " 题";
+  $("quiz-feedback").textContent = "";
+  $("q-kind").textContent = KIND_LABEL[type] || KIND_LABEL.choice;
+  $("q-text").innerHTML = ""; $("q-cn").textContent = ""; $("q-options").innerHTML = "";
+  quizLock = false;
+  if (type === "tf") renderTF(q);
+  else if (type === "fill") renderFill(q);
+  else if (type === "who") renderWho(q);
+  else if (type === "order") renderOrder(q);
+  else renderChoice(q);
+}
+const PRAISE = ["Great job! 🎉","Excellent! ⭐","You got it! 💪","Amazing! 🌟","Perfect! 🏆"];
+function qPass(){
+  quizLock = true;
+  $("quiz-feedback").textContent = PRAISE[qIdx % PRAISE.length];
+  setTimeout(()=>{
+    qIdx++;
+    if (qIdx < BOOK[cur].quiz.length) renderQuestion();
+    else finishChapter();
+  }, 900);
+}
+function qFail(el, msg){
+  wrongCount++;
+  if (el){ el.classList.add("wrong"); setTimeout(()=>el.classList.remove("wrong"), 600); }
+  $("quiz-feedback").textContent = msg || "再想想～答案就藏在故事里 🔍(左上角可以回去再读)";
+}
+/* 兼容旧调用 */
+function answer(el, right){ if (!quizLock){ if (right){ el.classList.add("right"); qPass(); } else qFail(el); } }
+
+function renderChoice(q){
+  $("q-text").textContent = q.q;
+  $("q-cn").textContent = q.cn || "";
+  const box = $("q-options");
+  q.options.forEach((opt, i)=>{
+    const d = document.createElement("div");
+    d.className = "option"; d.textContent = String.fromCharCode(65+i) + ".  " + opt;
+    d.onclick = ()=>{ if (quizLock) return; if (i === q.answer){ d.classList.add("right"); qPass(); } else qFail(d); };
+    box.appendChild(d);
+  });
+}
+function renderTF(q){
+  $("q-text").textContent = q.q;
+  $("q-cn").textContent = q.cn || "这句话对不对？";
+  const box = $("q-options"); box.className = "options tf-row";
+  [{t:"✓ 对", v:true},{t:"✗ 错", v:false}].forEach(o=>{
+    const d = document.createElement("div");
+    d.className = "option tf-opt"; d.textContent = o.t;
+    d.onclick = ()=>{ if (quizLock) return; if (o.v === q.answer){ d.classList.add("right"); qPass(); } else qFail(d); };
+    box.appendChild(d);
+  });
+}
+function renderFill(q){
+  // q.q 里用 ___ 表示空格
+  $("q-text").innerHTML = (q.q || "").replace("___", '<span class="blank" id="the-blank">?</span>');
+  $("q-cn").textContent = q.cn || "把正确的词填进空格里";
+  const box = $("q-options"); box.className = "options chip-box";
+  q.options.forEach((opt, i)=>{
+    const d = document.createElement("div");
+    d.className = "chip"; d.textContent = opt;
+    d.onclick = ()=>{
+      if (quizLock) return;
+      if (i === q.answer){
+        d.classList.add("right");
+        const bl = $("the-blank"); if (bl){ bl.textContent = opt; bl.classList.add("filled"); }
+        qPass();
+      } else qFail(d);
+    };
+    box.appendChild(d);
+  });
+}
+function renderWho(q){
+  $("q-text").innerHTML = '<div class="quote-bubble">“' + q.q + '”</div><div style="margin-top:14px">这句话是谁说的？</div>';
+  $("q-cn").textContent = q.cn || "";
+  const box = $("q-options"); box.className = "options";
+  q.options.forEach((opt, i)=>{
+    const d = document.createElement("div");
+    d.className = "option"; d.textContent = String.fromCharCode(65+i) + ".  " + opt;
+    d.onclick = ()=>{ if (quizLock) return; if (i === q.answer){ d.classList.add("right"); qPass(); } else qFail(d); };
+    box.appendChild(d);
+  });
+}
+function renderOrder(q){
+  $("q-text").textContent = q.q || "按事情发生的先后，依次点一点：";
+  $("q-cn").textContent = q.cn || "";
+  const box = $("q-options"); box.className = "options";
+  // q.items 已按正确顺序; 打乱显示, 每项记住其正确序号
+  const shuffled = shuffle(q.items.map((t, idx)=>({ t, idx })));
+  let expect = 0;                       // 下一个应点的正确序号
+  shuffled.forEach(it=>{
+    const d = document.createElement("div");
+    d.className = "order-item";
+    d.innerHTML = '<span class="order-badge">•</span><span>' + it.t + '</span>';
+    d.onclick = ()=>{
+      if (quizLock || d.classList.contains("placed")) return;
+      if (it.idx === expect){
+        d.classList.add("placed");
+        d.querySelector(".order-badge").textContent = (expect + 1);
+        expect++;
+        if (expect === q.items.length) qPass();
+      } else {
+        qFail(d, "顺序不对哦，想想哪件事先发生 🤔");
+      }
+    };
+    box.appendChild(d);
+  });
+}
+function finishChapter(){
+  const ch = BOOK[cur];
+  const stars = wrongCount === 0 ? 3 : (wrongCount <= 2 ? 2 : 1);
+  const firstClear = !save.done[ch.id];
+  save.done[ch.id] = true;
+  save.stars[ch.id] = Math.max(save.stars[ch.id] || 0, stars);
+  save.read = save.read || {};
+  save.read[ch.id] = ch.paras.length;      // 通关 = 整章已读
+  persist();
+  recordWords(ch.id, ch.words);            // 累计跨书阅读词数
+  markStreak();
+  $("reward-part").textContent = ch.icon;
+  $("reward-title").textContent = (firstClear ? "获得纪念品:" : "纪念品已擦亮:") + ch.itemName + "!";
+  $("reward-stars").textContent = "⭐".repeat(stars);
+  const nx = cur + 1;
+  if (nx < BOOK.length){
+    const left = BOOK.length - 1 - cur;    // 章末悬念
+    const cliff = left <= 1 ? "🔥 就差最后一章，真相马上揭晓！"
+                : "🔎 距离结局还有 <b>" + left + "</b> 章，往下读揭开谜底！";
+    $("reward-sub").innerHTML = `已解锁下一章 <b>${BOOK[nx].title_en}</b><br>${BOOK[nx].teaser_cn}<br><span style="color:#ffd54f">${cliff}</span>`;
+  } else {
+    $("reward-sub").innerHTML = `🎉🎉🎉<br>你独立读完了一整本 ${BOOK.reduce((a,c)=>a+c.words,0)} 词的英文小说!<br>` +
+      `<a class="shelf-link" style="background:#ffb300;color:#2b1a00;border:none;margin-top:10px" href="javascript:showCert()">🏅 领取通关证书</a>`;
+  }
+  show("scr-reward");
+  maybePrediction(ch.id);
+}
+
+/* ===== 先猜后揭晓 ===== */
+function maybePrediction(chId){
+  save.guesses = save.guesses || {};
+  for (const p of PREDICTIONS){                 // 先看有没有要揭晓的
+    if (p.revealAt === chId && save.guesses[p.id] != null && !save.guesses[p.id + "_done"]){
+      setTimeout(()=>showReveal(p), 1100); return;
+    }
+  }
+  for (const p of PREDICTIONS){                 // 再看有没有要提问的
+    if (p.askAt === chId && save.guesses[p.id] == null){
+      setTimeout(()=>showPrediction(p), 1100); return;
+    }
+  }
+}
+function showPrediction(p){
+  const card = $("pred-card");
+  card.innerHTML = `<div class="p-icon">🔮</div><div class="p-q">${p.q}</div>` +
+    p.options.map((o,i)=>`<div class="p-opt" data-i="${i}">${o}</div>`).join("") +
+    `<div class="chapter-title-cn" style="margin-top:8px">先猜一个，读到后面揭晓——猜错也没关系！</div>`;
+  card.querySelectorAll(".p-opt").forEach(el=>{
+    el.onclick = ()=>{
+      save.guesses[p.id] = +el.dataset.i; persist();
+      $("pred-overlay").classList.remove("show");
+      toast("🔮 你的预测已记下，读到后面揭晓！");
+    };
+  });
+  $("pred-overlay").classList.add("show");
+}
+function showReveal(p){
+  const guess = save.guesses[p.id];
+  const right = guess === p.answer;
+  save.guesses[p.id + "_done"] = true; persist();
+  $("pred-card").innerHTML =
+    `<div class="p-icon">${right ? "🎯" : "💡"}</div>` +
+    `<div class="p-verdict ${right ? "right" : "wrong"}">${right ? "猜对啦！" : "没猜到吧~"}</div>` +
+    `<div class="chapter-title-cn">你当时猜的是：<b>${p.options[guess]}</b></div>` +
+    `<div class="p-reveal">${p.reveal}</div>` +
+    `<button class="btn btn-primary btn-block" onclick="document.getElementById('pred-overlay').classList.remove('show')">明白啦</button>`;
+  $("pred-overlay").classList.add("show");
+}
+
+/* ===== 生词复习小游戏(简易遗忘曲线) ===== */
+const RV_INTERVAL = [0, 1, 2, 4, 7, 15];       // box 越高, 隔越久(天)
+let rvQueue = [], rvIdx = 0, rvRight = 0;
+function dayNum(){ return Math.floor(Date.now() / 86400000); }
+function startReview(){
+  const words = Object.keys(save.words);
+  if (!words.length){ toast("先去故事里收集一些生词，再来复习哦 📖"); return; }
+  save.review = save.review || {};
+  const today = dayNum();
+  let due = words.filter(w=>{ const r = save.review[w]; return !r || r.due <= today; });
+  if (!due.length) due = words.slice();          // 没有到期的就全部提前复习
+  rvQueue = shuffle(due).slice(0, 12); rvIdx = 0; rvRight = 0;
+  renderReview();
+  show("scr-review");
+}
+function renderReview(){
+  if (rvIdx >= rvQueue.length){ return finishReview(); }
+  const w = rvQueue[rvIdx];
+  const g = GLOSSARY[w] || { cn:"", emoji:"⭐" };
+  $("rv-progress").textContent = "第 " + (rvIdx+1) + " / " + rvQueue.length + " 个";
+  $("rv-bar").style.width = Math.round(rvIdx / rvQueue.length * 100) + "%";
+  $("rv-feedback").textContent = "";
+  // 干扰项: 其他生词的中文
+  const others = Object.keys(GLOSSARY).filter(x=>x!==w && GLOSSARY[x].cn && GLOSSARY[x].cn !== g.cn);
+  const opts = shuffle([g.cn].concat(shuffle(others).slice(0,3).map(x=>GLOSSARY[x].cn)));
+  $("rv-body").innerHTML =
+    `<div class="rv-card">
+       <div class="rv-word${g.gold?" gold":""}">${w}</div>
+       <div class="rv-listen" id="rv-listen">🔊 听发音</div>
+       <div class="rv-opts">` +
+       opts.map(o=>`<div class="rv-opt">${o}</div>`).join("") +
+    `  </div>
+     </div>`;
+  $("rv-listen").onclick = ()=>speak(w, null, {word:w});
+  $("rv-body").querySelectorAll(".rv-opt").forEach(el=>{
+    el.onclick = ()=>{
+      if (el.classList.contains("right") || el.classList.contains("wrong")) return;
+      const ok = el.textContent === g.cn;
+      const today = dayNum();
+      const r = save.review[w] || { box:0 };
+      if (ok){
+        el.classList.add("right"); rvRight++;
+        r.box = Math.min(RV_INTERVAL.length-1, (r.box||0)+1);
+        $("rv-feedback").textContent = ["答对啦 🎉","太棒了 ⭐","记住咯 💪"][rvIdx%3];
+      } else {
+        el.classList.add("wrong");
+        r.box = 0;
+        $("rv-body").querySelectorAll(".rv-opt").forEach(o=>{ if(o.textContent===g.cn) o.classList.add("right"); });
+        $("rv-feedback").textContent = "正确意思是:" + g.cn;
+      }
+      r.due = today + RV_INTERVAL[r.box]; save.review[w] = r; persist();
+      setTimeout(()=>{ rvIdx++; renderReview(); }, ok ? 750 : 1500);
+    };
+  });
+  speak(w, null, {word:w});
+}
+function finishReview(){
+  $("rv-progress").textContent = "复习完成";
+  $("rv-bar").style.width = "100%";
+  $("rv-feedback").textContent = "";
+  $("rv-body").innerHTML =
+    `<div class="rv-done"><div class="big">${rvRight===rvQueue.length?"🏆":"👍"}</div>
+       <div class="reward-title" style="color:#ffd54f">复习完成！答对 ${rvRight}/${rvQueue.length}</div>
+       <div class="reward-sub">记住的词会隔几天再考你，忘了的明天再来~</div>
+       <button class="btn btn-primary btn-block" style="margin-top:22px" onclick="startReview()">再来一组</button>
+       <button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="showWordbook()">回单词册</button>
+     </div>`;
+}
+
+/* ===== 通关证书 ===== */
+function editKidName(){
+  const cur = kidName();
+  const n = prompt("写上你的名字，印在证书上：", cur || "");
+  if (n != null){ const h = hubLoad(); h.kidName = n.trim().slice(0, 16); hubSave(h); if ($("scr-cert").classList.contains("active")) showCert(); renderHome(); }
+}
+function showCert(){
+  let name = kidName();
+  if (!name){ editKidName(); name = kidName(); if (!name) name = "小读者"; }
+  $("cert-name").textContent = name || "小读者";
+  $("cert-book").textContent = "《" + META.title + "》 " + (META.pageTitle && META.pageTitle.indexOf("·")>=0 ? META.pageTitle.split("·").pop().trim() : "");
+  $("cert-words").textContent = BOOK.reduce((a,c)=>a+c.words,0);
+  $("cert-vocab").textContent = Object.keys(save.words).length;
+  $("cert-stars").textContent = Object.values(save.stars).reduce((a,b)=>a+b,0);
+  const d = new Date();
+  $("cert-date").textContent = "颁发于 " + d.getFullYear() + " 年 " + (d.getMonth()+1) + " 月 " + d.getDate() + " 日";
+  show("scr-cert");
+}
+
+/* =====================================================
+   单词册 & 收藏馆
+   ===================================================== */
+function showWordbook(){
+  const list = $("wordbook-list");
+  const byCh = {};
+  Object.entries(save.words).forEach(([w, info])=>{
+    (byCh[info.ch] = byCh[info.ch] || []).push(w);
+  });
+  const total = Object.keys(GLOSSARY).length;
+  const goldTotal = Object.values(GLOSSARY).filter(g=>g.gold).length;
+  const got = Object.keys(save.words).length;
+  const goldGot = Object.keys(save.words).filter(w=>(GLOSSARY[w]||{}).gold).length;
+  if (!got){
+    list.innerHTML = `<div class="wb-empty">单词册还是空的 📭<br>去故事里点一点紫色的单词吧!<br><span style="color:#ffd766">✨ 金色的是稀有生词，集齐更棒</span></div>`;
+  } else {
+    let html = `<div class="chapter-title-cn">已收集 ${got} / ${total} 个生词 · <span style="color:#ffd766">✨ 金色 ${goldGot}/${goldTotal}</span></div>`;
+    const wbItem = (w)=>{
+      const g = GLOSSARY[w] || {cn:"", emoji:"⭐"};
+      return `<div class="wb-item${g.gold?" gold":""}">
+        <div class="wb-emoji">${g.gold?"✨":g.emoji}</div>
+        <div class="wb-main"><div class="wb-word">${w}</div><div class="wb-cn">${g.cn}</div></div>
+        <div class="wb-sound" data-w="${w.replace(/"/g,'&quot;')}">🔊</div>
+      </div>`;
+    };
+    // 金色生词单独置顶一组
+    const goldWs = Object.keys(save.words).filter(w=>(GLOSSARY[w]||{}).gold).sort();
+    if (goldWs.length){
+      html += `<div class="wb-chapter gold-hd">✨ 金色稀有生词（${goldWs.length}）</div>` + goldWs.map(wbItem).join("");
+    }
+    BOOK.forEach(ch=>{
+      const ws = (byCh[ch.id]||[]).filter(w=>!(GLOSSARY[w]||{}).gold);
+      if (!ws.length) return;
+      html += `<div class="wb-chapter">${ch.icon} ${ch.title_cn}(${ws.length})</div>`;
+      html += ws.sort().map(wbItem).join("");
+    });
+    list.innerHTML = html;
+    list.querySelectorAll(".wb-sound").forEach(el=>{ el.onclick = ()=>speak(el.dataset.w, null, {word: el.dataset.w}); });
+  }
+  show("scr-wordbook");
+}
+function showShelf(){
+  const grid = $("shelf-grid");
+  grid.innerHTML = BOOK.map(ch=>{
+    const owned = !!save.done[ch.id];
+    return `<div class="shelf-cell${owned ? "" : " miss"}">
+      <div class="c-emoji">${owned ? ch.icon : "❓"}</div>
+      <div class="c-name">${owned ? ch.itemName : "???"}</div>
+    </div>`;
+  }).join("");
+  show("scr-shelf");
+}
+
+/* =====================================================
+   声音检测
+   ===================================================== */
+const TEST_TEXT = "Hello! Welcome to Frankenstein. Can you hear me?";
+function testFile(){
+  stopAll();
+  playFile(AUDIO_BASE + "test.mp3", ()=>toast("测试⓪播放完毕,听到了吗?"),
+    ()=>toast("音频文件加载失败 ❌(离线打开的单文件版没有音频包)"));
+}
+function testLocal(){
+  stopAll();
+  speakLocal(splitSentences(TEST_TEXT), ()=>toast("本地引擎没出声 ❌ 试试别的测试"));
+}
+function testOnline(){
+  stopAll();
+  speakOnline(splitSentences(TEST_TEXT));
+}
+const MODE_NAMES = {auto: "已设为自动选择 🤖", recorded: "已固定用音频文件 ⓪",
+  local: "已固定用本地发音 ①", online: "已固定用在线发音 ②"};
+function setMode(m){
+  save.ttsMode = m; persist();
+  paintMode();
+  toast(MODE_NAMES[m]);
+}
+function paintMode(){
+  const cur = save.ttsMode || "auto";
+  ["auto","recorded","local","online"].forEach(m=>{
+    const b = $("m-" + m);
+    b.style.borderColor = (m === cur) ? "#ffd54f" : "#4c4380";
+    b.style.color = (m === cur) ? "#ffd54f" : "#e8e2ff";
+  });
+}
+function showSound(){
+  paintMode();
+  let vn = 0;
+  try{ vn = ("speechSynthesis" in window) ? speechSynthesis.getVoices().length : -1; }catch(e){}
+  $("snd-diag").innerHTML = "诊断: 音频包" + (TTS.hasAudio ? "✓" : "✗")
+    + " | 本地引擎音色数 " + vn
+    + " | 微信环境 " + (IN_WECHAT ? "是" : "否")
+    + (TTS.lastErr ? " | 上次错误 " + TTS.lastErr : "")
+    + "<br>浏览器: " + (navigator.userAgent || "").slice(0, 90);
+  show("scr-sound");
+}
+
+/* 首页标题等文案由 META 注入 */
+document.title = (META && META.pageTitle) || "阅读大冒险";
+$("home-title").textContent = (META && META.title) || "READING ADVENTURE";
+$("home-subtitle").textContent = (META && META.subtitle) || "读完这本书，点亮所有成就";
+$("home-bolt").textContent = (META && META.bolt) || "📖";
+
+/* ===== 阅读字号(可调, 记忆) ===== */
+const FONT_STEPS = [17, 20, 23, 27, 31];
+const FONT_NAMES = ["小", "中", "大", "特大", "超大"];
+function applyFont(){
+  let i = (save.fontIdx == null) ? 1 : save.fontIdx;
+  i = Math.max(0, Math.min(FONT_STEPS.length - 1, i));
+  document.documentElement.style.setProperty("--story-fs", FONT_STEPS[i] + "px");
+  const lbl = document.getElementById("fs-label");
+  if (lbl) lbl.textContent = FONT_NAMES[i];
+}
+function changeFont(d){
+  let i = (save.fontIdx == null) ? 1 : save.fontIdx;
+  i = Math.max(0, Math.min(FONT_STEPS.length - 1, i + d));
+  save.fontIdx = i; persist(); applyFont();
+  toast("字号:" + FONT_NAMES[i]);
+}
+applyFont();
+ttsInit();
+detectAudio();
+renderHome();
+</script>
+</body>
+</html>
