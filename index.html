@@ -211,25 +211,82 @@ function renderReport(s){
        <table><tr><th>书</th><th style="text-align:right">进度</th><th style="text-align:right">完成</th><th style="text-align:right">星</th><th style="text-align:right">生词</th></tr>${rows}</table>
      </div>`;
 }
-/* ===== 分享给家长(快照编码进链接) ===== */
+/* ===== 页面内面板(替代被手机浏览器屏蔽的 prompt/alert) ===== */
+function panel(html){
+  let o=document.getElementById("pt-panel");
+  if(!o){ o=document.createElement("div"); o.id="pt-panel";
+    o.style.cssText="position:fixed;inset:0;background:rgba(10,8,26,.8);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px";
+    document.body.appendChild(o); }
+  o.innerHTML='<div style="background:#262148;border:1px solid #4c4380;border-radius:18px;padding:20px;max-width:460px;width:100%;color:#f3efe4">'+html+'</div>';
+  o.style.display="flex";
+}
+function closePanel(){ const o=document.getElementById("pt-panel"); if(o) o.style.display="none"; }
+function copyBox(id){
+  const el=document.getElementById(id); el.select(); el.setSelectionRange(0,99999);
+  try{ document.execCommand("copy"); }catch(e){}
+  if(navigator.clipboard){ navigator.clipboard.writeText(el.value).catch(()=>{}); }
+  const m=document.getElementById("pt-msg"); if(m) m.textContent="已复制 ✅ 现在去微信/短信粘贴发送即可";
+}
+const TA='width:100%;height:90px;background:#1c1838;color:#a5ffb0;border:1px solid #4c4380;border-radius:10px;padding:10px;font-size:12px;box-sizing:border-box;word-break:break-all';
+const BTN='padding:11px 16px;border:none;border-radius:12px;font-weight:800;cursor:pointer;font-family:inherit;font-size:14px';
+
+/* ===== 分享给家长(链接内嵌快照) ===== */
 function b64e(o){ return btoa(unescape(encodeURIComponent(JSON.stringify(o)))); }
 function b64d(s){ return JSON.parse(decodeURIComponent(escape(atob(s)))); }
 function shareLink(){
   const url=location.origin+location.pathname+"#r="+b64e(collectSnapshot());
-  const done=()=>{ prompt("把这条链接发给家长，TA打开就能看到孩子的阅读报告(需要密码 joey)：", url); };
-  if(navigator.clipboard){ navigator.clipboard.writeText(url).then(()=>{ alert("链接已复制！发给家长即可(打开需密码 joey)"); }, done); }
-  else done();
+  panel(
+    '<div style="font-size:16px;font-weight:800;color:#ffd54f;margin-bottom:6px">📤 分享给家长</div>'+
+    '<div style="font-size:13px;color:#bfb8d9;margin-bottom:10px">复制下面这条链接，发给家长。家长打开(输密码 joey)就能看到孩子的阅读报告。</div>'+
+    '<textarea id="pt-share" readonly style="'+TA+'">'+url+'</textarea>'+
+    '<div id="pt-msg" style="color:#a5ffb0;font-size:13px;min-height:18px;margin:8px 0"></div>'+
+    '<div style="display:flex;gap:10px;margin-top:6px">'+
+      '<button style="'+BTN+'background:linear-gradient(90deg,#ffb300,#ff8f00);color:#2b1a00;flex:1" onclick="copyBox(\'pt-share\')">📋 复制链接</button>'+
+      '<button style="'+BTN+'background:#2e2856;color:#e8e2ff;border:1px solid #4c4380" onclick="closePanel()">关闭</button>'+
+    '</div>');
 }
 /* ===== 备份 / 恢复(防清浏览器丢失) ===== */
+function doExport(){
+  const all={}; for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k===HUB_KEY||k.endsWith("_game_v1")||k.endsWith("_game_v2")) all[k]=localStorage.getItem(k); }
+  const code=b64e(all);
+  panel(
+    '<div style="font-size:16px;font-weight:800;color:#ffd54f;margin-bottom:6px">💾 备份码(导出)</div>'+
+    '<div style="font-size:13px;color:#bfb8d9;margin-bottom:10px">复制这段码, 存到备忘录/发给自己。换设备或清了浏览器后, 点“恢复”粘回去就能找回全部进度。</div>'+
+    '<textarea id="pt-exp" readonly style="'+TA+';height:120px">'+code+'</textarea>'+
+    '<div id="pt-msg" style="color:#a5ffb0;font-size:13px;min-height:18px;margin:8px 0"></div>'+
+    '<div style="display:flex;gap:10px;margin-top:6px">'+
+      '<button style="'+BTN+'background:linear-gradient(90deg,#ffb300,#ff8f00);color:#2b1a00;flex:1" onclick="copyBox(\'pt-exp\')">📋 复制备份码</button>'+
+      '<button style="'+BTN+'background:#2e2856;color:#e8e2ff;border:1px solid #4c4380" onclick="closePanel()">关闭</button>'+
+    '</div>');
+}
+function doImportUI(){
+  panel(
+    '<div style="font-size:16px;font-weight:800;color:#ffd54f;margin-bottom:6px">↩️ 恢复进度(粘入备份码)</div>'+
+    '<div style="font-size:13px;color:#bfb8d9;margin-bottom:10px">把之前导出的备份码粘到下面的框里, 点“恢复”。</div>'+
+    '<textarea id="pt-imp" placeholder="在这里长按粘贴备份码…" style="'+TA+';color:#f3efe4;height:120px"></textarea>'+
+    '<div id="pt-msg" style="color:#a5ffb0;font-size:13px;min-height:18px;margin:8px 0"></div>'+
+    '<div style="display:flex;gap:10px;margin-top:6px">'+
+      '<button style="'+BTN+'background:linear-gradient(90deg,#66bb6a,#43a047);color:#fff;flex:1" onclick="doRestore()">↩️ 恢复</button>'+
+      '<button style="'+BTN+'background:#2e2856;color:#e8e2ff;border:1px solid #4c4380" onclick="closePanel()">关闭</button>'+
+    '</div>');
+}
+function doRestore(){
+  const code=(document.getElementById("pt-imp").value||"").trim();
+  const m=document.getElementById("pt-msg");
+  if(!code){ m.style.color="#ff8a80"; m.textContent="请先粘入备份码"; return; }
+  try{ const all=b64d(code); for(const k in all) localStorage.setItem(k,all[k]);
+    m.style.color="#a5ffb0"; m.textContent="恢复成功 ✅ 正在刷新…"; setTimeout(()=>{ closePanel(); render(); }, 700);
+  }catch(e){ m.style.color="#ff8a80"; m.textContent="备份码无效，请检查是否复制完整"; }
+}
 function backupMenu(){
-  const c=confirm("点【确定】导出备份码(换设备/清浏览器前保存好)；点【取消】去恢复(粘入之前的备份码)。");
-  if(c){
-    const all={}; for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k===HUB_KEY||k.endsWith("_game_v1")||k.endsWith("_game_v2")) all[k]=localStorage.getItem(k); }
-    prompt("这是你的备份码，复制保存好。以后在新设备点“恢复”粘进去即可：", b64e(all));
-  } else {
-    const code=prompt("把之前的备份码粘到这里，恢复所有进度：","");
-    if(code){ try{ const all=b64d(code.trim()); for(const k in all) localStorage.setItem(k,all[k]); alert("恢复成功！"); render(); }catch(e){ alert("备份码无效，请检查"); } }
-  }
+  panel(
+    '<div style="font-size:16px;font-weight:800;color:#ffd54f;margin-bottom:10px">💾 备份 / 恢复</div>'+
+    '<div style="font-size:13px;color:#bfb8d9;margin-bottom:14px">导出备份码保存, 防止换设备/清浏览器丢进度; 或粘入备份码恢复。</div>'+
+    '<div style="display:flex;flex-direction:column;gap:10px">'+
+      '<button style="'+BTN+'background:linear-gradient(90deg,#ffb300,#ff8f00);color:#2b1a00" onclick="doExport()">📤 导出备份码</button>'+
+      '<button style="'+BTN+'background:linear-gradient(90deg,#66bb6a,#43a047);color:#fff" onclick="doImportUI()">↩️ 恢复(粘入备份码)</button>'+
+      '<button style="'+BTN+'background:#2e2856;color:#e8e2ff;border:1px solid #4c4380" onclick="closePanel()">关闭</button>'+
+    '</div>');
 }
 /* ===== 家长查看模式(打开分享链接) ===== */
 let SHARED=null;
