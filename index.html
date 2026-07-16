@@ -62,6 +62,8 @@
     <div class="sub">读英文原著 · 闯关 · 收集 · 成长</div>
   </div>
 
+  <div id="shared-banner" style="display:none;background:#33295c;border:1px solid #ffd54f;border-radius:12px;padding:10px 14px;margin:0 0 12px;color:#ffe082;text-align:center;font-size:14px"></div>
+
   <div class="kid" id="kid"></div>
 
   <div class="stats">
@@ -70,14 +72,36 @@
     <div class="stat"><div class="n" id="s-books">0</div><div class="l">读完的书</div></div>
   </div>
 
+  <div id="parent-tools" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:16px 0 4px">
+    <button class="ptbtn" onclick="toggleReport()">👨‍👩‍👧 家长看进度</button>
+    <button class="ptbtn" onclick="shareLink()">📤 分享给家长</button>
+    <button class="ptbtn" onclick="backupMenu()">💾 备份 / 恢复</button>
+  </div>
+
+  <div id="report" style="display:none"></div>
+
   <div class="shelf-title">📖 我的书架</div>
   <div id="shelf"></div>
 
   <div class="foot">
     进度和成绩存在这台设备上 · 每天读一章，看着数字越变越大 💪<br>
-    换设备或清了浏览器数据会重新开始
+    换设备或清了浏览器会重新开始（可用“💾 备份”导出保存）
   </div>
 </div>
+<style>
+ .ptbtn{background:#2e2856;border:1px solid #4c4380;color:#e8e2ff;border-radius:12px;padding:9px 14px;font-size:13px;cursor:pointer;font-family:inherit}
+ .ptbtn:active{transform:scale(.97)}
+ #report .rp-card{background:#262148;border:1px solid #443b74;border-radius:16px;padding:14px 16px;margin:10px 0}
+ #report .rp-h{font-size:15px;font-weight:800;color:#ffd54f;margin-bottom:8px}
+ #report table{width:100%;border-collapse:collapse;font-size:13px}
+ #report th,#report td{text-align:left;padding:6px 4px;border-bottom:1px solid #3a3363}
+ #report th{color:#a79fce;font-weight:700}
+ #report td.num{color:#ffd54f;font-weight:700;text-align:right}
+ #report .rp-tot{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+ #report .rp-tot div{flex:1;min-width:80px;background:#1c1838;border-radius:12px;padding:10px;text-align:center}
+ #report .rp-tot b{display:block;font-size:20px;color:#ffd54f}
+ #report .rp-tot span{font-size:11px;color:#a79fce}
+</style>
 
 <script>
 /* 书架书目(新增书就往这里加一项) */
@@ -148,7 +172,94 @@ function setName(){
   const h=hub(); const n=prompt("写上你的名字：", h.kidName||"");
   if(n!=null){ h.kidName=n.trim().slice(0,16); localStorage.setItem(HUB_KEY,JSON.stringify(h)); render(); }
 }
-render();
+
+/* ===== 汇总本设备进度成一份快照 ===== */
+function collectSnapshot(){
+  const h=hub();
+  let tw=0; const hw=h.words||{};
+  for(const b in hw) for(const c in hw[b]) tw+=hw[b][c]||0;
+  const books=BOOKS.map(b=>{
+    const s=load(b.saveKey);
+    const doneN=Object.keys(s.done||{}).length;
+    const stars=Object.values(s.stars||{}).reduce((a,x)=>a+(x||0),0);
+    const vocab=Object.keys(s.words||{}).length;
+    return {id:b.id,t:b.title,done:doneN,total:b.chapters,stars,vocab};
+  });
+  const vocabTotal=books.reduce((a,x)=>a+x.vocab,0);
+  const d=new Date();
+  return {name:h.kidName||"小读者",words:tw,streak:(h.streak&&h.streak.count)||0,
+          best:(h.streak&&h.streak.best)||0,books,vocabTotal,
+          date:d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()};
+}
+/* ===== 家长详细报告 ===== */
+let _reportOn=false;
+function toggleReport(){ _reportOn=!_reportOn; renderReport(SHARED||collectSnapshot()); document.getElementById("report").style.display=_reportOn?"block":"none"; }
+function renderReport(s){
+  const rows=s.books.map(b=>{
+    const pct=Math.round(b.done/b.total*100);
+    return `<tr><td>${b.t}</td><td class="num">${b.done}/${b.total}</td><td class="num">${pct}%</td><td class="num">⭐${b.stars}</td><td class="num">${b.vocab}词</td></tr>`;
+  }).join("");
+  document.getElementById("report").innerHTML=
+    `<div class="rp-card">
+       <div class="rp-h">👦 ${s.name} 的阅读报告 <span style="color:#a79fce;font-weight:400;font-size:12px">· ${s.date}</span></div>
+       <div class="rp-tot">
+         <div><b>${s.words}</b><span>累计已读词</span></div>
+         <div><b>${s.streak}</b><span>🔥当前连读</span></div>
+         <div><b>${s.best||s.streak}</b><span>最长连读</span></div>
+         <div><b>${s.vocabTotal}</b><span>收集生词</span></div>
+       </div>
+       <table><tr><th>书</th><th style="text-align:right">进度</th><th style="text-align:right">完成</th><th style="text-align:right">星</th><th style="text-align:right">生词</th></tr>${rows}</table>
+     </div>`;
+}
+/* ===== 分享给家长(快照编码进链接) ===== */
+function b64e(o){ return btoa(unescape(encodeURIComponent(JSON.stringify(o)))); }
+function b64d(s){ return JSON.parse(decodeURIComponent(escape(atob(s)))); }
+function shareLink(){
+  const url=location.origin+location.pathname+"#r="+b64e(collectSnapshot());
+  const done=()=>{ prompt("把这条链接发给家长，TA打开就能看到孩子的阅读报告(需要密码 joey)：", url); };
+  if(navigator.clipboard){ navigator.clipboard.writeText(url).then(()=>{ alert("链接已复制！发给家长即可(打开需密码 joey)"); }, done); }
+  else done();
+}
+/* ===== 备份 / 恢复(防清浏览器丢失) ===== */
+function backupMenu(){
+  const c=confirm("点【确定】导出备份码(换设备/清浏览器前保存好)；点【取消】去恢复(粘入之前的备份码)。");
+  if(c){
+    const all={}; for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k===HUB_KEY||k.endsWith("_game_v1")||k.endsWith("_game_v2")) all[k]=localStorage.getItem(k); }
+    prompt("这是你的备份码，复制保存好。以后在新设备点“恢复”粘进去即可：", b64e(all));
+  } else {
+    const code=prompt("把之前的备份码粘到这里，恢复所有进度：","");
+    if(code){ try{ const all=b64d(code.trim()); for(const k in all) localStorage.setItem(k,all[k]); alert("恢复成功！"); render(); }catch(e){ alert("备份码无效，请检查"); } }
+  }
+}
+/* ===== 家长查看模式(打开分享链接) ===== */
+let SHARED=null;
+function showSharedView(){
+  if(!location.hash.startsWith("#r=")) return false;
+  try{ SHARED=b64d(location.hash.slice(3)); }catch(e){ return false; }
+  document.getElementById("shared-banner").style.display="block";
+  document.getElementById("shared-banner").innerHTML="👨‍👩‍👧 家长查看模式 · 这是 <b>"+SHARED.name+"</b> 分享的阅读报告快照";
+  document.getElementById("kid").style.display="none";
+  document.getElementById("parent-tools").style.display="none";
+  // 用快照渲染顶部统计
+  document.getElementById("s-words").textContent=SHARED.words;
+  document.getElementById("s-streak").textContent=SHARED.streak;
+  document.getElementById("s-books").textContent=SHARED.books.filter(b=>b.done>=b.total).length+"/"+SHARED.books.length;
+  _reportOn=true; renderReport(SHARED); document.getElementById("report").style.display="block";
+  document.querySelector(".shelf-title").textContent="📖 各书进度(只读)";
+  // 书架显示只读进度
+  const shelf=document.getElementById("shelf"); shelf.innerHTML="";
+  SHARED.books.forEach(b=>{
+    const pct=Math.round(b.done/b.total*100), fin=b.done>=b.total;
+    const d=document.createElement("div"); d.className="book"; d.style.cursor="default";
+    d.innerHTML=`${fin?'<div class="done-badge">🏅 已通关</div>':''}<div class="row"><div class="info"><div class="bt">${b.t}</div></div></div>
+      <div class="pwrap"><div class="pbar" style="width:${pct}%"></div></div>
+      <div class="pl"><span>⭐${b.stars} · ${b.vocab}词</span><span>${b.done}/${b.total}章 · ${pct}%</span></div>`;
+    shelf.appendChild(d);
+  });
+  return true;
+}
+
+if(!showSharedView()) render();
 </script>
 </body>
 </html>
